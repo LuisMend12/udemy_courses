@@ -30,5 +30,33 @@ A policy is a strategy that the agent follows to determine which action to take 
 stochastic policy: $\pi(a|s)$ is a probability distribution over actions given a state. It allows for randomness in action selection, which can be useful for exploration.
 deterministic policy: $\pi(s)$ is a function that maps each state to a specific action. It does not allow for randomness, and the agent will always take the same action in a given state.
 
+We want to maximize the sum of discounted rewards, which can be expressed as:
+$$ J(\pi) = \sum_{s} d^{\pi}(s) \
+sum_{a} \pi(a|s) Q^{\pi}(s,a) $$
+Where $J(\pi)$ is the expected return of the policy $\pi$, $d^{\pi}(s)$ is the stationary distribution of states under policy $\pi$, and $Q^{\pi}(s,a)$ is the action-value function, which represents the expected return of taking action $a$ in state $s$ and following policy $\pi$ thereafter.
+
+We must find the optimal policy $\pi^*$ that maximizes $J(\pi)$, which can be expressed as:
+$$ \pi^* = \arg\max_{\pi} J(\pi) $$
+
+\section*{State Value}
+The state value function, denoted as $V^{\pi}(s)$, represents the expected return (total discounted reward) when starting from state $s$ and following policy $\pi$ thereafter. It can be defined as:
+$$ V^{\pi}(s) = \mathbb{E}_{\pi} \left[ \sum_{k=0}^{\infty} \gamma^k R_{t+k+1} \mid S_t = s \right] $$
+Where $V^{\pi}(s)$ is the state value function for state $s$ under policy $\pi$, and the expectation is taken over the distribution of rewards and states that result from following policy $\pi$ starting from state $s$.
+
+
+\section*{State-Action Value}
+The state-action value function, denoted as $Q^{\pi}(s,a)$, represents the expected return (total discounted reward) when starting from state $s$, taking action $a$, and following policy $\pi$ thereafter. It can be defined as:
+$$ Q^{\pi}(s,a) = \mathbb{E}_{\pi} \left[ \sum_{k=0}^{\infty} \gamma^k R_{t+k+1} \mid S_t = s, A_t = a \right] $$
+Where $Q^{\pi}(s,a)$ is the state-action value function for state $s$ and action $a$ under policy $\pi$, and the expectation is taken over the distribution of rewards and states that result from following policy $\pi$ starting from state $s$ and taking action $a$.
+
+\section*{Bellman Equations}
+The Bellman equations are fundamental recursive relationships that relate the value of a state or state-action pair
+to the values of its successor states or state-action pairs. They are used to compute the value functions and to derive optimal policies.
+The Bellman equation for the state value function is given by:
+$$ V^{\pi}(s) = \sum_{a} \pi(a|s) \sum_{s'} P(s'|s,a) \left[ R(s,a,s') + \gamma V^{\pi}(s') \right] $$
+Where $P(s'|s,a)$ is the transition probability of moving from state $s$ to state $s'$ after taking action $a$, and $R(s,a,s')$ is the reward received for taking action $a$ in state $s$ and transitioning to state $s'$.
+The Bellman equation for the state-action value function is given by:
+$$ Q^{\pi}(s,a) = \sum_{s'} P(s'|s,a) \left[ R(s,a,s') + \gamma \sum_{a'} \pi(a'|s') Q^{\pi}(s',a') \right] $$
+Where the terms are defined as in the previous equation.
 
 \end{document}
