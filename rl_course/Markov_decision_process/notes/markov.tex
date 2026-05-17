@@ -59,4 +59,16 @@ The Bellman equation for the state-action value function is given by:
 $$ Q^{\pi}(s,a) = \sum_{s'} P(s'|s,a) \left[ R(s,a,s') + \gamma \sum_{a'} \pi(a'|s') Q^{\pi}(s',a') \right] $$
 Where the terms are defined as in the previous equation.
 
+
+\section*{Decision Process}
+A Markov Decision Process (MDP) is a mathematical framework for modeling decision-making problems where outcomes are partly random and partly under the control of a decision-maker. An MDP is defined by the following components:
+- A set of states $S$: This represents all possible states that the system can be in
+
+The optimal value of a state is the expected return when starting from that state and following the optimal policy thereafter. It can be defined as:
+$$ V^*(s) = \max_{\pi} V^{\pi}(s) $$
+Where $V^*(s)$ is the optimal state value function for state $s$, and the maximum is taken over all possible policies $\pi$.        
+
+The optimal action-value function is the expected return when starting from a state, taking an action, and following the optimal policy thereafter. It can be defined as:
+$$ Q^*(s,a) = \max_{\pi} Q^{\pi}(s,a) $$
+Where $Q^*(s,a)$ is the optimal state-action value function for state $s$ and action $a$, and the maximum is taken over all possible policies $\pi$.
 \end{document}
