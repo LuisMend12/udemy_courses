@@ -20,5 +20,15 @@
 \section*{Discount Factor}
 The discount factor $\gamma$ is a parameter in reinforcement learning that determines the importance of future rewards compared to immediate rewards. It is a value between 0 and 1, where:
 - A value of 0 means that the agent only cares about immediate rewards and ignores future rewards
+We want to maximize the total discounted reward, which is given by the formula:
+$$ G_t = R_{t+1} + \gamma R_{t+2} + \gamma^2 R_{t+3} + \ldots = \sum_{k=0}^{\infty} \gamma^k R_{t+k+1} $$
+Where $G_t$ is the total discounted reward at time step $t$, and $R_{t+k+1}$ is the reward received at time step $t+k+1$.
+
+\section*{Policy $\pi(s)$}
+A policy is a strategy that the agent follows to determine which action to take in each state. It is a mapping from states to actions, and is denoted by $\pi(a|s)$, which represents the probability of taking action $a$ in state $s$.
+
+stochastic policy: $\pi(a|s)$ is a probability distribution over actions given a state. It allows for randomness in action selection, which can be useful for exploration.
+deterministic policy: $\pi(s)$ is a function that maps each state to a specific action. It does not allow for randomness, and the agent will always take the same action in a given state.
+
 
 \end{document}
