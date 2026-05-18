@@ -1,0 +1,57 @@
+\documentclass[conference]{IEEEtran}
+
+\usepackage{cite}
+\usepackage{amsmath,amssymb,amsfonts}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{url}
+\usepackage{xcolor}
+
+\title{Notes on Multiple Linear Regression}
+
+\author{
+\IEEEauthorblockN{Luis Mendez}
+}
+
+\begin{document}
+\maketitle
+
+\section{Building a model}
+\begin{itemize}
+    \item Define the problem and collect data.
+    \item Preprocess the data (handle missing values, encode categorical variables, etc.).
+    \item Split the data into training and testing sets.
+    \item Train the linear regression model on the training data.
+    \item Evaluate the model using metrics such as Mean Absolute Error (MAE), Mean Squared Error (MSE), or R-squared on the testing data.
+    \item Interpret the coefficients to understand the relationship between independent and dependent variables.
+\end{itemize}
+
+\section*{Backward Elimination}
+\begin{itemize}
+    \item Step 1: Select a significance level (e.g., 0.05) to stay in the model.
+    \item Step 2: Fit the model and calculate the p-values for each coefficient.
+    \item Step 3: Remove the variable with the highest p-value (greater than a significance level, e.g., 0.05).
+    \item Step 4: Repeat the process until all remaining variables have p-values below the significance level.
+    \item Step 5: The final model will contain only the statistically significant variables. Fit the model without the variables that were removed and evaluate its performance.
+\end{itemize}
+
+\section*{Forward Selection}
+\begin{itemize}
+    \item Step 1: Select a significance level (e.g., 0.05) to enter the model.
+    \item Step 2: Fit the model with each independent variable separately and calculate the p-values.
+    \item Step 3: Add the variable with the lowest p-value (below the significance level) to the model.
+    \item Step 4: Repeat the process by adding variables one at a time, checking the p-values at each step.
+    \item Step 5: The final model will contain only the statistically significant variables. Fit the model with the selected variables and evaluate its performance.
+\end{itemize}
+
+\section*{Bidirectional Elimination}
+\begin{itemize}
+    \item Step 1: Select a significance level (e.g., 0.05) for both entering and staying in the model.
+    \item Step 2: Start with an empty model and perform forward selection to add variables based on their p-values.
+    \item Step 3: After adding a variable, check the p-values of all variables in the model. If any variable has a p-value greater than the significance level, remove it from the model.
+    \item Step 4: Repeat the process of adding and removing variables until no more variables can be added or removed based on the significance level.
+    \item Step 5: The final model will contain only the statistically significant variables. Fit the model with the selected variables and evaluate its performance.    
+\end{itemize}
+
+\end{document}

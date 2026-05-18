@@ -45,4 +45,9 @@ Subproblems are not independent, and the optimal solution to one subproblem may 
 The optimal solution to a subproblem may be used multiple times in the computation of the optimal solution
 to the overall problem. This is known as overlapping subproblems, and it is a key property that allows dynamic programming algorithms to efficiently solve MDPs.
 
+\subsection*{Model of the environment}
+In order to apply dynamic programming algorithms to solve MDPs, we need to have a model of the environment. This model includes the transition probabilities $P(s'|s,a)$ and the reward function $R(s,a,s')$. The transition probabilities describe how the environment changes in response to the agent's actions, while the reward function describes the immediate reward received by the agent for taking a particular action in a particular state.
+Having a model of the environment allows us to compute the value functions and optimal policies using dynamic programming
+algorithms. However, in many real-world scenarios, we may not have access to a complete model of the environment, which is why we need to use model-free reinforcement learning algorithms that do not require a model of the environment.
+
 \end{document}
