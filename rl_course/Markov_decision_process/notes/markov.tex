@@ -87,5 +87,8 @@ Where $V_k(s)$ is the value function at iteration $k$, and the maximum is taken 
 $$ \pi_{k+1}(s) = \arg\max_{a} \sum_{s'} P(s'|s,a) \left[ R(s,a,s') + \gamma V^{\pi_k}(s') \right] $$
 Where $\pi_k(s)$ is the policy at iteration $k$, and the maximum is taken over all possible actions $a$.
 
+\section*{Optimal substructure}
+We are looking for the optimal policy for each state, and we can use the optimal policy for the successor states to compute the optimal policy for the current state. This is known as the principle of optimality, which states that an optimal policy has the property that whatever the initial state and initial decision are, the remaining decisions must constitute an optimal policy with regard to the state resulting from the first decision.
+The optimal solution to all subproblems can be used to construct the optimal solution to the overall problem. This is a key property that allows dynamic programming algorithms to efficiently solve MDPs.
 
 \end{document}
