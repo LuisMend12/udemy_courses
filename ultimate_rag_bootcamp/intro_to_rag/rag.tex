@@ -1,0 +1,57 @@
+\documentclass[conference]{IEEEtran}
+
+\usepackage{cite}
+\usepackage{amsmath,amssymb,amsfonts}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{url}
+\usepackage{xcolor}
+
+\title{Notes on RAG }
+
+\author{
+\IEEEauthorblockN{Luis Mendez}
+}
+
+\begin{document}
+\maketitle
+
+\section{What is RAG?}
+Retrieval-Augmented Generation (RAG) is a framework that combines retrieval-based methods with generative models to enhance the quality and relevance of generated content. RAG allows a model to access external knowledge sources, such as databases or documents, during the generation process, enabling it to produce more informed and contextually accurate responses.
+It's a powerful approach that leverages the strengths of both retrieval and generation, making it particularly effective for tasks that require up-to-date information or domain-specific knowledge.
+
+\section{RRetrieval Component}
+The retrieval component of RAG is responsible for fetching relevant information from an external knowledge source based on the input query. This can be achieved using various retrieval techniques, such as:
+\begin{itemize}
+    \item \textbf{BM25}: A popular term-based retrieval algorithm that ranks documents based on their relevance to the query.
+    \item \textbf{Dense Retrieval}: Uses dense vector representations of queries and documents to compute similarity, often leveraging models like BERT for encoding.
+    \item \textbf{Sparse Retrieval}: Utilizes sparse representations, such as TF-IDF, to identify relevant documents based on term frequency and inverse document frequency.
+\end{itemize}
+The retrieved information is then passed to the generative component to assist in generating a more accurate and
+contextually relevant response.
+\section{Generative Component}
+The generative component of RAG is responsible for producing the final output based on the input query
+and the retrieved information. This component typically utilizes a generative model, such as a transformer-based architecture (e.g., GPT, T5), to generate coherent and contextually appropriate responses.
+The generative model takes into account both the input query and the retrieved information to produce a response that is not only relevant but also informative. The integration of retrieval allows the generative model to access a broader range of knowledge, which can significantly enhance the quality of the generated content.
+\section{Applications of RAG}
+RAG has a wide range of applications across various domains, including:
+\begin{itemize}
+    \item \textbf{Question Answering}: RAG can be used to answer questions by retrieving relevant information from a knowledge base and generating a response based on that information.
+    \item \textbf{Chatbots and Virtual Assistants}: RAG can enhance the capabilities of chatbots and virtual assistants by allowing them to access external knowledge sources, providing more accurate and informative responses.
+    \item \textbf{Content Generation}: RAG can assist in generating content for various purposes, such as writing articles, creating summaries, or generating code snippets, by leveraging retrieved information to produce more relevant and high-quality output.
+    \item \textbf{Personalized Recommendations}: RAG can be used to provide personalized recommendations by retrieving relevant information about user preferences and generating tailored suggestions.
+\end{itemize}
+Overall, RAG is a powerful framework that combines the strengths of retrieval and generation to produce more accurate, relevant, and informative responses across a wide range of applications.
+
+
+\section*{Retrieval}
+Finding relevant information from a large corpus of data based on the input query. This can involve techniques such as BM25, dense retrieval, or sparse retrieval to identify and rank relevant documents or passages.
+This is a vector database search, where the query and documents are represented as vectors, and similarity is computed to retrieve the most relevant information.
+
+\section*{Augmentation}
+Enchancing the input query with retrieved information to provide additional context for the generative model. This can involve concatenating the retrieved documents or using attention mechanisms to integrate the retrieved information into the generation process.
+
+\section*{Generation}
+Producing the final output based on the input query and the augmented information. This typically involves using a generative model, such as a transformer-based architecture, to generate coherent and contextually appropriate responses.
+\end{document}
