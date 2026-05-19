@@ -1,0 +1,109 @@
+\documentclass[conference]{IEEEtran}
+
+\usepackage{cite}
+\usepackage{amsmath,amssymb,amsfonts}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{url}
+\usepackage{xcolor}
+
+\title{Notes on Markov Decision Processes}
+
+\author{
+\IEEEauthorblockN{Luis Mendez}
+}
+
+\begin{document}
+\maketitle
+
+\textbf{Question:} Why do sigmoid and binary cross-entropy go together?
+
+\bigskip
+
+\textbf{Answer:}
+
+Sigmoid activation and binary cross-entropy loss are commonly used together for binary classification problems because there are only two classes, usually represented as \(0\) and \(1\).
+
+\bigskip
+
+\textbf{1. Sigmoid Activation Function}
+
+The sigmoid function converts any real-valued number into a probability between \(0\) and \(1\):
+
+\[
+\sigma(x) = \frac{1}{1 + e^{-x}}
+\]
+
+This makes it useful for predicting the probability of belonging to class \(1\).
+
+Examples:
+
+\[
+0.95 \rightarrow \text{Very likely class } 1
+\]
+
+\[
+0.02 \rightarrow \text{Very likely class } 0
+\]
+
+\[
+0.50 \rightarrow \text{Uncertain}
+\]
+
+\bigskip
+
+\textbf{2. Binary Cross-Entropy Loss}
+
+Binary cross-entropy measures how different the predicted probability is from the true label.
+
+The loss function is:
+
+\[
+L = -\left( y \log(p) + (1-y)\log(1-p) \right)
+\]
+
+Where:
+
+\begin{itemize}
+    \item \(y\) = true label (\(0\) or \(1\))
+    \item \(p\) = predicted probability from the sigmoid function
+\end{itemize}
+
+\bigskip
+
+\textbf{3. Why They Work Together}
+
+Sigmoid outputs probabilities in the range:
+
+\[
+0 \leq p \leq 1
+\]
+
+Binary cross-entropy is specifically designed to evaluate probability predictions for two classes.
+
+Therefore, sigmoid naturally provides the type of output that binary cross-entropy expects.
+
+\bigskip
+
+\textbf{4. Typical Keras Example}
+
+\begin{verbatim}
+model.add(Dense(1, activation='sigmoid'))
+
+model.compile(
+    optimizer='adam',
+    loss='binary_crossentropy',
+    metrics=['accuracy']
+)
+\end{verbatim}
+
+This setup means:
+
+\begin{itemize}
+    \item One output neuron
+    \item Output is a probability
+    \item Classification between classes \(0\) and \(1\)
+    \item Training uses binary cross-entropy loss
+\end{itemize}
+\end{document}
