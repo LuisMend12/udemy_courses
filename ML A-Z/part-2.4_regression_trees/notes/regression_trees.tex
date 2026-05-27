@@ -20,4 +20,21 @@
 \section*{Definition}
 Regression Trees are a type of decision tree used for predicting continuous outcomes. They work by recursively splitting the data into subsets based on the values of input features, aiming to create homogeneous groups with respect to the target variable.
 
+
+\section*{CART Algorithm}
+The CART (Classification and Regression Trees) algorithm is a popular method for constructing regression trees. It uses a binary splitting approach to partition the data. The algorithm selects the feature and split point that minimizes the mean squared error (MSE) of the target variable in the resulting subsets.
+\section*{Advantages}
+\begin{itemize}
+    \item Easy to interpret and visualize.
+    \item Can capture non-linear relationships between features and the target variable.
+    \item Handles both numerical and categorical data.
+    \item Robust to outliers and missing values.
+\end{itemize}
+\section*{Disadvantages}
+\begin{itemize}
+    \item Prone to overfitting, especially with deep trees.
+    \item Can be unstable, as small changes in the data can lead to different splits.
+    \item May not perform well on small datasets or when the relationship between features and target variable is linear.
+\end{itemize}
+
 \end{document}
