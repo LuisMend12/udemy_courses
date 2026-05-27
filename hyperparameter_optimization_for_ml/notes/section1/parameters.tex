@@ -22,5 +22,18 @@ The objective of a typical learning algoritm is to find a function $f$ that maps
 
 The coefficients of the linear function, are the parameters to find or optimise by the algortihm. The learning algorithm adjusts these parameters to minimize a loss function, which measures the difference between the predicted output and the true output.
 
+Hyperparameters are parameters that are not directly learned from by the learning algorithm, hyperparameters are specified outisde of the training procedure, they control the capacity of the model, i.e., how flexible the model is to fit the data, and they prevent over-fitting. Examples of hyperparameters include the learning rate, the number of hidden layers in a neural network, the number of trees in a random forest, and the regularization strength in a linear model. Hyperparameter optimization is the process of finding the best set of hyperparameters for a given model and dataset, which can significantly improve the performance of the model.
 
+\section*{Linear Regression Hyperparameters}
+In linear regression, the main hyperparameters include:
+\begin{itemize}
+    \item \textbf{Regularization strength} ($\lambda$): This hyperparameter controls the amount of regularization applied to the model. Regularization helps prevent overfitting by adding a penalty term to the loss function. Common types of regularization include L1 (Lasso) and L2 (Ridge) regularization.
+    \item \textbf{Learning rate} ($\alpha$): This hyperparameter controls the step size at which the learning algorithm updates the parameters during training. A smaller learning rate may lead to slower convergence, while a larger learning rate may cause the algorithm to overshoot the optimal parameters.
+    \item \textbf{Number of iterations} ($n\_iter$): This hyperparameter specifies the number of times the learning algorithm will iterate over the training data. More iterations can lead to better convergence, but it may also increase training time.
+\end{itemize}
+
+Ridge penalizes the sum of the squares of the coefficients, while Lasso penalizes the sum of the absolute values of the coefficients. The choice of regularization type and strength can significantly impact the performance of the linear regression model, especially when dealing with high-dimensional data or multicollinearity.
+Lasso penalizes the sum of the absolute values of the coefficients, which can lead to sparse solutions where some coefficients are exactly zero. This can be useful for feature selection, as it effectively removes less important features from the model. Ridge, on the other hand, penalizes the sum of the squares of the coefficients, which tends to shrink the coefficients towards zero but does not set them exactly to zero. This can be beneficial when dealing with multicollinearity, as it helps to stabilize the estimates of the coefficients.
+
+We need to decide the regularization penalty and the strength of the regularization, which can be done through hyperparameter optimization techniques such as grid search or random search.
 \end{document}
