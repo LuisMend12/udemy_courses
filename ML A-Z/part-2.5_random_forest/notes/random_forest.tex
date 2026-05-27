@@ -1,0 +1,42 @@
+\documentclass[conference]{IEEEtran}
+
+\usepackage{cite}
+\usepackage{amsmath,amssymb,amsfonts}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{url}
+\usepackage{xcolor}
+
+\title{Notes on Random Forests: Regression Trees}
+
+\author{
+\IEEEauthorblockN{Luis Mendez}
+}
+
+\begin{document}
+\maketitle
+
+\section*{Definition}
+A random forest is an ensemble learning method that constructs multiple decision trees during training and outputs the mean prediction (regression) of the individual trees. It is a powerful algorithm that can handle both classification and regression tasks, and it is known for its robustness and ability to reduce overfitting.
+
+\section*{Key Concepts}
+\begin{itemize}
+    \item \textbf{Bootstrap Aggregating (Bagging)}: Random forests use bagging to create multiple subsets of the training data by sampling with replacement. Each tree is trained on a different subset, which helps to reduce variance and improve generalization.
+    
+    \item \textbf{Random Feature Selection}: When splitting nodes in the decision trees, random forests select a random subset of features rather than considering all features. This introduces additional randomness and helps to decorrelate the trees, further reducing overfitting.
+    
+    \item \textbf{Ensemble Learning}: The final prediction of a random forest is obtained by averaging the predictions of all individual trees (for regression) or by majority voting (for classification). This ensemble approach often leads to better performance compared to individual decision trees.
+\end{itemize}
+
+\section*{Advantages}
+\begin{itemize}
+    \item Random forests are less prone to overfitting compared to individual decision trees.
+    \item They can handle large datasets with high dimensionality.
+    \item They provide estimates of feature importance, which can be useful for understanding the data.
+    \item They are robust to outliers and noise in the data.
+\end{itemize}
+
+
+
+\end{document}
