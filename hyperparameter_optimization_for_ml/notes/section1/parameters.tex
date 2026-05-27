@@ -36,4 +36,18 @@ Ridge penalizes the sum of the squares of the coefficients, while Lasso penalize
 Lasso penalizes the sum of the absolute values of the coefficients, which can lead to sparse solutions where some coefficients are exactly zero. This can be useful for feature selection, as it effectively removes less important features from the model. Ridge, on the other hand, penalizes the sum of the squares of the coefficients, which tends to shrink the coefficients towards zero but does not set them exactly to zero. This can be beneficial when dealing with multicollinearity, as it helps to stabilize the estimates of the coefficients.
 
 We need to decide the regularization penalty and the strength of the regularization, which can be done through hyperparameter optimization techniques such as grid search or random search.
+
+\section*{Decision Tree Hyperparameters}
+In decision trees, the main hyperparameters include:
+\begin{itemize}
+    \item \textbf{Max depth} ($max\_depth$): This hyperparameter controls the maximum depth of the tree. A deeper tree can capture more complex patterns in the data but may also lead to overfitting.
+    \item \textbf{Min samples split} ($min\_samples\_split$): This hyperparameter specifies the minimum number of samples required to split an internal node. A higher value can prevent the tree from growing too deep and overfitting.
+    \item \textbf{Min samples leaf} ($min\_samples\_leaf$): This hyperparameter specifies the minimum number of samples required to be at a leaf node. A higher value can help to smooth the model and prevent overfitting.
+    \item \textbf{Max features} ($max\_features$): This hyperparameter controls the number of features to consider when looking for the best split. A smaller value can reduce overfitting by introducing randomness into the model.
+\end{itemize}
+The choice of these hyperparameters can significantly impact the performance of the decision tree model. For example
+, a very deep tree may fit the training data perfectly but perform poorly on unseen data due to overfitting. On the other hand, a shallow tree may not capture enough complexity in the data, leading to underfitting. Therefore, it is important to carefully tune these hyperparameters to achieve the best performance on the validation set.
+
+
+In a decision tree, the bigger the depth the best the prediction, but we ma yhve overfitting.
 \end{document}
