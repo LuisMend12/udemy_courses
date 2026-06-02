@@ -53,4 +53,7 @@ A higher Adjusted $R^2$ generally indicates a better-fitting model, while a lowe
 
 However, Adjusted $R^2$ should not be the only criterion used for model selection. Statistical significance tests, residual analysis, and domain-specific considerations should also be taken into account when evaluating model performance.
 
+If $SS_{tot}$ doesn't change, then the Adjusted R Squared will decrease as more predictors are added, which is a key reason why it is preferred over regular R Squared for model comparison.
+If $SS_{res}$ will decrease or stay the same as more predictors are added, but the Adjusted R Squared will only increase if the new predictor improves the model sufficiently to offset the penalty for adding more predictors. (This is because of Ordinary Least Squares: $SS_{res} \to \min$)
+
 \end{document}
