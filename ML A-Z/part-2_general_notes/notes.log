@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.28 (MiKTeX 25.12) (preloaded format=pdflatex 2026.4.14)  2 JUN 2026 13:54
+This is pdfTeX, Version 3.141592653-2.6-1.40.28 (MiKTeX 25.12) (preloaded format=pdflatex 2026.4.14)  2 JUN 2026 13:58
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -336,52 +336,27 @@ LaTeX Font Info:    Trying to load font information for U+msb on input line 28.
 (C:\Program Files\MiKTeX\tex/latex/amsfonts\umsb.fd
 File: umsb.fd 2013/01/14 v3.01 AMS symbols B
 )
+! Missing { inserted.
+<to be read again> 
+                   }
+l.59 $SS_{res}=SUM(y_i-y^{^}
+                            _i)^2$ is the sum of squared residuals, and $SS_...
 
-** Conference Paper **
-Before submitting the final camera ready copy, remember to:
+? 
+! Emergency stop.
+<to be read again> 
+                   }
+l.59 $SS_{res}=SUM(y_i-y^{^}
+                            _i)^2$ is the sum of squared residuals, and $SS_...
+End of file on the terminal!
 
- 1. Manually equalize the lengths of two columns on the last page
- of your paper;
-
- 2. Ensure that any PostScript and/or PDF output post-processing
- uses only Type 1 fonts and that every step in the generation
- process uses the appropriate paper size.
-
-[1{C:/Users/Luis Mendez/AppData/Local/MiKTeX/fonts/map/pdftex/pdftex.map}{C:/Pr
-ogram Files/MiKTeX/fonts/enc/dvips/base/8r.enc}
-
-
-
- <./image.png>] (notes.aux)
- ***********
-LaTeX2e <2025-11-01>
-L3 programming layer <2025-12-24>
- ***********
-
-
-LaTeX Warning: Label(s) may have changed. Rerun to get cross-references right.
-
- ) 
+ 
 Here is how much of TeX's memory you used:
- 4189 strings out of 467871
- 64548 string characters out of 5428423
- 478162 words of memory out of 5000000
- 33038 multiletter control sequences out of 15000+600000
- 658548 words of font info for 105 fonts, out of 8000000 for 9000
+ 4177 strings out of 467871
+ 64333 string characters out of 5428423
+ 474175 words of memory out of 5000000
+ 33034 multiletter control sequences out of 15000+600000
+ 654236 words of font info for 101 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
  57i,8n,65p,327b,291s stack positions out of 10000i,1000n,20000p,200000b,200000s
-<C:/Program Files/MiKTeX/fonts/type1/public/amsfonts/cm/cmex10.pfb><C:/Progra
-m Files/MiKTeX/fonts/type1/public/amsfonts/cm/cmmi10.pfb><C:/Program Files/MiKT
-eX/fonts/type1/public/amsfonts/cm/cmmi7.pfb><C:/Program Files/MiKTeX/fonts/type
-1/public/amsfonts/cm/cmmi8.pfb><C:/Program Files/MiKTeX/fonts/type1/public/amsf
-onts/cm/cmr10.pfb><C:/Program Files/MiKTeX/fonts/type1/public/amsfonts/cm/cmr6.
-pfb><C:/Program Files/MiKTeX/fonts/type1/public/amsfonts/cm/cmr7.pfb><C:/Progra
-m Files/MiKTeX/fonts/type1/public/amsfonts/cm/cmsy10.pfb><C:/Program Files/MiKT
-eX/fonts/type1/public/amsfonts/cm/cmsy7.pfb><C:/Program Files/MiKTeX/fonts/type
-1/urw/times/utmr8a.pfb>
-Output written on notes.pdf (1 page, 129313 bytes).
-PDF statistics:
- 60 PDF objects out of 1000 (max. 8388607)
- 0 named destinations out of 1000 (max. 500000)
- 6 words of extra memory for PDF output out of 10000 (max. 10000000)
-
+!  ==> Fatal error occurred, no output PDF file produced!
