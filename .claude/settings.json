@@ -3,7 +3,9 @@
     "allow": [
       "Bash(py -0p)",
       "Bash(where python3.11)",
-      "Bash(where python3.12)"
+      "Bash(where python3.12)",
+      "Bash(where pwsh *)",
+      "Bash(where powershell *)"
     ]
   }
 }
