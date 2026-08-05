@@ -5,7 +5,9 @@
       "Bash(where python3.11)",
       "Bash(where python3.12)",
       "Bash(where pwsh *)",
-      "Bash(where powershell *)"
+      "Bash(where powershell *)",
+      "PowerShell(REG ADD \"HKLM\\\\SOFTWARE\\\\Policies\\\\Google\\\\Chrome\" /v IncognitoModeAvailability /t REG_DWORD /d 1 /f)",
+      "PowerShell(REG ADD \"HKLM\\\\SOFTWARE\\\\Policies\\\\Microsoft\\\\Edge\" /v InPrivateModeAvailability /t REG_DWORD /d 1 /f)"
     ]
   }
 }
