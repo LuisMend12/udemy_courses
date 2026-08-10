@@ -1,0 +1,65 @@
+\documentclass[conference]{IEEEtran}
+
+\usepackage{cite}
+\usepackage{amsmath,amssymb,amsfonts}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{url}
+\usepackage{xcolor}
+
+\title{Notes on Apriori and Eclat}
+
+\author{
+\IEEEauthorblockN{Luis Mendez}
+}
+
+\begin{document}
+\maketitle
+
+\section*{Association Rule Learning}
+Apriori and Eclat are both association rule learning algorithms, they are unsupervised, we are not predicting a target variable, instead we are looking for relationships between items that co-occur together frequently in a dataset. The classic example, and the one used in the \texttt{Market\_Basket\_Optimisation.csv} dataset, is market basket analysis: given $7501$ customer transactions, each containing up to $20$ purchased products, we want to find rules like ``customers who buy product A also tend to buy product B''. These rules can then be used for things like product placement or recommendation systems (people who bought this also bought that).
+
+Both algorithms rely on the same three core metrics:
+\begin{itemize}
+    \item \textbf{Support}: how frequently an itemset appears in the dataset.
+    \[
+        \text{support}(A) = \frac{\text{number of transactions containing } A}{\text{total number of transactions}}
+    \]
+    \item \textbf{Confidence}: given that a transaction contains $A$, how likely is it to also contain $B$.
+    \[
+        \text{confidence}(A \rightarrow B) = \frac{\text{support}(A \cup B)}{\text{support}(A)}
+    \]
+    \item \textbf{Lift}: how much more likely $B$ is to be bought given $A$, compared to $B$ being bought on its own. A lift greater than 1 means $A$ and $B$ are positively correlated, a lift of 1 means they are independent, and less than 1 means they are negatively correlated (buying $A$ makes $B$ less likely).
+    \[
+        \text{lift}(A \rightarrow B) = \frac{\text{confidence}(A \rightarrow B)}{\text{support}(B)}
+    \]
+\end{itemize}
+
+\section*{Apriori}
+Apriori builds association rules of the form $A \rightarrow B$ (if a customer buys $A$, they are likely to also buy $B$). It works by growing frequent itemsets level by level, first finding all frequent single items, then combining them into pairs, then triples, and so on, at every step pruning candidate itemsets whose support is below a minimum threshold (the ``apriori principle'': if an itemset is infrequent, all of its supersets must also be infrequent, so there is no need to check them).
+
+In practice, using the \texttt{apyori} library:
+\begin{itemize}
+    \item We set \texttt{min\_support}, \texttt{min\_confidence}, and \texttt{min\_lift} to filter out weak or irrelevant rules. For the market basket dataset a support of $0.003$ roughly means an item needs to show up in about 3 transactions a day over the week the data was collected to be considered.
+    \item We also set \texttt{min\_length} and \texttt{max\_length} to $2$, so that we only look at rules involving exactly two products (one on the left hand side, one on the right hand side), which keeps the rules simple and interpretable.
+    \item The output rules include the left hand side item, the right hand side item, the support, the confidence, and the lift of the rule, so that the results can be sorted (e.g., by descending lift) to surface the strongest and most interesting associations first.
+\end{itemize}
+Apriori is more computationally expensive than Eclat because it has to compute support, confidence, and lift for every candidate rule, and it needs to keep track of the direction of the rule ($A \rightarrow B$ is not the same as $B \rightarrow A$).
+
+\section*{Eclat}
+Eclat (Equivalence Class Transformation) simplifies the problem: instead of looking for directional rules with confidence and lift, it only looks for frequent itemsets and ranks them by support alone. It does not distinguish a left hand side from a right hand side, an Eclat result of the form $\{A, B\}$ just means that $A$ and $B$ are frequently bought together, without saying which one implies the other.
+
+Under the hood, Eclat represents each item by the set (or a vertical bit-vector) of transactions that contain it, and computes the support of a combined itemset by intersecting these transaction sets, rather than repeatedly scanning the whole dataset horizontally the way Apriori does. This tends to make Eclat faster for finding frequent itemsets, since it avoids recomputing confidence/lift and avoids generating both directions of every rule.
+
+Because it only reports support, Eclat's output is much simpler: just the pair (or itemset) of products and how often they occur together, sorted by descending support to find the itemsets that appear most frequently.
+
+\section*{Apriori vs. Eclat}
+\begin{itemize}
+    \item Apriori produces directional rules ($A \rightarrow B$) with support, confidence, and lift, Eclat produces undirected frequent itemsets with only support.
+    \item Apriori tells us about the strength and reliability of an implication (via confidence/lift), Eclat only tells us how often items co-occur.
+    \item Eclat is generally simpler and computationally cheaper since it skips the confidence/lift calculations and does not need to consider both orderings of every pair.
+    \item In practice, when using \texttt{apyori} for Eclat, the same underlying algorithm (\texttt{apriori()}) is used with the same thresholds, we just discard confidence and lift from the output and keep only support, this is a common simplification/shortcut rather than using a true optimized Eclat implementation.
+\end{itemize}
+
+\end{document}

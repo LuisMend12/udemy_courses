@@ -1,0 +1,6 @@
+[submodule "hyperparameter_optimization_for_ml/hyperparameter-optimization"]
+	path = hyperparameter_optimization_for_ml/hyperparameter-optimization
+	url = https://github.com/solegalli/hyperparameter-optimization.git
+[submodule "Deep_learning_cnns/machine_learning_examples"]
+	path = Deep_learning_cnns/machine_learning_examples
+	url = https://github.com/lazyprogrammer/machine_learning_examples.git
