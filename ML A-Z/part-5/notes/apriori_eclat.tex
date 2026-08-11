@@ -54,6 +54,39 @@ Under the hood, Eclat represents each item by the set (or a vertical bit-vector)
 
 Because it only reports support, Eclat's output is much simpler: just the pair (or itemset) of products and how often they occur together, sorted by descending support to find the itemsets that appear most frequently.
 
+\section*{Worked example: Market Basket Optimisation}
+Running \texttt{apyori} on the $7501$ transactions with $min\_support=0.003$, $min\_confidence=0.2$, $min\_lift=3$, and rules restricted to exactly two items ($min\_length=max\_length=2$) yields the same $9$ frequent, sufficiently-confident, positively-correlated item pairs for both algorithms, since Eclat here is implemented as the same \texttt{apriori()} call with confidence and lift discarded from the output.
+
+\textbf{Apriori}, sorted by descending lift, surfaces the strongest implications first:
+\begin{center}
+\begin{tabular}{@{}llrrr@{}}
+\toprule
+LHS & RHS & Support & Confidence & Lift \\
+\midrule
+fromage blanc & honey & 0.0033 & 0.245 & 5.16 \\
+light cream & chicken & 0.0045 & 0.291 & 4.84 \\
+pasta & escalope & 0.0059 & 0.373 & 4.70 \\
+\bottomrule
+\end{tabular}
+\end{center}
+\texttt{fromage blanc} $\rightarrow$ \texttt{honey} has the lowest support of the nine rules (it is a rarer pairing overall) but the highest lift: when a customer does buy fromage blanc, they are over $5\times$ more likely than average to also buy honey, i.e., a strong, if infrequent, implication.
+
+\textbf{Eclat}, sorted by descending support, instead surfaces the most common co-occurrences regardless of implication strength:
+\begin{center}
+\begin{tabular}{@{}llr@{}}
+\toprule
+Product 1 & Product 2 & Support \\
+\midrule
+herb \& pepper & ground beef & 0.0160 \\
+whole wheat pasta & olive oil & 0.0080 \\
+pasta & escalope & 0.0059 \\
+\bottomrule
+\end{tabular}
+\end{center}
+\texttt{herb \& pepper} and \texttt{ground beef} appear together roughly $3\times$ more often than any other pair in the filtered set, but Eclat's output alone does not tell us whether buying one makes the other more likely relative to its baseline popularity, that requires the confidence/lift that only Apriori's directional output provides (lift $3.29$, i.e., still a meaningfully positive association, just not the strongest one).
+
+This is the practical tradeoff in a nutshell: Eclat's ranking answers ``what do people buy together most often'', Apriori's ranking answers ``what pairing is the most surprising/informative given each item's overall popularity''. For a recommendation shelf near the register, Eclat's most-frequent pairs are safer bets; for cross-selling or highlighting a non-obvious pairing, Apriori's highest-lift rules are more useful.
+
 \section*{Apriori vs. Eclat}
 \begin{itemize}
     \item Apriori produces directional rules ($A \rightarrow B$) with support, confidence, and lift, Eclat produces undirected frequent itemsets with only support.
