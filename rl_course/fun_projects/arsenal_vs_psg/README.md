@@ -30,6 +30,32 @@ against the Python numbers rather than assumed: 2,000 headless matches give
 ARS 1.36 - 0.78 PSG against Python's 1.44 - 0.87 on the same seed, with the same
 win/draw/loss split.
 
+## The frontend
+
+`frontend/index.html` plays the **trained** policy in the browser &mdash; open it
+directly, no server needed. The engine is ported to JS and the Q-tables are
+inlined, so the page is the real learned result rather than a re-simulation:
+
+```bash
+python football_rl.py --episodes 12000 --seed 42 --export frontend/policy.json
+cd frontend && python build.py policy.json     # inlines the tables into index.html
+```
+
+What it shows, all of it real data from the tables:
+
+- a live pitch with the ball moving zone to zone, a fading trail of the last few
+  touches, and the active zone framed in the possessing club's colour
+- **the agent's Q-values for the current state**, updated every touch, with
+  forbidden actions hatched and exploration flagged when it overrides the greedy pick
+- streaming commentary, live match stats, and a cumulative **xG race** over 90
+  minutes with goals marked
+- a full-time verdict comparing the scoreline against the xG
+- Monte Carlo odds over 1,000 in-browser matches
+
+The JS port was checked against the Python trainer rather than assumed: 2,000
+headless matches give ARS 1.36 &ndash; 0.78 and a 41/42/17 win-draw-loss split,
+against Python's 1.44 &ndash; 0.87 and 41/41/18 on the same seed.
+
 ## The MDP
 
 The team on the ball is the acting agent. Its state is four variables:

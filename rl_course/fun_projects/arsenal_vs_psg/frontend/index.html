@@ -340,6 +340,72 @@
   }
   .qrow.chosen .qval { color: var(--ink); }
 
+  /* ---------- xG race ---------- */
+  .race-card { padding: 16px; margin-top: 18px; }
+  .race-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 16px;
+    flex-wrap: wrap;
+    margin-bottom: 10px;
+  }
+  .race-read {
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--ink-muted);
+    font-variant-numeric: tabular-nums;
+  }
+  svg.race { display: block; width: 100%; height: auto; touch-action: none; }
+  .race-grid { stroke: var(--hairline); stroke-width: 1; }
+  .race-tick {
+    fill: var(--ink-faint);
+    font-family: var(--mono);
+    font-size: 15px;
+  }
+  .race-line { fill: none; stroke-width: 3; stroke-linejoin: round; stroke-linecap: round; }
+  .race-goal { stroke: var(--surface); stroke-width: 3; }
+  .race-cross { stroke: var(--ink-faint); stroke-width: 1.5; stroke-dasharray: 4 4; opacity: 0; }
+  .race-cross.on { opacity: 1; }
+  .race-end { font-family: var(--mono); font-size: 16px; font-weight: 600; }
+
+  .verdict {
+    margin-top: 18px;
+    padding: 14px 16px;
+    border-radius: 3px;
+    background: var(--raised);
+    border-left: 3px solid var(--ink-faint);
+    font-size: 14.5px;
+    color: var(--ink-2);
+    display: none;
+  }
+  .verdict.on { display: block; }
+  .verdict strong { color: var(--ink); }
+
+  /* ---------- clock progress ---------- */
+  .board-progress { height: 2px; background: var(--sunken); }
+  .board-progress span {
+    display: block;
+    height: 100%;
+    width: 0;
+    background: var(--ink-faint);
+    transition: width 300ms linear;
+  }
+
+  .badge {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 2px 6px;
+    border-radius: 2px;
+    background: var(--act-4);
+    color: #14100a;
+    font-weight: 600;
+    visibility: hidden;
+  }
+  .badge.on { visibility: visible; }
+
   /* ---------- controls ---------- */
   .controls {
     margin-top: 18px;
@@ -671,6 +737,7 @@
       <div class="club-mark"></div>
     </div>
   </div>
+  <div class="board-progress"><span id="board-progress"></span></div>
 </div>
 
 <div class="wrap">
@@ -711,6 +778,7 @@
             </g>
             <text class="arrow-label" x="14" y="-12" id="dir-h">ARS &rarr;</text>
             <text class="arrow-label" x="1036" y="-12" text-anchor="end" id="dir-a">&larr; PSG</text>
+            <g id="trail" aria-hidden="true"></g>
             <g class="ball-group" id="ball-group" transform="translate(475, 340)">
               <circle class="press-ring" id="press-ring" cx="0" cy="0" r="21" />
               <circle class="ball" id="ball" cx="0" cy="0" r="15" />
@@ -731,6 +799,8 @@
             <div class="kv"><dt>Zone</dt><dd id="st-zone">&mdash;</dd></div>
             <div class="kv"><dt>Pressure</dt><dd id="st-press">&mdash;</dd></div>
             <div class="kv"><dt>Legs</dt><dd id="st-stam">&mdash;</dd></div>
+            <div class="kv"><dt>Touches in this move</dt><dd id="st-chain">&mdash;</dd></div>
+            <div class="kv"><dt>Decision</dt><dd id="st-decision">&mdash;</dd></div>
           </dl>
         </div>
         <div>
@@ -792,6 +862,28 @@
         </table>
       </div>
     </div>
+
+    <div class="card race-card">
+      <div class="race-head">
+        <div>
+          <div class="eyebrow">Chance quality over 90 minutes</div>
+          <p style="margin: 4px 0 0; font-size: 13px; color: var(--ink-muted)">
+            Cumulative xG. A step up is a chance created; a dot is a goal.
+          </p>
+        </div>
+        <div class="race-read" id="race-read">hover for any minute</div>
+      </div>
+      <svg class="race" id="race" viewBox="0 0 900 250" role="img"
+           aria-label="Cumulative expected goals for both teams across the match">
+        <g id="race-body"></g>
+      </svg>
+      <div class="legend" style="margin-top: 12px; padding-top: 12px">
+        <div><span class="swatch" style="background: var(--ars)"></span>Arsenal</div>
+        <div><span class="swatch" style="background: var(--psg)"></span>Paris Saint-Germain</div>
+      </div>
+    </div>
+
+    <div class="verdict" id="verdict"></div>
   </section>
 
   <section>
@@ -1204,10 +1296,30 @@ const PRETTY = {
   short_pass: "short pass", long_ball: "long ball", carry: "carry",
   shoot: "shoot", recycle: "recycle",
 };
+/* Deterministic phrase pick — must NOT draw from match.rand(), or the view would
+   perturb the engine's RNG stream and the same seed would stop reproducing. */
+const variant = (b, list) => list[Math.floor(b.minute * 7) % list.length];
+
 const OUTCOME_TEXT = {
-  progress: (b) => `${b.player} moves ${teamShort(b.before.pos)} into ${ZONE_NAMES[b.after.zone]}.`,
-  recycled: (b) => `${b.player} turns back and resets the attack.`,
-  turnover: (b) => `${b.player} loses it &mdash; ${teamShort(b.after.pos)} have the ball in ${ZONE_NAMES[b.after.zone]}.`,
+  progress: (b) => variant(b, [
+    `${b.player} moves ${teamShort(b.before.pos)} into ${ZONE_NAMES[b.after.zone]}.`,
+    `${b.player} carries them forward into ${ZONE_NAMES[b.after.zone]}.`,
+    `${b.player} finds the pass. ${teamShort(b.before.pos)} are in ${ZONE_NAMES[b.after.zone]}.`,
+  ]),
+  // A long chain of these is the table genuinely preferring to hold the ball —
+  // say so, rather than repeating one line thirty times.
+  recycled: (b) => chain >= 5
+    ? `${teamShort(b.before.pos)} are content to keep it &mdash; ${chain} touches in this move.`
+    : variant(b, [
+        `${b.player} turns back and resets the attack.`,
+        `${b.player} plays it backwards to start again.`,
+        `${b.player} recycles rather than force it.`,
+      ]),
+  turnover: (b) => variant(b, [
+    `${b.player} loses it &mdash; ${teamShort(b.after.pos)} have it in ${ZONE_NAMES[b.after.zone]}.`,
+    `${b.player} is dispossessed. ${teamShort(b.after.pos)} break from ${ZONE_NAMES[b.after.zone]}.`,
+    `${b.player} gives it away in ${ZONE_NAMES[b.before.zone]}.`,
+  ]),
   goal: (b) => `<strong>Goal.</strong> ${b.player}${b.note ? ` from the ${b.note}` : ""}.`,
   saved: (b) => `${b.player} hits the target${b.note ? ` &mdash; behind for a ${b.note}` : ", saved"}.`,
   wide: (b) => `${b.player} pulls it wide${b.note ? ` &mdash; ${b.note}` : ""}.`,
@@ -1225,6 +1337,13 @@ let timer = null;
 let playing = false;
 let speed = 420;
 let ballJitter = 340;
+
+/* Sampled in the view rather than the engine, so a Monte Carlo run pays nothing
+   for it: [{m, v}] per team, plus a goal marker list for the race chart. */
+let xgSeries = [[], []];
+let goalMarks = [];
+let trail = [];
+let chain = 0;
 
 /* ---------- pitch ---------- */
 
@@ -1259,6 +1378,19 @@ function paintPitch() {
   let x = ZONE_X[zone];
   if (mirror) x = 1050 - x;
   ballJitter = 200 + match.rand() * 280;
+
+  // Fading breadcrumbs of the last few touches, so the flow of play is visible
+  // and not just the current position.
+  trail.push({ x, y: ballJitter, color: teamColor });
+  if (trail.length > 7) trail.shift();
+  $("trail").innerHTML = trail.slice(0, -1).map((t, i) => {
+    const age = (i + 1) / trail.length;
+    // fill via style, not the attribute — attributes cannot resolve var()
+    return `<circle cx="${t.x.toFixed(0)}" cy="${t.y.toFixed(0)}"
+      r="${(5 + 6 * age).toFixed(1)}"
+      style="fill: ${t.color}; opacity: ${(0.10 + 0.30 * age).toFixed(2)}" />`;
+  }).join("");
+
   $("ball-group").setAttribute("transform", `translate(${x}, ${ballJitter.toFixed(0)})`);
   // Presentation attributes cannot resolve var() — these must go through style.
   $("ball").style.fill = teamColor;
@@ -1279,6 +1411,14 @@ function paintTrace(state, chosen) {
   $("st-zone").textContent = ZONE_NAMES[zone].replace("their own", "own");
   $("st-press").textContent = match.pressure ? "under the press" : "time on the ball";
   $("st-stam").textContent = ["fresh", "legs going", "gassed"][match.staminaBucket()];
+  $("st-chain").textContent = chain > 0 ? String(chain) : "1";
+  // Name the touches where the 5% exploration overrode the greedy pick.
+  const exploring = chosen !== bestLegal(qRow, zone)[0];
+  const decision = $("st-decision");
+  decision.innerHTML = exploring
+    ? '<span class="badge on">exploring</span>'
+    : "greedy pick";
+  decision.style.color = exploring ? "" : "var(--ink-muted)";
 
   const legalVals = qRow.filter((_, a) => POLICY.legal[zone][a]);
   const lo = Math.min(...legalVals), hi = Math.max(...legalVals);
@@ -1307,6 +1447,7 @@ function paintBoard(goal) {
     ? `90+${Math.max(1, Math.round(m - FULL_TIME))}'`
     : `${Math.max(1, Math.floor(m))}'`;
   $("clock").textContent = match.done() ? `FULL TIME · ${stamp}` : stamp;
+  $("board-progress").style.width = `${(100 * m / (FULL_TIME + match.stoppage)).toFixed(1)}%`;
   if (goal) {
     const b = $("board");
     b.classList.remove("flash");
@@ -1373,36 +1514,190 @@ function paintStats() {
   }).join("");
 }
 
+/* ---------- xG race ---------- */
+
+const RACE = { w: 900, h: 250, l: 46, r: 62, t: 14, b: 30 };
+
+function raceScales() {
+  const end = FULL_TIME + (match ? match.stoppage : 4);
+  const peak = Math.max(
+    0.8,
+    ...xgSeries.map((s) => (s.length ? s[s.length - 1].v : 0))
+  );
+  const top = Math.ceil(peak * 4 + 0.4) / 4;   // round up to a clean quarter-goal
+  const sx = (m) => RACE.l + (RACE.w - RACE.l - RACE.r) * clamp(m / end, 0, 1);
+  const sy = (v) => RACE.h - RACE.b - (RACE.h - RACE.b - RACE.t) * clamp(v / top, 0, 1);
+  return { sx, sy, top, end };
+}
+
+function stepPath(points, sx, sy) {
+  if (!points.length) return "";
+  let d = `M ${sx(0).toFixed(1)} ${sy(0).toFixed(1)}`;
+  let prev = 0;
+  for (const p of points) {
+    d += ` L ${sx(p.m).toFixed(1)} ${sy(prev).toFixed(1)}`;
+    d += ` L ${sx(p.m).toFixed(1)} ${sy(p.v).toFixed(1)}`;
+    prev = p.v;
+  }
+  return d;
+}
+
+function drawRace() {
+  const { sx, sy, top, end } = raceScales();
+  const yTickStep = top <= 1 ? 0.25 : (top <= 2 ? 0.5 : 1);
+  const parts = [];
+
+  for (let v = 0; v <= top + 1e-9; v += yTickStep) {
+    parts.push(`<line class="race-grid" x1="${RACE.l}" y1="${sy(v).toFixed(1)}"
+      x2="${RACE.w - RACE.r}" y2="${sy(v).toFixed(1)}" />`);
+    parts.push(`<text class="race-tick" x="${RACE.l - 8}" y="${(sy(v) + 5).toFixed(1)}"
+      text-anchor="end">${v.toFixed(2).replace(/0$/, "")}</text>`);
+  }
+  for (let m = 0; m <= 90; m += 15) {
+    parts.push(`<text class="race-tick" x="${sx(m).toFixed(1)}"
+      y="${RACE.h - RACE.b + 20}" text-anchor="middle">${m}'</text>`);
+  }
+
+  xgSeries.forEach((pts, i) => {
+    parts.push(`<path class="race-line" d="${stepPath(pts, sx, sy)}"
+      stroke="var(${TEAM_VAR[i]})" />`);
+  });
+
+  goalMarks.forEach((g) => {
+    parts.push(`<circle class="race-goal" cx="${sx(g.m).toFixed(1)}"
+      cy="${sy(g.v).toFixed(1)}" r="7" fill="var(${TEAM_VAR[g.team]})" />`);
+  });
+
+  // Direct end labels, so identity never rests on the legend alone.
+  xgSeries.forEach((pts, i) => {
+    if (!pts.length) return;
+    const last = pts[pts.length - 1];
+    parts.push(`<text class="race-end" x="${(RACE.w - RACE.r + 8)}"
+      y="${(sy(last.v) + 5).toFixed(1)}" fill="var(${TEAM_VAR[i]})"
+      >${last.v.toFixed(2)}</text>`);
+  });
+
+  parts.push(`<line class="race-cross" id="race-cross" y1="${RACE.t}"
+    y2="${RACE.h - RACE.b}" x1="0" x2="0" />`);
+  parts.push(`<rect id="race-hit" x="${RACE.l}" y="${RACE.t}"
+    width="${RACE.w - RACE.l - RACE.r}" height="${RACE.h - RACE.t - RACE.b}"
+    fill="transparent" style="cursor: crosshair" />`);
+
+  $("race-body").innerHTML = parts.join("");
+  wireRaceHover(end);
+}
+
+function valueAt(points, minute) {
+  let v = 0;
+  for (const p of points) { if (p.m > minute) break; v = p.v; }
+  return v;
+}
+
+function wireRaceHover(end) {
+  const svg = $("race");
+  const hit = $("race-hit");
+  if (!hit) return;
+
+  const move = (ev) => {
+    const box = svg.getBoundingClientRect();
+    const px = ((ev.clientX - box.left) / box.width) * RACE.w;
+    const span = RACE.w - RACE.l - RACE.r;
+    const minute = clamp(((px - RACE.l) / span) * end, 0, end);
+    $("race-cross").classList.add("on");
+    $("race-cross").setAttribute("x1", px.toFixed(1));
+    $("race-cross").setAttribute("x2", px.toFixed(1));
+    const a = valueAt(xgSeries[0], minute), b = valueAt(xgSeries[1], minute);
+    $("race-read").textContent =
+      `${Math.round(minute)}'  ARS ${a.toFixed(2)} xG  ·  PSG ${b.toFixed(2)} xG`;
+  };
+
+  hit.addEventListener("pointermove", move);
+  hit.addEventListener("pointerleave", () => {
+    $("race-cross").classList.remove("on");
+    $("race-read").textContent = "hover for any minute";
+  });
+}
+
+function sampleXg(scored) {
+  const m = Math.min(match.minute, FULL_TIME + match.stoppage);
+  [0, 1].forEach((i) => xgSeries[i].push({ m, v: match.stats[i].xg }));
+  if (scored !== null && scored !== undefined) {
+    goalMarks.push({ m, v: match.stats[scored].xg, team: scored });
+  }
+}
+
+/* ---------- full-time verdict ---------- */
+
+function paintVerdict() {
+  const [gh, ga] = match.score;
+  const xh = match.stats[0].xg, xa = match.stats[1].xg;
+  const names = [POLICY.teams[0].name, POLICY.teams[1].name];
+  const winner = gh > ga ? 0 : (ga > gh ? 1 : null);
+  const xgLeader = Math.abs(xh - xa) < 0.15 ? null : (xh > xa ? 0 : 1);
+  let text;
+
+  if (winner === null) {
+    text = xgLeader === null
+      ? `<strong>Honours even, and deservedly.</strong> ${gh}&ndash;${ga}, with
+         ${xh.toFixed(2)} xG against ${xa.toFixed(2)} &mdash; there was nothing between them.`
+      : `<strong>A draw ${names[xgLeader]} will regret.</strong> ${gh}&ndash;${ga}, but
+         ${xh.toFixed(2)} xG to ${xa.toFixed(2)} says ${names[xgLeader]} created enough to win it.`;
+  } else if (xgLeader !== null && xgLeader !== winner) {
+    text = `<strong>A smash and grab.</strong> ${names[winner]} won it ${gh}&ndash;${ga}
+      while being out-created ${xh.toFixed(2)} to ${xa.toFixed(2)} on xG. The table that
+      shoots more is not always the table that deserves it.`;
+  } else {
+    text = `<strong>${names[winner]} were worth it.</strong> ${gh}&ndash;${ga}, and the
+      chances back it up &mdash; ${xh.toFixed(2)} xG to ${xa.toFixed(2)}.`;
+  }
+
+  const v = $("verdict");
+  v.innerHTML = text;
+  v.style.borderLeftColor = winner === null ? "var(--draw)" : `var(${TEAM_VAR[winner]})`;
+  v.classList.add("on");
+}
+
 /* ---------- playback ---------- */
 
-function tick() {
-  if (!match || match.done()) { stop(true); return; }
+function advance(render) {
+  const before = match.pos;
   const state = match.state();
   const chosen = chooseAction(match, match.pos, state, 0.05);
-  paintTrace(state, chosen);
+  if (render) paintTrace(state, chosen);
   const out = match.step(chosen);
+  chain = match.pos === before ? chain + 1 : 0;
+  sampleXg(out.scorer);
   pushEvents(out.newEvents);
-  paintBoard(out.scorer !== null);
   paintBeat(out.beat);
+  return out;
+}
+
+function tick() {
+  if (!match || match.done()) { finish(); return; }
+  const out = advance(true);
+  paintBoard(out.scorer !== null);
   paintPitch();
   paintStats();
-  if (match.done()) { stop(true); return; }
+  drawRace();
+  if (match.done()) { finish(); return; }
   timer = setTimeout(tick, speed);
 }
 
 function runToEnd() {
   let guard = 0;
-  while (!match.done() && guard++ < 4000) {
-    const state = match.state();
-    const out = match.step(chooseAction(match, match.pos, state, 0.05));
-    pushEvents(out.newEvents);
-    paintBeat(out.beat);
-  }
+  while (!match.done() && guard++ < 4000) advance(false);
   paintBoard(false);
   paintPitch();
   paintStats();
+  drawRace();
   const state = match.state();
   paintTrace(state, chooseAction(match, match.pos, state, 0));
+  finish();
+}
+
+function finish() {
+  drawRace();
+  paintVerdict();
   stop(true);
 }
 
@@ -1427,14 +1722,21 @@ function newMatch() {
   playing = false;
   match = new Match(seed);
   feedCount = 0;
+  xgSeries = [[], []];
+  goalMarks = [];
+  trail = [];
+  chain = 0;
   $("feed").innerHTML = '<li class="feed-empty" id="feed-empty">No events yet.</li>';
   $("feed-count").textContent = "0 events";
   $("btn-play").textContent = "Kick off";
   $("seed-hint").textContent = `seed ${seed}`;
+  $("verdict").classList.remove("on");
+  $("race-read").textContent = "hover for any minute";
   paintBoard(false);
   $("clock").textContent = "NOT STARTED";
   paintPitch();
   paintStats();
+  drawRace();
   const state = match.state();
   paintTrace(state, chooseAction(match, match.pos, state, 0));
   $("beat-chip").textContent = "kickoff";
@@ -1592,5 +1894,12 @@ SPEEDS.forEach(([id, ms]) => {
     SPEEDS.forEach(([other]) => $(other).setAttribute("aria-pressed", String(other === id)));
     if (playing) { clearTimeout(timer); if (ms === 0) runToEnd(); else tick(); }
   });
+});
+
+// Space plays and pauses, unless the focus is already on a control.
+document.addEventListener("keydown", (ev) => {
+  if (ev.code !== "Space" || ev.target.closest("button")) return;
+  ev.preventDefault();
+  playing ? stop(false) : start();
 });
 </script>
