@@ -1,1 +1,8 @@
 hyperparameter_optimization_for_ml/hyperparameter-optimization
+
+# Large Kaggle datasets - re-downloadable, kept out of git history
+hyperparameter_optimization_for_ml/santander-customer-satisfaction/
+
+# virtual environments
+.venv/
+venv/
