@@ -1,0 +1,1596 @@
+<title>Self-Play Derby</title>
+<style>
+  /* ---------- tokens: light is the base, both dark scopes redefine ---------- */
+  :root {
+    color-scheme: light;
+
+    --ground:        #F2F5F1;
+    --surface:       #F8FAF7;
+    --raised:        #E8EDE6;
+    --sunken:        #E1E7DF;
+    --hairline:      rgba(16, 24, 21, 0.12);
+    --hairline-firm: rgba(16, 24, 21, 0.22);
+
+    --ink:        #101815;
+    --ink-2:      #3C4B45;
+    --ink-muted:  #5C6B64;
+    --ink-faint:  #8A998F;
+
+    --turf:       #5B8A62;
+    --turf-line:  rgba(255, 255, 255, 0.55);
+
+    --ars:        #C8102E;
+    --psg:        #1B4F9C;
+    --draw:       #7E8C84;
+
+    --act-1: #2a78d6;  /* short_pass */
+    --act-2: #eb6834;  /* long_ball  */
+    --act-3: #1baf7a;  /* carry      */
+    --act-4: #eda100;  /* shoot      */
+    --act-5: #e87ba4;  /* recycle    */
+
+    --shadow: 0 1px 2px rgba(16, 24, 21, 0.06), 0 8px 24px rgba(16, 24, 21, 0.05);
+
+    --display: "Bahnschrift SemiCondensed", "Segoe UI Semibold", "Helvetica Neue",
+               system-ui, sans-serif;
+    --board: "Bahnschrift SemiBold SemiConden", "Bahnschrift SemiCondensed",
+             Haettenschweiler, Impact, "Arial Narrow", sans-serif;
+    --body: system-ui, -apple-system, "Segoe UI", sans-serif;
+    --mono: ui-monospace, "Cascadia Mono", Consolas, "SF Mono", monospace;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      color-scheme: dark;
+      --ground:        #0D1310;
+      --surface:       #161F1B;
+      --raised:        #1E2A24;
+      --sunken:        #121A16;
+      --hairline:      rgba(233, 239, 234, 0.14);
+      --hairline-firm: rgba(233, 239, 234, 0.26);
+      --ink:        #E9EFEA;
+      --ink-2:      #B9C6BE;
+      --ink-muted:  #8A9A91;
+      --ink-faint:  #6B7A72;
+      --turf:       #1C3524;
+      --turf-line:  rgba(233, 239, 234, 0.30);
+      --ars:        #EF4256;
+      --psg:        #4A8CDB;
+      --draw:       #7E8C84;
+      --act-1: #3987e5;
+      --act-2: #d95926;
+      --act-3: #199e70;
+      --act-4: #c98500;
+      --act-5: #d55181;
+      --shadow: 0 1px 2px rgba(0, 0, 0, 0.4), 0 10px 30px rgba(0, 0, 0, 0.32);
+    }
+  }
+
+  :root[data-theme="dark"] {
+    color-scheme: dark;
+    --ground:        #0D1310;
+    --surface:       #161F1B;
+    --raised:        #1E2A24;
+    --sunken:        #121A16;
+    --hairline:      rgba(233, 239, 234, 0.14);
+    --hairline-firm: rgba(233, 239, 234, 0.26);
+    --ink:        #E9EFEA;
+    --ink-2:      #B9C6BE;
+    --ink-muted:  #8A9A91;
+    --ink-faint:  #6B7A72;
+    --turf:       #1C3524;
+    --turf-line:  rgba(233, 239, 234, 0.30);
+    --ars:        #EF4256;
+    --psg:        #4A8CDB;
+    --draw:       #7E8C84;
+    --act-1: #3987e5;
+    --act-2: #d95926;
+    --act-3: #199e70;
+    --act-4: #c98500;
+    --act-5: #d55181;
+    --shadow: 0 1px 2px rgba(0, 0, 0, 0.4), 0 10px 30px rgba(0, 0, 0, 0.32);
+  }
+
+  /* ---------- base ---------- */
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    background: var(--ground);
+    color: var(--ink);
+    font-family: var(--body);
+    font-size: 15px;
+    line-height: 1.55;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .wrap {
+    max-width: 1120px;
+    margin: 0 auto;
+    padding: 0 20px 72px;
+  }
+
+  h1, h2, h3 { font-family: var(--display); font-weight: 600; text-wrap: balance; margin: 0; }
+
+  .eyebrow {
+    font-family: var(--display);
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--ink-muted);
+  }
+
+  section { margin-top: 40px; }
+
+  .section-head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 16px;
+    flex-wrap: wrap;
+    border-bottom: 1px solid var(--hairline);
+    padding-bottom: 10px;
+    margin-bottom: 20px;
+  }
+  .section-head h2 { font-size: 21px; letter-spacing: -0.01em; }
+  .section-head p { margin: 0; color: var(--ink-muted); font-size: 13.5px; max-width: 46ch; }
+
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--hairline);
+    border-radius: 4px;
+    box-shadow: var(--shadow);
+  }
+
+  /* ---------- scoreboard ---------- */
+  .board {
+    position: sticky;
+    top: 0;
+    z-index: 20;
+    background: var(--surface);
+    border-bottom: 1px solid var(--hairline-firm);
+  }
+  .board-inner {
+    max-width: 1120px;
+    margin: 0 auto;
+    padding: 12px 20px;
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    align-items: center;
+    gap: 18px;
+  }
+  .club {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-width: 0;
+  }
+  .club.away { justify-content: flex-end; }
+  .club-mark { width: 6px; height: 34px; border-radius: 1px; flex: none; }
+  .club.home .club-mark { background: var(--ars); }
+  .club.away .club-mark { background: var(--psg); }
+  .club-name {
+    font-family: var(--display);
+    font-size: 17px;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .club-sub { font-size: 11.5px; color: var(--ink-muted); white-space: nowrap; }
+
+  .score-slab { text-align: center; }
+  .score {
+    font-family: var(--board);
+    font-size: 44px;
+    line-height: 0.95;
+    letter-spacing: 0.02em;
+    font-variant-numeric: tabular-nums;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+  }
+  .score .dash { color: var(--ink-faint); font-size: 30px; }
+  .score .h { color: var(--ars); }
+  .score .a { color: var(--psg); }
+  .clock {
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--ink-muted);
+    font-variant-numeric: tabular-nums;
+    letter-spacing: 0.04em;
+  }
+  .board.flash { animation: flash 900ms ease-out; }
+  @keyframes flash {
+    0%, 100% { background: var(--surface); }
+    18%      { background: var(--raised); }
+  }
+
+  /* ---------- hero ---------- */
+  .hero { padding-top: 34px; }
+  .hero-head { max-width: 62ch; }
+  .hero-head h1 {
+    font-size: clamp(30px, 5vw, 46px);
+    line-height: 1.04;
+    letter-spacing: -0.025em;
+    margin: 10px 0 12px;
+  }
+  .hero-head p { margin: 0; color: var(--ink-2); font-size: 16px; max-width: 60ch; }
+
+  .stage {
+    margin-top: 26px;
+    display: grid;
+    grid-template-columns: minmax(0, 1.55fr) minmax(0, 1fr);
+    gap: 18px;
+  }
+
+  .pitch-card { padding: 16px; display: flex; flex-direction: column; gap: 14px; }
+  .pitch-frame { background: var(--turf); border-radius: 3px; overflow: hidden; }
+  svg.pitch { display: block; width: 100%; height: auto; }
+  .pitch-line { fill: none; stroke: var(--turf-line); stroke-width: 3; }
+  /* A team-coloured wash over turf goes muddy (red on green reads brown), so the
+     active zone is a neutral lift with a crisp club-coloured frame instead. */
+  .zone-band {
+    fill: #fff;
+    fill-opacity: 0;
+    stroke: currentColor;
+    stroke-width: 0;
+    stroke-opacity: 0;
+    transition: fill-opacity 260ms ease, stroke-opacity 260ms ease;
+  }
+  .zone-band.on { fill-opacity: 0.10; stroke-width: 5; stroke-opacity: 0.95; }
+  .ball-group { transition: transform 300ms cubic-bezier(.4, 0, .2, 1); }
+  .ball { stroke: rgba(0, 0, 0, 0.35); stroke-width: 2; }
+  .press-ring { fill: none; stroke-width: 3; opacity: 0; }
+  .press-ring.on { animation: press 900ms ease-out infinite; }
+  /* scale, not the r property — r is not animatable everywhere */
+  @keyframes press {
+    0%   { transform: scale(1);   opacity: 0.85; }
+    100% { transform: scale(1.9); opacity: 0; }
+  }
+  .arrow-label {
+    font-family: var(--display);
+    font-size: 22px;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    fill: var(--turf-line);
+  }
+
+  .beat {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-height: 42px;
+    padding: 0 4px;
+  }
+  .beat-chip {
+    font-family: var(--mono);
+    font-size: 10.5px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    padding: 3px 7px;
+    border-radius: 3px;
+    border: 1px solid var(--hairline-firm);
+    color: var(--ink-muted);
+    white-space: nowrap;
+    flex: none;
+  }
+  .beat-text { font-size: 14.5px; color: var(--ink-2); }
+
+  /* ---------- decision trace ---------- */
+  .trace-card { padding: 16px; display: flex; flex-direction: column; gap: 14px; }
+  .trace-state {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px 14px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--hairline);
+  }
+  .kv { display: flex; flex-direction: column; gap: 1px; min-width: 0; }
+  .kv dt {
+    font-family: var(--display);
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+  }
+  .kv dd {
+    margin: 0;
+    font-size: 13.5px;
+    color: var(--ink);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .qrow { display: flex; align-items: center; gap: 10px; margin-bottom: 7px; }
+  .qname {
+    font-family: var(--mono);
+    font-size: 11.5px;
+    width: 78px;
+    flex: none;
+    color: var(--ink-muted);
+    text-align: right;
+  }
+  .qrow.chosen .qname { color: var(--ink); font-weight: 600; }
+  .qtrack { flex: 1; height: 12px; background: var(--sunken); border-radius: 2px; position: relative; }
+  .qfill {
+    position: absolute;
+    inset: 0 auto 0 0;
+    border-radius: 2px 4px 4px 2px;
+    background: var(--ink-faint);
+    transition: width 220ms ease;
+  }
+  .qrow.chosen .qfill { background: var(--team); }
+  .qrow.illegal { opacity: 0.34; }
+  .qrow.illegal .qtrack { background: repeating-linear-gradient(
+      135deg, var(--sunken) 0 5px, transparent 5px 10px); }
+  .qval {
+    font-family: var(--mono);
+    font-size: 11.5px;
+    width: 52px;
+    flex: none;
+    text-align: right;
+    color: var(--ink-muted);
+    font-variant-numeric: tabular-nums;
+  }
+  .qrow.chosen .qval { color: var(--ink); }
+
+  /* ---------- controls ---------- */
+  .controls {
+    margin-top: 18px;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px;
+  }
+  button {
+    font-family: var(--display);
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    color: var(--ink);
+    background: var(--surface);
+    border: 1px solid var(--hairline-firm);
+    border-radius: 3px;
+    padding: 8px 15px;
+    cursor: pointer;
+    transition: background 120ms ease, border-color 120ms ease;
+  }
+  button:hover { background: var(--raised); }
+  button:focus-visible { outline: 2px solid var(--ars); outline-offset: 2px; }
+  button[disabled] { opacity: 0.4; cursor: not-allowed; }
+  button.primary { background: var(--ars); border-color: var(--ars); color: #fff; }
+  button.primary:hover { filter: brightness(1.08); }
+
+  .seg { display: inline-flex; border: 1px solid var(--hairline-firm); border-radius: 3px; overflow: hidden; }
+  .seg button { border: 0; border-radius: 0; background: transparent; }
+  .seg button + button { border-left: 1px solid var(--hairline); }
+  .seg button[aria-pressed="true"] { background: var(--raised); color: var(--ink); }
+
+  .hint { font-size: 12.5px; color: var(--ink-faint); margin-left: auto; font-family: var(--mono); }
+
+  /* ---------- feed + stats ---------- */
+  .duo {
+    display: grid;
+    grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr);
+    gap: 18px;
+  }
+  .feed-card { padding: 0; display: flex; flex-direction: column; }
+  .feed-head {
+    padding: 13px 16px;
+    border-bottom: 1px solid var(--hairline);
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+  }
+  .feed {
+    list-style: none;
+    margin: 0;
+    padding: 6px 0;
+    height: 372px;
+    overflow-y: auto;
+  }
+  .feed li {
+    display: grid;
+    grid-template-columns: 46px 22px 1fr;
+    gap: 10px;
+    align-items: baseline;
+    padding: 7px 16px;
+    border-left: 3px solid transparent;
+    animation: slip 240ms ease-out;
+  }
+  @keyframes slip { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: none; } }
+  .feed li.ars { border-left-color: var(--ars); }
+  .feed li.psg { border-left-color: var(--psg); }
+  .feed li.goal { background: var(--raised); }
+  .feed .min {
+    font-family: var(--mono);
+    font-size: 11.5px;
+    color: var(--ink-faint);
+    font-variant-numeric: tabular-nums;
+  }
+  .feed .tag { font-size: 13px; }
+  .feed .txt { font-size: 13.5px; color: var(--ink-2); }
+  .feed li.goal .txt { color: var(--ink); font-weight: 600; }
+  .feed .running {
+    grid-column: 3;
+    font-family: var(--mono);
+    font-size: 11.5px;
+    color: var(--ink-muted);
+    letter-spacing: 0.05em;
+  }
+  .feed li.feed-empty {
+    display: block;                /* must beat the event grid above */
+    padding: 20px 16px;
+    color: var(--ink-faint);
+    font-size: 13.5px;
+    border-left-color: transparent;
+    animation: none;
+  }
+
+  .stats-card { padding: 16px; }
+  .poss {
+    display: flex;
+    gap: 2px;
+    height: 26px;
+    margin-bottom: 6px;
+  }
+  .poss span { border-radius: 2px; transition: flex-basis 300ms ease; }
+  .poss .h { background: var(--ars); }
+  .poss .a { background: var(--psg); }
+  .poss-labels {
+    display: flex;
+    justify-content: space-between;
+    font-family: var(--mono);
+    font-size: 11.5px;
+    color: var(--ink-muted);
+    font-variant-numeric: tabular-nums;
+    margin-bottom: 16px;
+  }
+
+  table.stats { width: 100%; border-collapse: collapse; }
+  table.stats th, table.stats td { padding: 6px 0; font-size: 13px; }
+  table.stats thead th {
+    font-family: var(--display);
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+    border-bottom: 1px solid var(--hairline);
+    font-weight: 600;
+  }
+  table.stats tbody th {
+    font-weight: 400;
+    color: var(--ink-muted);
+    text-align: center;
+    font-size: 12.5px;
+  }
+  table.stats td {
+    font-family: var(--mono);
+    font-variant-numeric: tabular-nums;
+    width: 82px;
+  }
+  table.stats td.h { text-align: right; color: var(--ink); }
+  table.stats td.a { text-align: left; color: var(--ink); }
+  .bar-mini { display: block; height: 4px; border-radius: 2px; margin-top: 3px; transition: width 260ms ease; }
+  td.h .bar-mini { background: var(--ars); margin-left: auto; }
+  td.a .bar-mini { background: var(--psg); }
+
+  /* ---------- policy fingerprints ---------- */
+  .fingerprints { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; }
+  .fp-card { padding: 16px; }
+  .fp-head { display: flex; align-items: center; gap: 10px; margin-bottom: 4px; }
+  .fp-mark { width: 5px; height: 22px; border-radius: 1px; }
+  .fp-card h3 { font-size: 16px; letter-spacing: -0.01em; }
+  .fp-note { font-size: 12.5px; color: var(--ink-muted); margin: 0 0 16px; }
+
+  .zone-row { margin-bottom: 15px; }
+  .zone-row:last-child { margin-bottom: 0; }
+  .zone-label {
+    font-family: var(--display);
+    font-size: 10.5px;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--ink-muted);
+    margin-bottom: 5px;
+  }
+  .stack { display: flex; gap: 2px; height: 20px; }
+  .stack span {
+    border-radius: 2px;
+    cursor: default;
+    transition: filter 120ms ease;
+  }
+  .stack span:hover { filter: brightness(1.14); }
+  .stack-labels {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px 12px;
+    margin-top: 5px;
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--ink-muted);
+    font-variant-numeric: tabular-nums;
+  }
+  .stack-labels b { color: var(--ink-2); font-weight: 600; }
+
+  .legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px 18px;
+    margin-top: 22px;
+    padding-top: 14px;
+    border-top: 1px solid var(--hairline);
+  }
+  .legend div { display: flex; align-items: center; gap: 7px; font-size: 12.5px; color: var(--ink-2); }
+  .swatch { width: 11px; height: 11px; border-radius: 2px; flex: none; }
+
+  /* ---------- odds ---------- */
+  .odds-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 18px; }
+  .odds-card { padding: 16px; }
+  .odds-row { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
+  .odds-name { font-size: 13.5px; width: 112px; flex: none; color: var(--ink-2); }
+  .odds-track {
+    display: block;                /* spans nested in a span need blockifying */
+    flex: 1;
+    height: 22px;
+    background: var(--sunken);
+    border-radius: 2px;
+    overflow: hidden;
+  }
+  .odds-fill {
+    display: block;
+    height: 100%;
+    border-radius: 2px 4px 4px 2px;
+    transition: width 400ms ease;
+  }
+  .odds-pct {
+    font-family: var(--mono);
+    font-size: 13px;
+    width: 54px;
+    text-align: right;
+    flex: none;
+    font-variant-numeric: tabular-nums;
+  }
+  .score-dist { display: flex; flex-direction: column; gap: 8px; }
+  .dist-row { display: flex; align-items: center; gap: 10px; }
+  .dist-key {
+    font-family: var(--mono);
+    font-size: 12.5px;
+    width: 34px;
+    flex: none;
+    color: var(--ink-2);
+    font-variant-numeric: tabular-nums;
+  }
+  .dist-track {
+    display: block;
+    flex: 1;
+    height: 16px;
+    background: var(--sunken);
+    border-radius: 2px;
+    overflow: hidden;
+  }
+  .dist-fill {
+    display: block;
+    height: 100%;
+    border-radius: 2px 4px 4px 2px;
+    background: var(--draw);   /* overridden per row by who the result favours */
+  }
+  .dist-pct {
+    font-family: var(--mono);
+    font-size: 12px;
+    width: 46px;
+    text-align: right;
+    flex: none;
+    color: var(--ink-muted);
+    font-variant-numeric: tabular-nums;
+  }
+  .avg-line {
+    font-family: var(--mono);
+    font-size: 13px;
+    color: var(--ink-muted);
+    margin-top: 4px;
+    padding-top: 12px;
+    border-top: 1px solid var(--hairline);
+  }
+  .spread-note {
+    font-size: 12.5px;
+    color: var(--ink-muted);
+    margin: 14px 0 0;
+    padding: 11px 13px;
+    background: var(--raised);
+    border-radius: 3px;
+    border-left: 3px solid var(--psg);
+  }
+
+  /* ---------- notes ---------- */
+  .notes { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 18px; }
+  .note-card { padding: 16px; }
+  .note-card h3 { font-size: 14.5px; margin-bottom: 7px; }
+  .note-card p { margin: 0; font-size: 13.5px; color: var(--ink-muted); }
+  .note-card code {
+    font-family: var(--mono);
+    font-size: 12.5px;
+    background: var(--raised);
+    padding: 1px 4px;
+    border-radius: 2px;
+    color: var(--ink-2);
+  }
+
+  footer {
+    margin-top: 48px;
+    padding-top: 18px;
+    border-top: 1px solid var(--hairline);
+    font-size: 12.5px;
+    color: var(--ink-faint);
+    display: flex;
+    justify-content: space-between;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+
+  @media (max-width: 880px) {
+    .stage, .duo, .fingerprints, .odds-grid { grid-template-columns: minmax(0, 1fr); }
+    .score { font-size: 36px; }
+    .club-sub { display: none; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    * { animation-duration: 0.001ms !important; animation-iteration-count: 1 !important; }
+    .ball-group, .qfill, .odds-fill, .poss span, .bar-mini { transition: none; }
+  }
+</style>
+
+<div class="board" id="board">
+  <div class="board-inner">
+    <div class="club home">
+      <div class="club-mark"></div>
+      <div>
+        <div class="club-name">Arsenal</div>
+        <div class="club-sub">presses high &middot; owns the set piece</div>
+      </div>
+    </div>
+    <div class="score-slab">
+      <div class="score">
+        <span class="h" id="score-h">0</span>
+        <span class="dash">&ndash;</span>
+        <span class="a" id="score-a">0</span>
+      </div>
+      <div class="clock" id="clock">NOT STARTED</div>
+    </div>
+    <div class="club away">
+      <div style="text-align: right">
+        <div class="club-name">Paris Saint-Germain</div>
+        <div class="club-sub">vertical &middot; dribbles the last line</div>
+      </div>
+      <div class="club-mark"></div>
+    </div>
+  </div>
+</div>
+
+<div class="wrap">
+
+  <header class="hero">
+    <div class="hero-head">
+      <div class="eyebrow">Tabular Q-learning &middot; 72 states &middot; 12,000 self-play matches</div>
+      <h1>Two agents taught themselves football. Watch them play the tie.</h1>
+      <p>
+        Nobody scripted a tactic. Each side is a 72&times;5 table of learned values, trained
+        only on <em>goal scored</em> and <em>goal conceded</em>, playing against a copy of the
+        other that was learning at the same time. The panel on the right is the table being
+        read in real time &mdash; that is the whole brain.
+      </p>
+    </div>
+
+    <div class="stage">
+      <div class="card pitch-card">
+        <div class="pitch-frame">
+          <svg class="pitch" viewBox="-34 -34 1118 748" role="img"
+               aria-label="Pitch showing which zone the ball is in and which side has possession">
+            <g id="zones"></g>
+            <g class="pitch-line" aria-hidden="true">
+              <rect x="0" y="0" width="1050" height="680" />
+              <line x1="525" y1="0" x2="525" y2="680" />
+              <circle cx="525" cy="340" r="91.5" />
+              <rect x="0" y="138.5" width="165" height="403" />
+              <rect x="0" y="248.5" width="55" height="183" />
+              <rect x="885" y="138.5" width="165" height="403" />
+              <rect x="995" y="248.5" width="55" height="183" />
+              <rect x="-18" y="266" width="18" height="148" />
+              <rect x="1050" y="266" width="18" height="148" />
+            </g>
+            <g class="pitch-line" aria-hidden="true" stroke-width="6">
+              <line x1="525" y1="340" x2="525" y2="340" stroke-linecap="round" />
+              <line x1="110" y1="340" x2="110" y2="340" stroke-linecap="round" />
+              <line x1="940" y1="340" x2="940" y2="340" stroke-linecap="round" />
+            </g>
+            <text class="arrow-label" x="14" y="-12" id="dir-h">ARS &rarr;</text>
+            <text class="arrow-label" x="1036" y="-12" text-anchor="end" id="dir-a">&larr; PSG</text>
+            <g class="ball-group" id="ball-group" transform="translate(475, 340)">
+              <circle class="press-ring" id="press-ring" cx="0" cy="0" r="21" />
+              <circle class="ball" id="ball" cx="0" cy="0" r="15" />
+            </g>
+          </svg>
+        </div>
+        <div class="beat">
+          <span class="beat-chip" id="beat-chip">kickoff</span>
+          <span class="beat-text" id="beat-text">Press <strong>Kick off</strong> to start the match.</span>
+        </div>
+      </div>
+
+      <div class="card trace-card">
+        <div>
+          <div class="eyebrow" style="margin-bottom: 10px">The agent on the ball</div>
+          <dl class="trace-state">
+            <div class="kv"><dt>In possession</dt><dd id="st-team">&mdash;</dd></div>
+            <div class="kv"><dt>Zone</dt><dd id="st-zone">&mdash;</dd></div>
+            <div class="kv"><dt>Pressure</dt><dd id="st-press">&mdash;</dd></div>
+            <div class="kv"><dt>Legs</dt><dd id="st-stam">&mdash;</dd></div>
+          </dl>
+        </div>
+        <div>
+          <div class="eyebrow" style="margin-bottom: 10px">Learned value of each action</div>
+          <div id="qbars"></div>
+          <p style="margin: 12px 0 0; font-size: 12px; color: var(--ink-faint)">
+            Hatched rows are actions the model forbids in this zone. The agent takes the
+            longest bar, except on the 5% of touches where it still explores.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <div class="controls">
+      <button class="primary" id="btn-play">Kick off</button>
+      <button id="btn-restart">New match</button>
+      <div class="seg" role="group" aria-label="Playback speed">
+        <button id="sp-live" aria-pressed="true">Live</button>
+        <button id="sp-fast" aria-pressed="false">Fast</button>
+        <button id="sp-jump" aria-pressed="false">Full time</button>
+      </div>
+      <span class="hint" id="seed-hint">seed 42</span>
+    </div>
+  </header>
+
+  <section>
+    <div class="section-head">
+      <div>
+        <div class="eyebrow">Live</div>
+        <h2>What happened, and what it cost</h2>
+      </div>
+      <p>The feed only logs the moments that matter: shots, set pieces, goals, and turnovers won under pressure.</p>
+    </div>
+    <div class="duo">
+      <div class="card feed-card">
+        <div class="feed-head">
+          <span class="eyebrow">Commentary</span>
+          <span class="clock" id="feed-count">0 events</span>
+        </div>
+        <ul class="feed" id="feed" aria-live="polite">
+          <li class="feed-empty" id="feed-empty">No events yet.</li>
+        </ul>
+      </div>
+      <div class="card stats-card">
+        <div class="eyebrow" style="margin-bottom: 8px">Possession</div>
+        <div class="poss">
+          <span class="h" id="poss-h" style="flex: 1 1 50%"></span>
+          <span class="a" id="poss-a" style="flex: 1 1 50%"></span>
+        </div>
+        <div class="poss-labels">
+          <span id="poss-h-lab">50%</span>
+          <span id="poss-a-lab">50%</span>
+        </div>
+        <table class="stats">
+          <thead>
+            <tr><th style="text-align: right">ARS</th><th></th><th style="text-align: left">PSG</th></tr>
+          </thead>
+          <tbody id="stat-rows"></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="section-head">
+      <div>
+        <div class="eyebrow">The learned policy</div>
+        <h2>Two tactical fingerprints, from ratings alone</h2>
+      </div>
+      <p>
+        Share of states in each zone where the table picks each action. Nobody wrote these
+        styles &mdash; they fall out of the rating vectors.
+      </p>
+    </div>
+    <div class="fingerprints" id="fingerprints"></div>
+    <div class="legend" id="legend"></div>
+  </section>
+
+  <section>
+    <div class="section-head">
+      <div>
+        <div class="eyebrow">Monte Carlo</div>
+        <h2>Replay the fixture a thousand times</h2>
+      </div>
+      <p>Same trained tables, fresh dice, 5% exploration left in so no two matches are alike.</p>
+    </div>
+    <div class="controls" style="margin: 0 0 18px">
+      <button class="primary" id="btn-mc">Run 1,000 matches</button>
+      <span class="hint" id="mc-status">not run yet</span>
+    </div>
+    <div class="odds-grid">
+      <div class="card odds-card">
+        <div class="eyebrow" style="margin-bottom: 14px">Result</div>
+        <div id="odds-rows">
+          <div class="odds-row">
+            <span class="odds-name">Arsenal win</span>
+            <span class="odds-track"><span class="odds-fill" style="width: 0; background: var(--ars)"></span></span>
+            <span class="odds-pct">&mdash;</span>
+          </div>
+          <div class="odds-row">
+            <span class="odds-name">Draw</span>
+            <span class="odds-track"><span class="odds-fill" style="width: 0; background: var(--draw)"></span></span>
+            <span class="odds-pct">&mdash;</span>
+          </div>
+          <div class="odds-row">
+            <span class="odds-name">PSG win</span>
+            <span class="odds-track"><span class="odds-fill" style="width: 0; background: var(--psg)"></span></span>
+            <span class="odds-pct">&mdash;</span>
+          </div>
+        </div>
+        <div class="avg-line" id="mc-avg">Average scoreline &mdash;</div>
+      </div>
+      <div class="card odds-card">
+        <div class="eyebrow" style="margin-bottom: 14px">Most likely results</div>
+        <div class="score-dist" id="dist">
+          <p style="margin: 0; font-size: 13.5px; color: var(--ink-faint)">Run the simulation to fill this in.</p>
+        </div>
+      </div>
+    </div>
+    <p class="spread-note">
+      <strong>One caveat the numbers hide.</strong> Both tables chase a moving target, so
+      self-play is non-stationary and different training seeds settle on different
+      equilibria. Across five independent runs of the Python trainer, Arsenal's win rate
+      came out 42%, 48%, 27%, 44% and 66% &mdash; a 39-point spread. This page plays one of
+      those runs, so read it as a single opinion, not the answer.
+    </p>
+  </section>
+
+  <section>
+    <div class="section-head">
+      <div>
+        <div class="eyebrow">How it works</div>
+        <h2>An MDP small enough to solve exactly</h2>
+      </div>
+    </div>
+    <div class="notes">
+      <div class="card note-card">
+        <h3>The state</h3>
+        <p>
+          Zone, whether the team is under pressure, how tired it is, and whether it leads.
+          <code>4 &times; 2 &times; 3 &times; 3 = 72</code> states, five actions &mdash; small enough
+          to solve exactly, big enough for two styles to emerge.
+        </p>
+      </div>
+      <div class="card note-card">
+        <h3>A held-open update</h3>
+        <p>
+          After a team acts, the opponent plays before it sees another state. So each
+          Q-update stays open until that team is next on the ball, and everything in
+          between &mdash; conceding above all &mdash; is banked into the pending reward.
+        </p>
+      </div>
+      <div class="card note-card">
+        <h3>The reward is just the goal</h3>
+        <p>
+          <code>+1</code> scoring, <code>-1</code> conceding. Costs for giving it away or stalling are
+          near-zero on purpose: price a turnover anywhere near a goal and both agents learn
+          cowardice, recycling in midfield all night.
+        </p>
+      </div>
+      <div class="card note-card">
+        <h3>The agents kept cheating</h3>
+        <p>
+          They shot from midfield 60% of the time because a block might win a corner; they
+          used hopeless 40-yarders as a cheap way to concede possession. Every exploit was
+          correct play against a model that was wrong about football.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <span>Ratings and rosters are eyeballed for flavour, not scouted. This is a toy.</span>
+    <span id="foot-meta"></span>
+  </footer>
+</div>
+
+<script>
+/* ===================================================================== */
+/* The trained tables, exported straight from football_rl.py --export     */
+/* ===================================================================== */
+const POLICY = {"meta":{"seed":42,"episodes":12000,"actions":["short_pass","long_ball","carry","shoot","recycle"],"zones":["their own third","midfield","the final third","the box"],"n_states":72},"legal":[[true,true,true,false,true],[true,true,true,false,true],[true,true,true,true,true],[true,true,true,true,true]],"teams":[{"name":"Arsenal","short":"ARS","keys":{"gk":["Raya"],"def":["Saliba","Gabriel","Timber","Calafiori"],"mid":["Rice","Zubimendi","Ødegaard","Merino"],"att":["Saka","Gyökeres","Martinelli","Trossard","Eze","Madueke"]},"ratings":{"passing":0.86,"dribbling":0.78,"finishing":0.8,"pressing":0.88,"defending":0.88,"pace":0.8,"set_pieces":0.94,"keeper":0.85},"q":[[-0.3714,-0.6932,-0.6521,0.0,-0.6169],[-0.4387,-0.5006,-0.1381,0.0,-0.6262],[-0.2746,-0.4883,-0.4942,0.0,-0.4503],[-0.5339,-0.5744,-0.5523,0.0,-0.5846],[-0.3276,-0.4631,-0.4654,0.0,-0.5215],[-0.3771,-0.3872,-0.3558,0.0,-0.3074],[-0.4646,-0.4478,-0.5407,0.0,-0.2317],[-0.4455,-0.442,-0.4845,0.0,-0.3609],[-0.1166,-0.4341,-0.3888,0.0,-0.3416],[0.0,0.0,0.0,0.0,0.0],[0.0,0.0,0.0,0.0,0.0],[0.0,0.0,0.0,0.0,0.0],[0.0,0.0,0.0,0.0,0.0],[0.0,0.0,0.0,0.0,0.0],[0.0,0.0,0.0,0.0,0.0],[0.0,0.0,0.0,0.0,0.0],[0.0,0.0,0.0,0.0,0.0],[0.0,0.0,0.0,0.0,0.0],[-0.1264,-0.585,-0.4308,0.0,-0.4844],[0.0063,-0.5635,-0.5905,0.0,-0.4488],[-0.4843,-0.3444,-0.4209,0.0,-0.3815],[-0.7299,-0.2476,-0.5669,0.0,-0.5244],[-0.1291,-0.4798,-0.481,0.0,-0.4393],[0.011,-0.2764,-0.245,0.0,-0.2892],[-0.3917,-0.291,-0.2132,0.0,-0.2884],[-0.4187,-0.3731,-0.4158,0.0,-0.3656],[0.1478,-0.1397,-0.1433,0.0,-0.1818],[-0.5805,-0.5385,-0.5402,0.0,-0.4469],[-0.6012,-0.5634,-0.5529,0.0,-0.3468],[-0.3916,-0.2306,-0.3673,0.0,-0.371],[-0.6314,-0.7119,-0.6284,0.0,-0.3956],[-0.2388,-0.5693,-0.5747,0.0,-0.4805],[-0.5681,-0.3844,-0.4888,0.0,-0.3811],[-0.5808,-0.6212,-0.5527,0.0,-0.3188],[-0.2733,-0.4285,-0.5504,0.0,-0.391],[-0.4005,-0.1615,-0.3206,0.0,-0.2941],[-0.0076,-0.4243,-0.3498,-0.4329,-0.4318],[-0.4046,-0.3399,-0.3598,0.1501,-0.3264],[-0.2267,-0.2074,-0.246,-0.2943,-0.3252],[-0.1433,-0.5631,-0.4746,-0.4753,-0.405],[-0.0261,-0.2442,-0.28,-0.302,-0.3255],[0.0899,-0.3589,-0.1733,-0.2748,-0.1417],[-0.0934,-0.155,-0.0288,-0.0903,-0.0809],[-0.2551,-0.1982,-0.175,-0.1726,-0.1843],[0.2437,-0.0604,-0.105,0.1268,-0.0607],[-0.4587,-0.4386,-0.4167,-0.1259,-0.3916],[-0.4379,-0.4027,-0.5272,-0.0387,-0.3801],[-0.4333,-0.2616,-0.2709,-0.2873,-0.2602],[-0.6564,-0.2756,-0.6002,-0.4849,-0.6346],[-0.4048,-0.2615,-0.4189,-0.2916,-0.414],[-0.2735,-0.2592,-0.31,-0.3179,-0.3203],[-0.3515,-0.2359,-0.2731,-0.033,-0.2139],[-0.2447,-0.2355,-0.2678,-0.0721,-0.2547],[-0.2979,-0.2684,-0.2528,0.2529,-0.2615],[-0.3713,-0.3706,-0.3675,0.26,-0.3631],[-0.3851,-0.3579,-0.3668,-0.36,-0.2242],[-0.2446,-0.2159,-0.1663,0.2199,-0.21],[-0.4617,-0.4637,-0.4419,-0.0172,-0.2731],[-0.2424,-0.2957,-0.2367,0.3253,-0.2311],[-0.1515,-0.2846,-0.3741,-0.0271,-0.3561],[-0.194,-0.2319,-0.2247,0.0947,-0.1656],[-0.179,-0.2295,-0.1894,0.1619,-0.1047],[-0.2753,-0.2678,-0.1854,0.3763,-0.0253],[-0.288,-0.2797,-0.0766,-0.2901,-0.2816],[-0.3439,-0.3329,-0.4426,-0.3778,-0.3366],[-0.2355,-0.285,-0.2654,-0.2375,-0.1837],[-0.3995,-0.4685,-0.4274,-0.4649,-0.0857],[-0.2988,-0.3257,-0.381,0.1928,-0.3246],[-0.2919,-0.2283,-0.3255,0.289,-0.2279],[-0.0307,-0.2858,-0.2808,-0.2774,-0.2522],[-0.1567,-0.1736,-0.2891,-0.0159,-0.2159],[-0.2382,-0.1983,-0.177,0.3276,-0.2276]]},{"name":"Paris Saint-Germain","short":"PSG","keys":{"gk":["Chevalier"],"def":["Hakimi","Marquinhos","Pacho","Nuno Mendes"],"mid":["Vitinha","João Neves","Fabián Ruiz","Zaïre-Emery"],"att":["Dembélé","Doué","Kvaratskhelia","Barcola","Gonçalo Ramos"]},"ratings":{"passing":0.9,"dribbling":0.92,"finishing":0.85,"pressing":0.85,"defending":0.83,"pace":0.9,"set_pieces":0.74,"keeper":0.87},"q":[[-0.6114,-0.6433,-0.3939,0.0,-0.5703],[-0.624,-0.7124,-0.6624,0.0,-0.5878],[-0.6532,-0.7027,-0.7151,0.0,-0.6465],[-0.7308,-0.7353,-0.4683,0.0,-0.6699],[-0.6622,-0.741,-0.6928,0.0,-0.6583],[-0.3174,-0.5958,-0.5725,0.0,-0.5362],[-0.6605,-0.6451,-0.7342,0.0,-0.6773],[-0.1521,-0.491,-0.42,0.0,-0.5416],[-0.2263,-0.5558,-0.5579,0.0,-0.6154],[0.0,0.0,0.0,0.0,0.0],[0.0,0.0,0.0,0.0,0.0],[0.0,0.0,0.0,0.0,0.0],[0.0,0.0,0.0,0.0,0.0],[0.0,0.0,0.0,0.0,0.0],[0.0,0.0,0.0,0.0,0.0],[0.0,0.0,0.0,0.0,0.0],[0.0,0.0,0.0,0.0,0.0],[0.0,0.0,0.0,0.0,0.0],[-0.282,-0.5493,-0.5862,0.0,-0.5578],[-0.5439,-0.5163,-0.4894,0.0,-0.5049],[-0.4212,-0.3056,-0.4197,0.0,-0.4807],[-0.4955,-0.6989,-0.6592,0.0,-0.6277],[-0.4687,-0.4422,-0.4545,0.0,-0.4583],[-0.4089,-0.2023,-0.3801,0.0,-0.3705],[-0.5328,-0.418,-0.5295,0.0,-0.5223],[-0.4218,-0.0985,-0.4167,0.0,-0.4481],[-0.3325,-0.631,-0.192,0.0,-0.5688],[-0.6195,-0.6271,-0.6439,0.0,-0.4345],[-0.5138,-0.5049,-0.5547,0.0,-0.5068],[-0.484,-0.5343,-0.4271,0.0,-0.3849],[-0.5692,-0.3212,-0.5405,0.0,-0.5501],[-0.5595,-0.5441,-0.5415,0.0,-0.4528],[-0.2526,-0.4518,-0.3919,0.0,-0.3818],[-0.4516,-0.4704,-0.4292,0.0,-0.5302],[-0.1201,-0.407,-0.4458,0.0,-0.3657],[-0.4908,-0.5243,-0.4135,0.0,-0.2295],[-0.5309,-0.4052,-0.228,-0.4287,-0.417],[-0.4302,-0.4481,-0.4131,-0.4224,-0.4045],[-0.2472,-0.2403,-0.284,-0.2336,-0.2262],[-0.4406,-0.5195,-0.1961,-0.5391,-0.4229],[-0.4282,-0.4027,-0.3908,-0.3377,-0.359],[-0.2419,-0.2359,-0.1519,-0.2355,-0.2402],[-0.2905,-0.3218,-0.131,-0.3215,-0.3132],[-0.3126,-0.233,-0.033,-0.2762,-0.3044],[0.1029,-0.4299,-0.2374,-0.3112,-0.3652],[-0.4902,-0.427,-0.379,-0.4559,-0.425],[-0.4128,-0.5101,-0.278,-0.3669,-0.5377],[-0.383,-0.4638,-0.4277,-0.3921,-0.3164],[-0.3412,-0.4554,-0.2974,-0.5198,-0.4365],[-0.4316,-0.4307,-0.2407,-0.4585,-0.4358],[-0.3502,-0.2679,-0.1117,-0.3036,-0.3054],[-0.3199,-0.1819,-0.288,-0.2904,-0.3202],[-0.3303,-0.3282,-0.3808,-0.149,-0.3293],[-0.4184,-0.3496,0.121,-0.3344,-0.3473],[-0.4071,-0.4127,-0.4741,-0.1512,-0.4344],[-0.3017,-0.3073,-0.268,-0.285,-0.2648],[-0.3605,-0.277,-0.2671,-0.1315,-0.1953],[-0.449,-0.6057,-0.4191,0.1886,-0.5128],[-0.301,-0.2818,-0.2456,-0.2772,-0.2336],[-0.1474,-0.168,-0.1687,0.12,-0.0878],[-0.2278,-0.1645,-0.153,0.1058,-0.1741],[-0.2867,-0.2158,-0.2748,0.3109,-0.204],[-0.1908,-0.1732,-0.1904,0.2346,-0.1958],[-0.2961,-0.3293,-0.3878,-0.164,-0.2853],[-0.3942,-0.3667,-0.3951,-0.3188,-0.2757],[-0.241,-0.176,-0.2235,-0.141,-0.1853],[-0.3069,-0.3016,-0.3151,-0.1169,-0.2282],[-0.2737,-0.3427,-0.2798,-0.3273,-0.3058],[-0.207,-0.2253,-0.2131,-0.4087,-0.1703],[-0.2354,-0.225,-0.3601,-0.3108,-0.1949],[-0.2417,-0.2479,-0.2391,-0.2622,-0.0362],[-0.2691,-0.233,-0.2711,0.1564,-0.25]]}]};
+
+/* ===================================================================== */
+/* Engine — a faithful port of MatchEngine from football_rl.py            */
+/* ===================================================================== */
+
+const ACTIONS = POLICY.meta.actions;
+const A_SHOOT = ACTIONS.indexOf("shoot");
+const A_RECYCLE = ACTIONS.indexOf("recycle");
+const ZONE_NAMES = POLICY.meta.zones;
+const ZONE_STRIDE = 18;
+
+const R_GOAL = 1.0, R_TURNOVER = -0.05, R_WASTED_SHOT = -0.03, R_SIDEWAYS = -0.015;
+const BIG_CHANCE_XG = 0.15;
+const FULL_TIME = 90;
+
+const STAT_ROWS = [
+  ["shots", "Shots"],
+  ["on_target", "On target"],
+  ["xg", "xG"],
+  ["big_chances", "Big chances"],
+  ["set_pieces", "Set-piece attempts"],
+  ["final_third_entries", "Final-third entries"],
+  ["turnovers", "Turnovers"],
+];
+
+function mulberry32(a) {
+  return function () {
+    a |= 0; a = (a + 0x6D2B79F5) | 0;
+    let t = Math.imul(a ^ (a >>> 15), 1 | a);
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+
+const clip = (x, lo = 0.03, hi = 0.97) => Math.min(hi, Math.max(lo, x));
+const clamp = (x, lo, hi) => Math.min(hi, Math.max(lo, x));
+
+function blankStats() {
+  return {
+    touches: 0, time: 0, shots: 0, on_target: 0, xg: 0,
+    big_chances: 0, turnovers: 0, final_third_entries: 0, set_pieces: 0,
+  };
+}
+
+class Match {
+  constructor(seed) {
+    this.teams = POLICY.teams;
+    this.rand = mulberry32(seed >>> 0);
+    this.reset();
+  }
+
+  uniform(lo, hi) { return lo + this.rand() * (hi - lo); }
+  pick(team, group) {
+    const list = team.keys[group];
+    return list[Math.floor(this.rand() * list.length)];
+  }
+
+  reset() {
+    this.minute = 0;
+    this.stoppage = this.uniform(3, 6);
+    this.score = [0, 0];
+    this.pos = Math.floor(this.rand() * 2);
+    this.zone = 1;
+    this.pressure = 0;
+    this.events = [];
+    this.stats = [blankStats(), blankStats()];
+  }
+
+  staminaBucket() { return this.minute < 30 ? 0 : (this.minute < 65 ? 1 : 2); }
+
+  state() {
+    const diff = clamp(this.score[this.pos] - this.score[1 - this.pos], -1, 1) + 1;
+    return ((this.zone * 2 + this.pressure) * 3 + this.staminaBucket()) * 3 + diff;
+  }
+
+  done() { return this.minute >= FULL_TIME + this.stoppage; }
+
+  success(action, atk, dfn) {
+    const p = this.pressure, z = this.zone;
+    const tired = 0.06 * this.staminaBucket();
+    const A = atk.ratings, D = dfn.ratings;
+
+    if (action === "short_pass") {
+      return [clip(0.62 + 0.40 * A.passing - 0.34 * D.defending
+        - 0.14 * p - 0.11 * z - tired), 1];
+    }
+    if (action === "long_ball") {
+      return [clip(0.24 + 0.30 * A.passing + 0.14 * A.pace
+        - 0.32 * D.defending - 0.04 * p - 0.07 * z - tired), 2];
+    }
+    if (action === "carry") {
+      return [clip(0.38 + 0.52 * A.dribbling - 0.38 * D.defending
+        - 0.20 * p - 0.06 * z - tired), 1];
+    }
+    if (action === "recycle") {
+      if (z === 0) return [clip(0.90 - 0.30 * p - 0.5 * tired), 0];
+      return [clip(0.96 - 0.08 * p - 0.5 * tired), -1];
+    }
+    throw new Error(action);
+  }
+
+  shotXg(atk, dfn) {
+    const base = [0.002, 0.010, 0.075, 0.26][this.zone];
+    let xg = base * (0.55 + 0.9 * atk.ratings.finishing)
+      * (1 - 0.45 * (dfn.ratings.keeper - 0.5));
+    xg *= 1 - 0.34 * this.pressure;
+    xg *= 1 + 0.05 * this.staminaBucket();
+    return clip(xg, 0.002, 0.85);
+  }
+
+  setPieceXg(atk, dfn, kind) {
+    const A = atk.ratings, D = dfn.ratings;
+    if (kind === "penalty") return clip(0.70 + 0.15 * A.finishing - 0.12 * (D.keeper - 0.5));
+    if (kind === "corner") return clip(0.045 + 0.10 * A.set_pieces - 0.05 * (D.keeper - 0.5));
+    return clip(0.030 + 0.075 * A.set_pieces - 0.04 * (D.keeper - 0.5));
+  }
+
+  repress(dfn) {
+    const prob = clip(0.06 + 0.46 * dfn.ratings.pressing - 0.08 * this.zone
+      + 0.10 * (this.staminaBucket() === 2 ? 1 : 0), 0.05, 0.90);
+    return this.rand() < prob ? 1 : 0;
+  }
+
+  log(tag, text) {
+    this.events.push({ minute: this.minute, tag, text, team: this.pos });
+  }
+
+  turnover() {
+    this.stats[this.pos].turnovers += 1;
+    this.zone = clamp(2 - this.zone, 0, 2);
+    this.pos = 1 - this.pos;
+    this.pressure = 0;
+    if (this.zone >= 2) this.stats[this.pos].final_third_entries += 1;
+  }
+
+  restartAfterGoal(scorer) { this.pos = 1 - scorer; this.zone = 1; this.pressure = 0; }
+  keeperRestart() { this.pos = 1 - this.pos; this.zone = 0; this.pressure = 0; }
+
+  /* Returns {reward, scorer, done, beat} — beat drives the pitch + status line. */
+  step(actionIdx) {
+    const action = ACTIONS[actionIdx];
+    const pos = this.pos;
+    const atk = this.teams[pos], dfn = this.teams[1 - pos];
+    const before = { zone: this.zone, pos, pressure: this.pressure };
+    const dt = this.uniform(0.30, 1.25);
+    this.stats[pos].touches += 1;
+    this.stats[pos].time += dt;
+    this.minute += dt;
+    const fired = this.events.length;
+    let outcome, player, reward = 0, scorer = null;
+
+    if (action === "shoot") {
+      const xg = this.shotXg(atk, dfn);
+      player = this.pick(atk, this.zone >= 2 ? "att" : "mid");
+      this.stats[pos].shots += 1;
+      this.stats[pos].xg += xg;
+      if (xg > BIG_CHANCE_XG) this.stats[pos].big_chances += 1;
+
+      if (this.rand() < xg) {
+        this.score[pos] += 1;
+        this.stats[pos].on_target += 1;
+        this.log("GOAL", `${player} finishes from ${ZONE_NAMES[this.zone]}`);
+        this.restartAfterGoal(pos);
+        return this.wrap(R_GOAL, pos, before, "goal", player, action, fired);
+      }
+
+      if (this.rand() < 0.42) {
+        this.stats[pos].on_target += 1;
+        this.log("SAVE", `${player} forces ${this.pick(dfn, "gk")} into a save`);
+        outcome = "saved";
+      } else {
+        this.log("MISS", `${player} drags it wide`);
+        outcome = "wide";
+      }
+
+      if (this.zone >= 2 && this.rand() < 0.30) {
+        const sp = this.setPiece(atk, dfn, pos, "corner", before, fired);
+        sp.beat.outcome = outcome === "saved" ? "saved" : "wide";
+        sp.beat.note = "corner";
+        return sp;
+      }
+      this.keeperRestart();
+      return this.wrap(R_WASTED_SHOT, null, before, outcome, player, action, fired);
+    }
+
+    const [prob, gain] = this.success(action, atk, dfn);
+
+    if (this.rand() < prob) {
+      const group = ["def", "mid", "att", "att"][this.zone];
+      player = this.pick(atk, group);
+      const newZone = clamp(this.zone + gain, 0, 3);
+      if (newZone >= 2 && this.zone < 2) {
+        this.stats[pos].final_third_entries += 1;
+        this.log("PROG", `${player} breaks ${atk.short} into the final third`);
+      }
+      this.zone = newZone;
+      this.pressure = action === "recycle" ? 0 : this.repress(dfn);
+      return this.wrap(action === "recycle" ? R_SIDEWAYS : 0, null, before,
+        action === "recycle" ? "recycled" : "progress", player, action, fired);
+    }
+
+    if (action === "carry" && this.zone === 3 && this.rand() < 0.13) {
+      return this.setPiece(atk, dfn, pos, "penalty", before, fired);
+    }
+    if ((action === "carry" || action === "short_pass") && this.zone === 2
+        && this.rand() < 0.16) {
+      return this.setPiece(atk, dfn, pos, "free_kick", before, fired);
+    }
+
+    player = this.pick(atk, ["def", "mid", "att", "att"][this.zone]);
+    if (this.zone === 0 && this.pressure === 1) {
+      this.log("LOSS", `${player} is caught on the ball - ${dfn.short} pounce`);
+    }
+    this.turnover();
+    return this.wrap(R_TURNOVER, null, before, "turnover", player, action, fired);
+  }
+
+  setPiece(atk, dfn, pos, kind, before, fired) {
+    const xg = this.setPieceXg(atk, dfn, kind);
+    const taker = this.pick(atk, kind === "free_kick" ? "mid" : "att");
+    this.stats[pos].set_pieces += 1;
+    this.stats[pos].shots += 1;
+    this.stats[pos].xg += xg;
+    if (xg > BIG_CHANCE_XG) this.stats[pos].big_chances += 1;
+    const label = { penalty: "penalty", corner: "corner", free_kick: "free kick" }[kind];
+
+    if (this.rand() < xg) {
+      const finisher = kind === "corner" ? this.pick(atk, "def") : taker;
+      this.stats[pos].on_target += 1;
+      this.score[pos] += 1;
+      this.log("GOAL", `${finisher} converts the ${label}`);
+      this.restartAfterGoal(pos);
+      const out = this.wrap(R_GOAL, pos, before, "goal", finisher, "shoot", fired);
+      out.beat.note = label;
+      return out;
+    }
+
+    this.log("SETP", `${taker}'s ${label} comes to nothing`);
+    this.turnover();
+    const out = this.wrap(0, null, before, "setpiece", taker, "shoot", fired);
+    out.beat.note = label;
+    return out;
+  }
+
+  wrap(reward, scorer, before, outcome, player, action, fired) {
+    return {
+      reward, scorer, done: this.done(),
+      newEvents: this.events.slice(fired),
+      beat: {
+        action, outcome, player, before,
+        after: { zone: this.zone, pos: this.pos, pressure: this.pressure },
+        minute: this.minute,
+      },
+    };
+  }
+}
+
+/* ---------- policy helpers ---------- */
+
+const zoneOf = (state) => Math.floor(state / ZONE_STRIDE);
+
+function bestLegal(qRow, zone) {
+  let best = -1, bestV = -Infinity;
+  for (let a = 0; a < qRow.length; a++) {
+    if (!POLICY.legal[zone][a]) continue;
+    if (qRow[a] > bestV) { bestV = qRow[a]; best = a; }
+  }
+  return [best, bestV];
+}
+
+function chooseAction(match, team, state, eps) {
+  const zone = zoneOf(state);
+  if (eps > 0 && match.rand() < eps) {
+    const legal = [];
+    for (let a = 0; a < ACTIONS.length; a++) if (POLICY.legal[zone][a]) legal.push(a);
+    return legal[Math.floor(match.rand() * legal.length)];
+  }
+  return bestLegal(POLICY.teams[team].q[state], zone)[0];
+}
+
+/* ===================================================================== */
+/* View                                                                  */
+/* ===================================================================== */
+
+const $ = (id) => document.getElementById(id);
+const TEAM_VAR = ["--ars", "--psg"];
+const TAG_ICON = { GOAL: "⚽", SAVE: "🧤", MISS: "↗", SETP: "⛳", LOSS: "⚠", PROG: "→" };
+const PRETTY = {
+  short_pass: "short pass", long_ball: "long ball", carry: "carry",
+  shoot: "shoot", recycle: "recycle",
+};
+const OUTCOME_TEXT = {
+  progress: (b) => `${b.player} moves ${teamShort(b.before.pos)} into ${ZONE_NAMES[b.after.zone]}.`,
+  recycled: (b) => `${b.player} turns back and resets the attack.`,
+  turnover: (b) => `${b.player} loses it &mdash; ${teamShort(b.after.pos)} have the ball in ${ZONE_NAMES[b.after.zone]}.`,
+  goal: (b) => `<strong>Goal.</strong> ${b.player}${b.note ? ` from the ${b.note}` : ""}.`,
+  saved: (b) => `${b.player} hits the target${b.note ? ` &mdash; behind for a ${b.note}` : ", saved"}.`,
+  wide: (b) => `${b.player} pulls it wide${b.note ? ` &mdash; ${b.note}` : ""}.`,
+  setpiece: (b) => `${b.player}'s ${b.note || "set piece"} is cleared.`,
+};
+
+const teamShort = (i) => POLICY.teams[i].short;
+
+const ZONE_X = [150, 475, 767, 967];
+const ZONE_BANDS = [[0, 300], [300, 650], [650, 885], [885, 1050]];
+
+let match = null;
+let seed = 42;
+let timer = null;
+let playing = false;
+let speed = 420;
+let ballJitter = 340;
+
+/* ---------- pitch ---------- */
+
+function buildZoneBands() {
+  const g = $("zones");
+  g.innerHTML = "";
+  ZONE_BANDS.forEach((_, i) => {
+    const r = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+    r.setAttribute("class", "zone-band");
+    r.setAttribute("y", "0");
+    r.setAttribute("height", "680");
+    r.dataset.zone = String(i);
+    g.appendChild(r);
+  });
+}
+
+function paintPitch() {
+  const pos = match.pos, zone = match.zone;
+  const teamColor = `var(${TEAM_VAR[pos]})`;
+  const mirror = pos === 1;
+
+  document.querySelectorAll(".zone-band").forEach((band) => {
+    const i = Number(band.dataset.zone);
+    let [x0, x1] = ZONE_BANDS[i];
+    if (mirror) { const w = x1 - x0; x0 = 1050 - x1; x1 = x0 + w; }
+    band.setAttribute("x", String(x0));
+    band.setAttribute("width", String(x1 - x0));
+    band.style.color = teamColor;
+    band.classList.toggle("on", i === zone);
+  });
+
+  let x = ZONE_X[zone];
+  if (mirror) x = 1050 - x;
+  ballJitter = 200 + match.rand() * 280;
+  $("ball-group").setAttribute("transform", `translate(${x}, ${ballJitter.toFixed(0)})`);
+  // Presentation attributes cannot resolve var() — these must go through style.
+  $("ball").style.fill = teamColor;
+  const ring = $("press-ring");
+  ring.style.stroke = teamColor;
+  ring.classList.toggle("on", match.pressure === 1);
+}
+
+/* ---------- decision trace ---------- */
+
+function paintTrace(state, chosen) {
+  const team = match.pos;
+  const zone = zoneOf(state);
+  const qRow = POLICY.teams[team].q[state];
+
+  $("st-team").textContent = POLICY.teams[team].name;
+  $("st-team").style.color = `var(${TEAM_VAR[team]})`;
+  $("st-zone").textContent = ZONE_NAMES[zone].replace("their own", "own");
+  $("st-press").textContent = match.pressure ? "under the press" : "time on the ball";
+  $("st-stam").textContent = ["fresh", "legs going", "gassed"][match.staminaBucket()];
+
+  const legalVals = qRow.filter((_, a) => POLICY.legal[zone][a]);
+  const lo = Math.min(...legalVals), hi = Math.max(...legalVals);
+  const span = Math.max(hi - lo, 1e-6);
+
+  $("qbars").innerHTML = ACTIONS.map((name, a) => {
+    const legal = POLICY.legal[zone][a];
+    const pct = legal ? 6 + 94 * ((qRow[a] - lo) / span) : 0;
+    const cls = ["qrow", legal ? "" : "illegal", a === chosen ? "chosen" : ""]
+      .filter(Boolean).join(" ");
+    return `<div class="${cls}" style="--team: var(${TEAM_VAR[team]})">
+      <span class="qname">${PRETTY[name]}</span>
+      <span class="qtrack"><span class="qfill" style="width: ${pct.toFixed(1)}%"></span></span>
+      <span class="qval">${legal ? qRow[a].toFixed(3) : "&mdash;"}</span>
+    </div>`;
+  }).join("");
+}
+
+/* ---------- scoreboard, feed, stats ---------- */
+
+function paintBoard(goal) {
+  $("score-h").textContent = match.score[0];
+  $("score-a").textContent = match.score[1];
+  const m = Math.min(match.minute, FULL_TIME + match.stoppage);
+  const stamp = m > FULL_TIME
+    ? `90+${Math.max(1, Math.round(m - FULL_TIME))}'`
+    : `${Math.max(1, Math.floor(m))}'`;
+  $("clock").textContent = match.done() ? `FULL TIME · ${stamp}` : stamp;
+  if (goal) {
+    const b = $("board");
+    b.classList.remove("flash");
+    void b.offsetWidth;
+    b.classList.add("flash");
+  }
+}
+
+function paintBeat(beat) {
+  $("beat-chip").textContent = PRETTY[beat.action] || beat.action;
+  const render = OUTCOME_TEXT[beat.outcome];
+  $("beat-text").innerHTML = render ? render(beat) : beat.outcome;
+}
+
+let feedCount = 0;
+
+function pushEvents(list) {
+  if (!list.length) return;
+  const feed = $("feed");
+  const empty = $("feed-empty");
+  if (empty) empty.remove();
+
+  list.forEach((ev) => {
+    if (ev.tag === "PROG") return;
+    feedCount += 1;
+    const li = document.createElement("li");
+    li.className = [ev.team === 0 ? "ars" : "psg", ev.tag === "GOAL" ? "goal" : ""]
+      .filter(Boolean).join(" ");
+    const m = ev.minute > FULL_TIME
+      ? `90+${Math.max(1, Math.round(ev.minute - FULL_TIME))}'`
+      : `${Math.max(1, Math.floor(ev.minute))}'`;
+    li.innerHTML = `<span class="min">${m}</span>`
+      + `<span class="tag" aria-hidden="true">${TAG_ICON[ev.tag] || ""}</span>`
+      + `<span class="txt">${ev.text}</span>`
+      + (ev.tag === "GOAL"
+        ? `<span class="running">${teamShort(0)} ${match.score[0]} &ndash; ${match.score[1]} ${teamShort(1)}</span>`
+        : "");
+    feed.appendChild(li);
+  });
+
+  $("feed-count").textContent = `${feedCount} event${feedCount === 1 ? "" : "s"}`;
+  feed.scrollTop = feed.scrollHeight;
+}
+
+function paintStats() {
+  const s = match.stats;
+  const total = s[0].time + s[1].time;
+  // Before a ball is kicked there is no possession to split — show it even.
+  const ph = total > 0 ? (100 * s[0].time) / total : 50;
+  $("poss-h").style.flexBasis = `${ph}%`;
+  $("poss-a").style.flexBasis = `${100 - ph}%`;
+  $("poss-h-lab").textContent = `${Math.round(ph)}% ARS`;
+  $("poss-a-lab").textContent = `PSG ${Math.round(100 - ph)}%`;
+
+  $("stat-rows").innerHTML = STAT_ROWS.map(([key, label]) => {
+    const a = s[0][key], b = s[1][key];
+    const fmt = (v) => (key === "xg" ? v.toFixed(2) : String(Math.round(v)));
+    const max = Math.max(a, b, 1e-6);
+    return `<tr>
+      <td class="h">${fmt(a)}<span class="bar-mini" style="width: ${(70 * a / max).toFixed(1)}px"></span></td>
+      <th scope="row">${label}</th>
+      <td class="a">${fmt(b)}<span class="bar-mini" style="width: ${(70 * b / max).toFixed(1)}px"></span></td>
+    </tr>`;
+  }).join("");
+}
+
+/* ---------- playback ---------- */
+
+function tick() {
+  if (!match || match.done()) { stop(true); return; }
+  const state = match.state();
+  const chosen = chooseAction(match, match.pos, state, 0.05);
+  paintTrace(state, chosen);
+  const out = match.step(chosen);
+  pushEvents(out.newEvents);
+  paintBoard(out.scorer !== null);
+  paintBeat(out.beat);
+  paintPitch();
+  paintStats();
+  if (match.done()) { stop(true); return; }
+  timer = setTimeout(tick, speed);
+}
+
+function runToEnd() {
+  let guard = 0;
+  while (!match.done() && guard++ < 4000) {
+    const state = match.state();
+    const out = match.step(chooseAction(match, match.pos, state, 0.05));
+    pushEvents(out.newEvents);
+    paintBeat(out.beat);
+  }
+  paintBoard(false);
+  paintPitch();
+  paintStats();
+  const state = match.state();
+  paintTrace(state, chooseAction(match, match.pos, state, 0));
+  stop(true);
+}
+
+function start() {
+  if (match.done()) newMatch();
+  playing = true;
+  $("btn-play").textContent = "Pause";
+  if (speed === 0) { runToEnd(); return; }
+  tick();
+}
+
+function stop(finished) {
+  playing = false;
+  clearTimeout(timer);
+  timer = null;
+  $("btn-play").textContent = finished && match.done() ? "Kick off" : "Resume";
+  if (finished && match.done()) paintBoard(false);
+}
+
+function newMatch() {
+  clearTimeout(timer);
+  playing = false;
+  match = new Match(seed);
+  feedCount = 0;
+  $("feed").innerHTML = '<li class="feed-empty" id="feed-empty">No events yet.</li>';
+  $("feed-count").textContent = "0 events";
+  $("btn-play").textContent = "Kick off";
+  $("seed-hint").textContent = `seed ${seed}`;
+  paintBoard(false);
+  $("clock").textContent = "NOT STARTED";
+  paintPitch();
+  paintStats();
+  const state = match.state();
+  paintTrace(state, chooseAction(match, match.pos, state, 0));
+  $("beat-chip").textContent = "kickoff";
+  $("beat-text").innerHTML = `<strong>${POLICY.teams[match.pos].name}</strong> get us under way.`;
+}
+
+/* ---------- fingerprints ---------- */
+
+function policyMix(teamIdx) {
+  const q = POLICY.teams[teamIdx].q;
+  return ZONE_NAMES.map((_, z) => {
+    const counts = new Array(ACTIONS.length).fill(0);
+    for (let p = 0; p < 2; p++) {
+      for (let st = 0; st < 3; st++) {
+        for (let d = 0; d < 3; d++) {
+          const state = ((z * 2 + p) * 3 + st) * 3 + d;
+          counts[bestLegal(q[state], z)[0]] += 1;
+        }
+      }
+    }
+    const total = counts.reduce((a, b) => a + b, 0);
+    return counts.map((c) => c / total);
+  });
+}
+
+function buildFingerprints() {
+  const notes = [
+    "Builds out from the back, mixes a long switch into midfield, then shoots early &mdash; and leans on a corner routine rated 0.94.",
+    "Goes vertical through midfield to skip the press, then dribbles the last line rather than passing through it. That is what 0.92 dribbling buys.",
+  ];
+
+  $("fingerprints").innerHTML = POLICY.teams.map((team, i) => {
+    const mix = policyMix(i);
+    const rows = mix.map((shares, z) => {
+      const segs = shares.map((v, a) => v <= 0 ? "" :
+        `<span style="flex: 0 0 ${(v * 100).toFixed(2)}%; background: var(--act-${a + 1})"
+           title="${PRETTY[ACTIONS[a]]} &mdash; ${Math.round(v * 100)}% of states"></span>`
+      ).join("");
+      const labels = shares
+        .map((v, a) => ({ v, a }))
+        .filter((o) => o.v >= 0.10)
+        .sort((x, y) => y.v - x.v)
+        .map((o) => `<span><b>${PRETTY[ACTIONS[o.a]]}</b> ${Math.round(o.v * 100)}%</span>`)
+        .join("");
+      return `<div class="zone-row">
+        <div class="zone-label">${ZONE_NAMES[z].replace("their own", "own")}</div>
+        <div class="stack">${segs}</div>
+        <div class="stack-labels">${labels}</div>
+      </div>`;
+    }).join("");
+
+    return `<div class="card fp-card">
+      <div class="fp-head">
+        <span class="fp-mark" style="background: var(${TEAM_VAR[i]})"></span>
+        <h3>${team.name}</h3>
+      </div>
+      <p class="fp-note">${notes[i]}</p>
+      ${rows}
+    </div>`;
+  }).join("");
+
+  $("legend").innerHTML = ACTIONS.map((a, i) =>
+    `<div><span class="swatch" style="background: var(--act-${i + 1})"></span>${PRETTY[a]}</div>`
+  ).join("");
+}
+
+/* ---------- monte carlo ---------- */
+
+function runMonteCarlo(n) {
+  const btn = $("btn-mc");
+  btn.disabled = true;
+  const tally = { home: 0, draw: 0, away: 0 };
+  const lines = new Map();
+  const goals = [0, 0];
+  let done = 0;
+  const mcRand = mulberry32((seed + 999) >>> 0);
+
+  function chunk() {
+    const upto = Math.min(done + 100, n);
+    for (; done < upto; done++) {
+      const m = new Match(Math.floor(mcRand() * 2 ** 31));
+      let guard = 0;
+      while (!m.done() && guard++ < 4000) {
+        m.step(chooseAction(m, m.pos, m.state(), 0.05));
+      }
+      const [h, a] = m.score;
+      goals[0] += h; goals[1] += a;
+      const key = `${h}-${a}`;
+      lines.set(key, (lines.get(key) || 0) + 1);
+      tally[h > a ? "home" : (a > h ? "away" : "draw")] += 1;
+    }
+    $("mc-status").textContent = `${done.toLocaleString()} / ${n.toLocaleString()}`;
+
+    if (done < n) { setTimeout(chunk, 0); return; }
+
+    const pct = (v) => (100 * v) / n;
+    const rows = [
+      ["Arsenal win", tally.home, "var(--ars)"],
+      ["Draw", tally.draw, "var(--draw)"],
+      ["PSG win", tally.away, "var(--psg)"],
+    ];
+    const peak = Math.max(...rows.map((r) => pct(r[1])), 1);
+    $("odds-rows").innerHTML = rows.map(([name, v, color]) =>
+      `<div class="odds-row">
+        <span class="odds-name">${name}</span>
+        <span class="odds-track"><span class="odds-fill"
+          style="width: ${(100 * pct(v) / peak).toFixed(1)}%; background: ${color}"></span></span>
+        <span class="odds-pct">${pct(v).toFixed(1)}%</span>
+      </div>`).join("");
+
+    $("mc-avg").innerHTML = `Average scoreline &nbsp;<strong>ARS ${(goals[0] / n).toFixed(2)}
+      &ndash; ${(goals[1] / n).toFixed(2)} PSG</strong>`;
+
+    const top = [...lines.entries()].sort((a, b) => b[1] - a[1]).slice(0, 6);
+    const distPeak = top.length ? pct(top[0][1]) : 1;
+    $("dist").innerHTML = top.map(([key, c]) => {
+      // Same three-way encoding as the Result panel: a scoreline IS an outcome.
+      const [h, a] = key.split("-").map(Number);
+      const color = h > a ? "var(--ars)" : (a > h ? "var(--psg)" : "var(--draw)");
+      const who = h > a ? "Arsenal win" : (a > h ? "PSG win" : "draw");
+      return `<div class="dist-row" title="${key} — ${who}, ${pct(c).toFixed(1)}% of matches">
+        <span class="dist-key">${key}</span>
+        <span class="dist-track"><span class="dist-fill"
+          style="width: ${(100 * pct(c) / distPeak).toFixed(1)}%; background: ${color}"></span></span>
+        <span class="dist-pct">${pct(c).toFixed(1)}%</span>
+      </div>`;
+    }).join("");
+
+    $("mc-status").textContent = `${n.toLocaleString()} matches played`;
+    btn.disabled = false;
+  }
+  chunk();
+}
+
+/* ---------- wiring ---------- */
+
+buildZoneBands();
+buildFingerprints();
+newMatch();
+
+$("foot-meta").textContent =
+  `trained ${POLICY.meta.episodes.toLocaleString()} self-play matches · seed ${POLICY.meta.seed} · ${POLICY.meta.n_states} states`;
+
+$("btn-play").addEventListener("click", () => (playing ? stop(false) : start()));
+$("btn-restart").addEventListener("click", () => {
+  seed = Math.floor(Math.random() * 9000) + 100;
+  newMatch();
+});
+$("btn-mc").addEventListener("click", () => runMonteCarlo(1000));
+
+const SPEEDS = [["sp-live", 420], ["sp-fast", 130], ["sp-jump", 0]];
+SPEEDS.forEach(([id, ms]) => {
+  $(id).addEventListener("click", () => {
+    speed = ms;
+    SPEEDS.forEach(([other]) => $(other).setAttribute("aria-pressed", String(other === id)));
+    if (playing) { clearTimeout(timer); if (ms === 0) runToEnd(); else tick(); }
+  });
+});
+</script>
