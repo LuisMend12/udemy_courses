@@ -1,0 +1,1073 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Fun Projects</title>
+<style>
+  /* ==========================================================================
+     Tokens. One set, light is the base, both dark scopes redefine it.
+     Same ramp as arsenal_vs_psg/frontend so the two pages read as one product.
+     (Consistency: every decision below is spent from this list, nothing ad hoc.)
+     ========================================================================== */
+  :root {
+    color-scheme: light;
+
+    --ground:        #F2F5F1;
+    --surface:       #F8FAF7;
+    --raised:        #E8EDE6;
+    --sunken:        #E1E7DF;
+    --hairline:      rgba(16, 24, 21, 0.12);
+    --hairline-firm: rgba(16, 24, 21, 0.22);
+
+    --ink:       #101815;
+    --ink-2:     #3C4B45;
+    --ink-muted: #5C6B64;
+    --ink-faint: #8A998F;
+
+    /* The single accent. Spent only on the primary action and the live tile,
+       so "the bright thing" always means "the thing to press". */
+    --accent:       #2E8B62;
+    --accent-shade: #1F6647;
+    --accent-wash:  rgba(46, 139, 98, 0.10);
+    --on-accent:    #FFFFFF;
+
+    --turf:      #5B8A62;
+    --turf-line: rgba(255, 255, 255, 0.55);
+    --ars:       #C8102E;
+    --psg:       #1B4F9C;
+
+    --lock:      #8A998F;
+
+    --shadow:    0 1px 2px rgba(16, 24, 21, 0.06), 0 8px 24px rgba(16, 24, 21, 0.05);
+    --shadow-lg: 0 2px 4px rgba(16, 24, 21, 0.07), 0 18px 44px rgba(16, 24, 21, 0.10);
+
+    --display: "Bahnschrift SemiCondensed", "Segoe UI Semibold", "Helvetica Neue",
+               system-ui, sans-serif;
+    --body: system-ui, -apple-system, "Segoe UI", sans-serif;
+    --mono: ui-monospace, "Cascadia Mono", Consolas, "SF Mono", monospace;
+
+    --r: 5px;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      color-scheme: dark;
+      --ground:        #0D1310;
+      --surface:       #161F1B;
+      --raised:        #1E2A24;
+      --sunken:        #121A16;
+      --hairline:      rgba(233, 239, 234, 0.14);
+      --hairline-firm: rgba(233, 239, 234, 0.26);
+      --ink:       #E9EFEA;
+      --ink-2:     #B9C6BE;
+      --ink-muted: #8A9A91;
+      --ink-faint: #6B7A72;
+      --accent:       #3FAE7C;
+      --accent-shade: #247352;
+      --accent-wash:  rgba(63, 174, 124, 0.14);
+      --on-accent:    #07130E;
+      --turf:      #1C3524;
+      --turf-line: rgba(233, 239, 234, 0.30);
+      --ars:       #EF4256;
+      --psg:       #4A8CDB;
+      --lock:      #6B7A72;
+      --shadow:    0 1px 2px rgba(0, 0, 0, 0.4), 0 10px 30px rgba(0, 0, 0, 0.32);
+      --shadow-lg: 0 2px 4px rgba(0, 0, 0, 0.45), 0 22px 50px rgba(0, 0, 0, 0.40);
+    }
+  }
+
+  :root[data-theme="dark"] {
+    color-scheme: dark;
+    --ground:        #0D1310;
+    --surface:       #161F1B;
+    --raised:        #1E2A24;
+    --sunken:        #121A16;
+    --hairline:      rgba(233, 239, 234, 0.14);
+    --hairline-firm: rgba(233, 239, 234, 0.26);
+    --ink:       #E9EFEA;
+    --ink-2:     #B9C6BE;
+    --ink-muted: #8A9A91;
+    --ink-faint: #6B7A72;
+    --accent:       #3FAE7C;
+    --accent-shade: #247352;
+    --accent-wash:  rgba(63, 174, 124, 0.14);
+    --on-accent:    #07130E;
+    --turf:      #1C3524;
+    --turf-line: rgba(233, 239, 234, 0.30);
+    --ars:       #EF4256;
+    --psg:       #4A8CDB;
+    --lock:      #6B7A72;
+    --shadow:    0 1px 2px rgba(0, 0, 0, 0.4), 0 10px 30px rgba(0, 0, 0, 0.32);
+    --shadow-lg: 0 2px 4px rgba(0, 0, 0, 0.45), 0 22px 50px rgba(0, 0, 0, 0.40);
+  }
+
+  /* ---------- base ---------- */
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    background: var(--ground);
+    color: var(--ink);
+    font-family: var(--body);
+    font-size: 15px;
+    line-height: 1.55;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  h1, h2, h3 {
+    font-family: var(--display);
+    font-weight: 600;
+    text-wrap: balance;
+    margin: 0;
+    letter-spacing: -0.015em;
+  }
+
+  a { color: inherit; }
+
+  .wrap {
+    max-width: 1120px;
+    margin: 0 auto;
+    padding: 0 20px 96px;
+  }
+
+  /* Visible focus everywhere. Keyboard players get the same affordances. */
+  :focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+    border-radius: 3px;
+  }
+
+  .eyebrow {
+    font-family: var(--display);
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--ink-muted);
+  }
+
+  section { margin-top: 52px; }
+
+  .section-head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 16px;
+    flex-wrap: wrap;
+    border-bottom: 1px solid var(--hairline);
+    padding-bottom: 10px;
+    margin-bottom: 22px;
+  }
+  .section-head h2 { font-size: 21px; }
+  .section-head p {
+    margin: 0;
+    color: var(--ink-muted);
+    font-size: 13.5px;
+    max-width: 48ch;
+  }
+
+  /* ==========================================================================
+     Top bar
+     ========================================================================== */
+  .topbar {
+    position: sticky;
+    top: 0;
+    z-index: 30;
+    background: var(--surface);
+    border-bottom: 1px solid var(--hairline-firm);
+  }
+  .topbar-inner {
+    max-width: 1120px;
+    margin: 0 auto;
+    padding: 11px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+  }
+  .wordmark {
+    display: flex;
+    align-items: center;
+    gap: 11px;
+    text-decoration: none;
+    min-width: 0;
+  }
+  .wordmark-mark {
+    width: 30px;
+    height: 30px;
+    flex: none;
+    border-radius: var(--r);
+    background: var(--accent);
+    color: var(--on-accent);
+    display: grid;
+    place-items: center;
+    box-shadow: 0 2px 0 var(--accent-shade);
+  }
+  .wordmark-text { min-width: 0; }
+  .wordmark-name {
+    font-family: var(--display);
+    font-size: 16.5px;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    line-height: 1.1;
+    white-space: nowrap;
+  }
+  .wordmark-path {
+    font-family: var(--mono);
+    font-size: 10.5px;
+    color: var(--ink-faint);
+    white-space: nowrap;
+  }
+  .topbar-actions { display: flex; align-items: center; gap: 8px; }
+
+  /* ==========================================================================
+     Buttons. A container with a hard bottom edge that compresses on press —
+     the click reads as a physical thing, not a colour change.
+     ========================================================================== */
+  .btn {
+    --shade: var(--hairline-firm);
+    appearance: none;
+    font: inherit;
+    font-family: var(--display);
+    font-size: 14px;
+    font-weight: 600;
+    letter-spacing: 0.005em;
+    display: inline-flex;
+    align-items: center;
+    gap: 9px;
+    padding: 9px 15px;
+    border-radius: var(--r);
+    border: 1px solid var(--hairline-firm);
+    background: var(--surface);
+    color: var(--ink);
+    text-decoration: none;
+    cursor: pointer;
+    box-shadow: 0 3px 0 var(--shade);
+    transition: transform 90ms ease, box-shadow 90ms ease,
+                background-color 140ms ease, border-color 140ms ease;
+  }
+  .btn:hover { background: var(--raised); transform: translateY(-1px); box-shadow: 0 4px 0 var(--shade); }
+  .btn:active { transform: translateY(3px); box-shadow: 0 0 0 var(--shade); }
+
+  .btn-primary {
+    --shade: var(--accent-shade);
+    background: var(--accent);
+    border-color: var(--accent-shade);
+    color: var(--on-accent);
+    font-size: 15px;
+    padding: 11px 19px;
+  }
+  .btn-primary:hover { background: var(--accent); filter: brightness(1.06); }
+
+  .btn-sm { font-size: 12.5px; padding: 6px 11px; box-shadow: 0 2px 0 var(--shade); }
+  .btn-sm:hover { box-shadow: 0 3px 0 var(--shade); }
+
+  /* Convention: disabled is grey, flat, and does not respond to the pointer. */
+  .btn[disabled], .btn[aria-disabled="true"] {
+    background: var(--sunken);
+    border-color: var(--hairline);
+    color: var(--ink-faint);
+    box-shadow: none;
+    cursor: not-allowed;
+    transform: none;
+    filter: none;
+  }
+
+  .btn svg { flex: none; }
+
+  kbd {
+    font-family: var(--mono);
+    font-size: 10.5px;
+    line-height: 1;
+    padding: 3px 5px 4px;
+    border-radius: 3px;
+    border: 1px solid var(--hairline-firm);
+    border-bottom-width: 2px;
+    background: var(--sunken);
+    color: var(--ink-muted);
+    white-space: nowrap;
+  }
+  .btn-primary kbd {
+    background: rgba(0, 0, 0, 0.16);
+    border-color: rgba(0, 0, 0, 0.24);
+    color: var(--on-accent);
+  }
+
+  /* ==========================================================================
+     Hero
+     ========================================================================== */
+  .hero { margin-top: 40px; }
+  .hero-head { max-width: 60ch; }
+  .hero-head h1 {
+    font-size: clamp(32px, 5.4vw, 50px);
+    line-height: 1.02;
+    letter-spacing: -0.028em;
+    margin: 10px 0 12px;
+  }
+  .hero-head p {
+    margin: 0;
+    color: var(--ink-2);
+    font-size: 16.5px;
+    max-width: 58ch;
+  }
+
+  /* ---------- featured tile ---------- */
+  .feature {
+    margin-top: 28px;
+    display: grid;
+    grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
+    gap: 0;
+    background: var(--surface);
+    border: 1px solid var(--hairline);
+    border-radius: calc(var(--r) + 3px);
+    box-shadow: var(--shadow-lg);
+    overflow: hidden;
+  }
+
+  .feature-art {
+    position: relative;
+    background: var(--turf);
+    min-height: 260px;
+    display: grid;
+    place-items: stretch;
+  }
+  svg.pitch { display: block; width: 100%; height: 100%; }
+  .pitch-line { fill: none; stroke: var(--turf-line); stroke-width: 3; }
+  .pitch-zone { fill: #fff; fill-opacity: 0; }
+  .pitch-zone.lit { fill-opacity: 0.07; }
+
+  .ball-runner { animation: run 7.2s cubic-bezier(.55, .05, .3, 1) infinite; }
+  @keyframes run {
+    0%   { transform: translate(56px, 168px); }
+    14%  { transform: translate(56px, 168px); }
+    28%  { transform: translate(148px, 96px); }
+    42%  { transform: translate(148px, 96px); }
+    56%  { transform: translate(252px, 150px); }
+    70%  { transform: translate(252px, 150px); }
+    84%  { transform: translate(344px, 118px); }
+    100% { transform: translate(344px, 118px); }
+  }
+  .art-badge {
+    position: absolute;
+    left: 14px;
+    top: 14px;
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    padding: 5px 10px 5px 8px;
+    border-radius: 100px;
+    background: rgba(8, 14, 11, 0.55);
+    color: #EFF5F0;
+    font-family: var(--display);
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    backdrop-filter: blur(3px);
+  }
+  .live-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: #63D69C;
+    animation: pulse 2s ease-in-out infinite;
+  }
+  @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.35; } }
+
+  .feature-body {
+    padding: 24px 26px 26px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    border-left: 1px solid var(--hairline);
+  }
+  .feature-title { font-size: 26px; line-height: 1.1; }
+  .feature-blurb { margin: 0; color: var(--ink-2); font-size: 14.5px; }
+
+  .clubs { display: flex; align-items: center; gap: 10px; font-family: var(--display); font-size: 13px; }
+  .club-chip { display: inline-flex; align-items: center; gap: 7px; }
+  .club-swatch { width: 5px; height: 15px; border-radius: 1px; }
+  .club-chip.home .club-swatch { background: var(--ars); }
+  .club-chip.away .club-swatch { background: var(--psg); }
+  .clubs .v { color: var(--ink-faint); font-size: 11.5px; letter-spacing: 0.1em; text-transform: uppercase; }
+
+  /* Stat chips sit together with no gaps between them and clear space around
+     the group — proximity does the grouping, not a box. */
+  .stats {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    border: 1px solid var(--hairline);
+    border-radius: var(--r);
+    overflow: hidden;
+    background: var(--sunken);
+  }
+  .stat { padding: 9px 10px; border-right: 1px solid var(--hairline); }
+  .stat:last-child { border-right: 0; }
+  .stat-val {
+    font-family: var(--display);
+    font-size: 17px;
+    font-weight: 600;
+    line-height: 1.15;
+    font-variant-numeric: tabular-nums;
+  }
+  .stat-key {
+    font-size: 10.5px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+  }
+
+  .actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: auto; padding-top: 4px; }
+
+  /* ==========================================================================
+     Card grid
+     ========================================================================== */
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(268px, 1fr));
+    gap: 16px;
+  }
+
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--hairline);
+    border-radius: calc(var(--r) + 2px);
+    box-shadow: var(--shadow);
+    padding: 18px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    transition: transform 140ms ease, box-shadow 140ms ease, border-color 140ms ease;
+  }
+  .card.hoverable:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-lg);
+    border-color: var(--hairline-firm);
+  }
+
+  .card-icon {
+    width: 34px;
+    height: 34px;
+    border-radius: var(--r);
+    display: grid;
+    place-items: center;
+    background: var(--accent-wash);
+    color: var(--accent);
+    flex: none;
+  }
+  /* All glyphs: 24px grid, 1.75 stroke, round caps. One family, no exceptions. */
+  .glyph { stroke: currentColor; fill: none; stroke-width: 1.75; stroke-linecap: round; stroke-linejoin: round; }
+
+  .card h3 { font-size: 17px; line-height: 1.2; }
+  .card p { margin: 0; color: var(--ink-muted); font-size: 13.5px; }
+  .card .actions { margin-top: auto; }
+
+  .path {
+    font-family: var(--mono);
+    font-size: 11.5px;
+    color: var(--ink-faint);
+    word-break: break-all;
+  }
+
+  .cmd {
+    font-family: var(--mono);
+    font-size: 12px;
+    background: var(--sunken);
+    border: 1px solid var(--hairline);
+    border-radius: 4px;
+    padding: 9px 11px;
+    color: var(--ink-2);
+    overflow-x: auto;
+    white-space: pre;
+  }
+
+  /* ---------- empty slots: the lock convention, greyed and inert ---------- */
+  .card.slot {
+    background: transparent;
+    border-style: dashed;
+    border-color: var(--hairline-firm);
+    box-shadow: none;
+    color: var(--ink-muted);
+  }
+  .card.slot .card-icon { background: var(--sunken); color: var(--lock); }
+  .card.slot h3 { color: var(--ink-muted); font-weight: 600; }
+
+  /* ==========================================================================
+     Style guide
+     ========================================================================== */
+  .sg { display: grid; grid-template-columns: repeat(auto-fit, minmax(290px, 1fr)); gap: 16px; }
+  .sg-panel {
+    background: var(--surface);
+    border: 1px solid var(--hairline);
+    border-radius: calc(var(--r) + 2px);
+    box-shadow: var(--shadow);
+    padding: 18px;
+  }
+  .sg-panel > .eyebrow { display: block; margin-bottom: 14px; }
+
+  .swatches { display: grid; grid-template-columns: repeat(auto-fit, minmax(84px, 1fr)); gap: 10px; }
+  .swatch-chip {
+    height: 40px;
+    border-radius: 4px;
+    border: 1px solid var(--hairline-firm);
+    margin-bottom: 6px;
+  }
+  .swatch code { font-family: var(--mono); font-size: 10.5px; color: var(--ink-faint); }
+
+  .ramp > * { margin: 0 0 10px; }
+  .ramp .r-display { font-family: var(--display); font-size: 26px; font-weight: 600; letter-spacing: -0.02em; }
+  .ramp .r-h3 { font-family: var(--display); font-size: 17px; font-weight: 600; }
+  .ramp .r-body { font-size: 15px; color: var(--ink-2); }
+  .ramp .r-meta { font-size: 13px; color: var(--ink-muted); }
+  .ramp .r-mono { font-family: var(--mono); font-size: 11.5px; color: var(--ink-faint); letter-spacing: 0.04em; text-transform: uppercase; }
+
+  .btn-row { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+  .btn-row .lab { font-size: 11.5px; color: var(--ink-faint); font-family: var(--mono); }
+
+  .principles { list-style: none; margin: 0; padding: 0; display: grid; gap: 12px; }
+  .principles li { display: grid; grid-template-columns: 108px minmax(0, 1fr); gap: 12px; align-items: baseline; }
+  .principles .p-name {
+    font-family: var(--display);
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--accent);
+  }
+  .principles .p-how { font-size: 13.5px; color: var(--ink-2); }
+
+  /* ==========================================================================
+     Feedback: toast + shortcut overlay
+     ========================================================================== */
+  .toast {
+    position: fixed;
+    left: 50%;
+    bottom: 26px;
+    z-index: 60;
+    transform: translate(-50%, 14px);
+    opacity: 0;
+    pointer-events: none;
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    padding: 10px 16px;
+    border-radius: 100px;
+    background: var(--ink);
+    color: var(--ground);
+    font-family: var(--display);
+    font-size: 13.5px;
+    font-weight: 600;
+    box-shadow: var(--shadow-lg);
+    transition: opacity 180ms ease, transform 180ms ease;
+  }
+  .toast.on { opacity: 1; transform: translate(-50%, 0); }
+
+  .overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 50;
+    display: none;
+    place-items: center;
+    padding: 20px;
+    background: rgba(8, 14, 11, 0.45);
+    backdrop-filter: blur(2px);
+  }
+  .overlay.on { display: grid; }
+  .sheet {
+    width: min(420px, 100%);
+    background: var(--surface);
+    border: 1px solid var(--hairline-firm);
+    border-radius: calc(var(--r) + 3px);
+    box-shadow: var(--shadow-lg);
+    padding: 20px;
+  }
+  .sheet-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 14px;
+  }
+  .sheet-head h2 { font-size: 18px; }
+  /* Convention: an X in the top-right closes the thing. */
+  .x-btn {
+    appearance: none;
+    background: transparent;
+    border: 1px solid transparent;
+    border-radius: 4px;
+    color: var(--ink-muted);
+    cursor: pointer;
+    padding: 4px;
+    display: grid;
+    place-items: center;
+  }
+  .x-btn:hover { background: var(--raised); color: var(--ink); }
+  .keys { list-style: none; margin: 0; padding: 0; display: grid; gap: 9px; }
+  .keys li { display: flex; align-items: center; justify-content: space-between; gap: 14px; font-size: 13.5px; color: var(--ink-2); }
+
+  footer {
+    margin-top: 56px;
+    padding-top: 18px;
+    border-top: 1px solid var(--hairline);
+    color: var(--ink-faint);
+    font-size: 12.5px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px 16px;
+    justify-content: space-between;
+  }
+  footer a { color: var(--ink-muted); }
+
+  @media (max-width: 860px) {
+    .feature { grid-template-columns: minmax(0, 1fr); }
+    .feature-art { min-height: 200px; }
+    .feature-body { border-left: 0; border-top: 1px solid var(--hairline); }
+    .principles li { grid-template-columns: minmax(0, 1fr); gap: 2px; }
+  }
+  @media (max-width: 460px) {
+    .stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .stat:nth-child(2) { border-right: 0; }
+    .stat:nth-child(-n+2) { border-bottom: 1px solid var(--hairline); }
+    .wordmark-path { display: none; }
+  }
+
+  /* Movement is decoration here, never the only carrier of meaning. */
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: 0.001ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.001ms !important;
+    }
+    .ball-runner { transform: translate(252px, 150px); }
+  }
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="topbar-inner">
+    <a class="wordmark" href="#top">
+      <span class="wordmark-mark" aria-hidden="true">
+        <svg width="17" height="17" viewBox="0 0 24 24" class="glyph" stroke-width="2">
+          <path d="M8 5.5 17.5 12 8 18.5z"/>
+        </svg>
+      </span>
+      <span class="wordmark-text">
+        <span class="wordmark-name">Fun Projects</span>
+        <span class="wordmark-path">rl_course/fun_projects</span>
+      </span>
+    </a>
+    <div class="topbar-actions">
+      <button class="btn btn-sm" id="hintBtn" aria-haspopup="dialog">
+        Shortcuts <kbd>?</kbd>
+      </button>
+      <button class="btn btn-sm" id="themeBtn" aria-live="polite">
+        <svg width="15" height="15" viewBox="0 0 24 24" class="glyph" aria-hidden="true">
+          <circle cx="12" cy="12" r="4.2"/>
+          <path d="M12 2.6v2.2M12 19.2v2.2M2.6 12h2.2M19.2 12h2.2M5.4 5.4l1.6 1.6M17 17l1.6 1.6M18.6 5.4 17 7M7 17l-1.6 1.6"/>
+        </svg>
+        <span id="themeLabel">System</span>
+      </button>
+    </div>
+  </div>
+</header>
+
+<main class="wrap" id="top">
+
+  <!-- ===================== hero ===================== -->
+  <section class="hero" style="margin-top:40px">
+    <div class="hero-head">
+      <span class="eyebrow">Reinforcement learning playground</span>
+      <h1>Things I built because they were fun.</h1>
+      <p>
+        Small agents let loose on problems nobody needed solved. Everything here
+        runs in the browser with no server and no install &mdash; the trained
+        tables are baked into the page, so what you watch is the real learned
+        policy, not a re-simulation.
+      </p>
+    </div>
+
+    <!-- One featured slot. Whatever is worth your attention first goes here,
+         at a size and contrast nothing else on the page competes with. -->
+    <article class="feature">
+      <div class="feature-art">
+        <span class="art-badge"><span class="live-dot" aria-hidden="true"></span> Playable</span>
+        <svg class="pitch" viewBox="0 0 400 260" preserveAspectRatio="xMidYMid slice" role="img"
+             aria-label="A football pitch split into four zones with the ball moving between them">
+          <rect class="pitch-zone lit" x="0"   y="0" width="100" height="260"/>
+          <rect class="pitch-zone"     x="200" y="0" width="100" height="260"/>
+          <g class="pitch-line">
+            <rect x="14" y="14" width="372" height="232" rx="2"/>
+            <path d="M200 14V246"/>
+            <circle cx="200" cy="130" r="42"/>
+            <path d="M14 76h56v108H14z"/>
+            <path d="M386 76h-56v108h56z"/>
+            <path d="M100 14V246M300 14V246" stroke-dasharray="6 10" stroke-width="2"/>
+          </g>
+          <g class="ball-runner">
+            <circle r="8.5" fill="#FCFEFB" stroke="rgba(0,0,0,.35)" stroke-width="2"/>
+          </g>
+        </svg>
+      </div>
+
+      <div class="feature-body">
+        <div class="clubs">
+          <span class="club-chip home"><span class="club-swatch"></span>Arsenal</span>
+          <span class="v">vs</span>
+          <span class="club-chip away"><span class="club-swatch"></span>PSG</span>
+        </div>
+
+        <h2 class="feature-title">Self-Play Derby</h2>
+        <p class="feature-blurb">
+          Two tabular Q-learning agents taught themselves to play football against
+          each other, then play the tie out with live commentary. The side panel
+          shows the Q-values for the state the agent is reading <em>right now</em>,
+          so you can watch the table being used.
+        </p>
+
+        <div class="stats">
+          <div class="stat"><div class="stat-val">72</div><div class="stat-key">states</div></div>
+          <div class="stat"><div class="stat-val">5</div><div class="stat-key">actions</div></div>
+          <div class="stat"><div class="stat-val">12k</div><div class="stat-key">episodes</div></div>
+          <div class="stat"><div class="stat-val">1.67</div><div class="stat-key">ars xG</div></div>
+        </div>
+
+        <div class="actions">
+          <a class="btn btn-primary" href="arsenal_vs_psg/frontend/index.html" data-key="1">
+            <svg width="15" height="15" viewBox="0 0 24 24" class="glyph" stroke-width="2.1" aria-hidden="true">
+              <path d="M8 5.5 17.5 12 8 18.5z"/>
+            </svg>
+            Play the match
+            <kbd>1</kbd>
+          </a>
+          <a class="btn" href="arsenal_vs_psg/README.md" data-key="2">
+            Read the write-up
+            <kbd>2</kbd>
+          </a>
+        </div>
+      </div>
+    </article>
+  </section>
+
+  <!-- ===================== what's inside ===================== -->
+  <section id="inside">
+    <div class="section-head">
+      <h2>What's in the box</h2>
+      <p>Three ways in: watch it, train it, or read how it went wrong first.</p>
+    </div>
+
+    <div class="grid">
+
+      <article class="card hoverable">
+        <span class="card-icon" aria-hidden="true">
+          <svg width="19" height="19" viewBox="0 0 24 24" class="glyph">
+            <rect x="2.8" y="4.5" width="18.4" height="14" rx="2"/>
+            <path d="M2.8 8.4h18.4M7 21.5h10"/>
+            <path d="M10 11.6 14 13.9l-4 2.3z" fill="currentColor" stroke-width="1.2"/>
+          </svg>
+        </span>
+        <h3>The browser sim</h3>
+        <p>
+          The trained policy playing out over 90 minutes: a live pitch, streaming
+          commentary, a cumulative xG race, and Monte Carlo odds over 1,000
+          in-browser matches.
+        </p>
+        <div class="path">arsenal_vs_psg/frontend/index.html</div>
+        <div class="actions">
+          <a class="btn btn-sm" href="arsenal_vs_psg/frontend/index.html">Open</a>
+        </div>
+      </article>
+
+      <article class="card hoverable">
+        <span class="card-icon" aria-hidden="true">
+          <svg width="19" height="19" viewBox="0 0 24 24" class="glyph">
+            <rect x="2.8" y="4" width="18.4" height="16" rx="2"/>
+            <path d="m7.4 10 2.6 2.4-2.6 2.4M12.8 15.4h4"/>
+          </svg>
+        </span>
+        <h3>The trainer</h3>
+        <p>
+          Both tables learn simultaneously against a moving target. Pass
+          <code style="font-family:var(--mono);font-size:12px">--runs 5</code> and it
+          reports the seed spread instead of one lucky run.
+        </p>
+        <div class="cmd" id="cmd">python football_rl.py --episodes 12000 --seed 42</div>
+        <div class="actions">
+          <button class="btn btn-sm" id="copyBtn" data-key="3">
+            <svg width="14" height="14" viewBox="0 0 24 24" class="glyph" aria-hidden="true">
+              <rect x="8.6" y="8.6" width="12" height="12" rx="2"/>
+              <path d="M15.4 5.4a2 2 0 0 0-2-2H5.4a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2"/>
+            </svg>
+            Copy command
+            <kbd>3</kbd>
+          </button>
+        </div>
+      </article>
+
+      <article class="card hoverable">
+        <span class="card-icon" aria-hidden="true">
+          <svg width="19" height="19" viewBox="0 0 24 24" class="glyph">
+            <path d="M4 4.6h6.2A2.2 2.2 0 0 1 12 6.8v13a2 2 0 0 0-2-1.6H4z"/>
+            <path d="M20 4.6h-6.2A2.2 2.2 0 0 0 12 6.8v13a2 2 0 0 1 2-1.6h6z"/>
+          </svg>
+        </span>
+        <h3>The write-up</h3>
+        <p>
+          The interesting part is the four ways the reward function was wrong
+          about football &mdash; midfield pot-shots, shooting as a safe clearance,
+          recycling out of the box, and outright cowardice.
+        </p>
+        <div class="path">arsenal_vs_psg/README.md</div>
+        <div class="actions">
+          <a class="btn btn-sm" href="arsenal_vs_psg/README.md">Read</a>
+        </div>
+      </article>
+
+    </div>
+  </section>
+
+  <!-- ===================== empty slots ===================== -->
+  <section id="slots">
+    <div class="section-head">
+      <h2>Next up</h2>
+      <p>Empty slots, shown rather than hidden, so the shelf has a shape to fill.</p>
+    </div>
+
+    <div class="grid">
+      <article class="card slot">
+        <span class="card-icon" aria-hidden="true">
+          <svg width="19" height="19" viewBox="0 0 24 24" class="glyph">
+            <rect x="4.4" y="10.4" width="15.2" height="10" rx="2"/>
+            <path d="M8 10.4V7.6a4 4 0 0 1 8 0v2.8"/>
+          </svg>
+        </span>
+        <h3>Slot 02 &mdash; empty</h3>
+        <p>Drop a folder under <code style="font-family:var(--mono);font-size:12px">fun_projects/</code>, then copy a card block in this file and point it at the new frontend.</p>
+        <div class="actions">
+          <button class="btn btn-sm" disabled>Locked</button>
+        </div>
+      </article>
+
+      <article class="card slot">
+        <span class="card-icon" aria-hidden="true">
+          <svg width="19" height="19" viewBox="0 0 24 24" class="glyph">
+            <rect x="4.4" y="10.4" width="15.2" height="10" rx="2"/>
+            <path d="M8 10.4V7.6a4 4 0 0 1 8 0v2.8"/>
+          </svg>
+        </span>
+        <h3>Slot 03 &mdash; empty</h3>
+        <p>Same tokens, same button, same glyph grid &mdash; a new project should cost styling decisions, not invent them.</p>
+        <div class="actions">
+          <button class="btn btn-sm" disabled>Locked</button>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <!-- ===================== style guide ===================== -->
+  <section id="style-guide">
+    <div class="section-head">
+      <h2>Style guide</h2>
+      <p>The visual language written down, so the next tile matches this one without a discussion.</p>
+    </div>
+
+    <div class="sg">
+
+      <div class="sg-panel">
+        <span class="eyebrow">Palette</span>
+        <div class="swatches">
+          <div class="swatch"><div class="swatch-chip" style="background:var(--accent)"></div><code>--accent</code></div>
+          <div class="swatch"><div class="swatch-chip" style="background:var(--ink)"></div><code>--ink</code></div>
+          <div class="swatch"><div class="swatch-chip" style="background:var(--ink-muted)"></div><code>--ink-muted</code></div>
+          <div class="swatch"><div class="swatch-chip" style="background:var(--surface)"></div><code>--surface</code></div>
+          <div class="swatch"><div class="swatch-chip" style="background:var(--sunken)"></div><code>--sunken</code></div>
+          <div class="swatch"><div class="swatch-chip" style="background:var(--turf)"></div><code>--turf</code></div>
+          <div class="swatch"><div class="swatch-chip" style="background:var(--ars)"></div><code>--ars</code></div>
+          <div class="swatch"><div class="swatch-chip" style="background:var(--psg)"></div><code>--psg</code></div>
+        </div>
+        <p style="margin:14px 0 0;font-size:13px;color:var(--ink-muted)">
+          One accent, spent only on the primary action. Club colours are data, not
+          decoration &mdash; they never appear on a control.
+        </p>
+      </div>
+
+      <div class="sg-panel">
+        <span class="eyebrow">Type ramp</span>
+        <div class="ramp">
+          <div class="r-display">Display 26/600</div>
+          <div class="r-h3">Heading 17/600</div>
+          <div class="r-body">Body 15/400 &mdash; the default reading size.</div>
+          <div class="r-meta">Meta 13/400 for supporting copy.</div>
+          <div class="r-mono">Mono 11.5 · paths, keys, numbers</div>
+        </div>
+        <p style="margin:14px 0 0;font-size:13px;color:var(--ink-muted)">
+          Five steps, and size alone carries the hierarchy &mdash; weight and colour
+          only reinforce it.
+        </p>
+      </div>
+
+      <div class="sg-panel">
+        <span class="eyebrow">Button states</span>
+        <div class="btn-row" style="margin-bottom:12px">
+          <a class="btn btn-primary btn-sm" href="#style-guide">Primary</a>
+          <button class="btn btn-sm">Secondary</button>
+          <button class="btn btn-sm" disabled>Disabled</button>
+        </div>
+        <p style="margin:0;font-size:13px;color:var(--ink-muted)">
+          Every button is a container with a hard bottom edge. Hover lifts it 1px,
+          press flattens it to 0 &mdash; the response is the confirmation. Disabled
+          is grey and flat, the shape everyone already reads as "not now".
+        </p>
+      </div>
+
+      <div class="sg-panel">
+        <span class="eyebrow">Principles applied</span>
+        <ul class="principles">
+          <li><span class="p-name">Prioritise</span><span class="p-how">One featured slot at a size nothing competes with; everything else is a uniform tile.</span></li>
+          <li><span class="p-name">Attention</span><span class="p-how">Colour, size, space, proximity and movement, one at a time &mdash; the accent, the hero, the stat cluster, the running ball.</span></li>
+          <li><span class="p-name">Language</span><span class="p-how">Glyphs on a 24px grid at one stroke weight; buttons with shadow and highlight so they read as pressable.</span></li>
+          <li><span class="p-name">Convention</span><span class="p-how">X closes, grey means disabled, a padlock means locked, <kbd>Esc</kbd> backs out.</span></li>
+          <li><span class="p-name">Consistency</span><span class="p-how">One token set shared with the match page, so moving between them never feels like leaving.</span></li>
+          <li><span class="p-name">Feedback</span><span class="p-how">Press compresses, hover lifts, copy confirms with a toast, focus is always visible.</span></li>
+        </ul>
+      </div>
+
+    </div>
+  </section>
+
+  <footer>
+    <span>Built alongside the RL course &mdash; layout follows Roblox's UI/UX design principles.</span>
+    <span><a href="arsenal_vs_psg/README.md">arsenal_vs_psg</a> · press <kbd>?</kbd> for keys</span>
+  </footer>
+</main>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<div class="overlay" id="overlay">
+  <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="sheetTitle">
+    <div class="sheet-head">
+      <h2 id="sheetTitle">Shortcuts</h2>
+      <button class="x-btn" id="closeBtn" aria-label="Close">
+        <svg width="18" height="18" viewBox="0 0 24 24" class="glyph" stroke-width="2">
+          <path d="M6.5 6.5 17.5 17.5M17.5 6.5 6.5 17.5"/>
+        </svg>
+      </button>
+    </div>
+    <ul class="keys">
+      <li><span>Play the match</span><kbd>1</kbd></li>
+      <li><span>Read the write-up</span><kbd>2</kbd></li>
+      <li><span>Copy the train command</span><kbd>3</kbd></li>
+      <li><span>Cycle theme</span><kbd>T</kbd></li>
+      <li><span>Show this sheet</span><kbd>?</kbd></li>
+      <li><span>Close</span><kbd>Esc</kbd></li>
+    </ul>
+  </div>
+</div>
+
+<script>
+(() => {
+  "use strict";
+
+  /* ---------- feedback: one toast, every confirmation goes through it ------- */
+  const toastEl = document.getElementById("toast");
+  let toastTimer = null;
+  const toast = (msg) => {
+    toastEl.textContent = msg;
+    toastEl.classList.add("on");
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => toastEl.classList.remove("on"), 1900);
+  };
+
+  /* ---------- theme: system -> light -> dark, remembered ------------------- */
+  const MODES = ["system", "light", "dark"];
+  const LABEL = { system: "System", light: "Light", dark: "Dark" };
+  const themeBtn = document.getElementById("themeBtn");
+  const themeLabel = document.getElementById("themeLabel");
+
+  // localStorage throws on file:// in some browsers; the page must not care.
+  const store = {
+    get(k) { try { return localStorage.getItem(k); } catch { return null; } },
+    set(k, v) { try { localStorage.setItem(k, v); } catch { /* ignore */ } }
+  };
+
+  let mode = MODES.includes(store.get("funprojects-theme")) ? store.get("funprojects-theme") : "system";
+
+  const applyTheme = () => {
+    if (mode === "system") document.documentElement.removeAttribute("data-theme");
+    else document.documentElement.setAttribute("data-theme", mode);
+    themeLabel.textContent = LABEL[mode];
+    themeBtn.setAttribute("aria-label", `Theme: ${LABEL[mode]}. Click to change.`);
+  };
+
+  const cycleTheme = () => {
+    mode = MODES[(MODES.indexOf(mode) + 1) % MODES.length];
+    store.set("funprojects-theme", mode);
+    applyTheme();
+    toast(`Theme: ${LABEL[mode]}`);
+  };
+
+  applyTheme();
+  themeBtn.addEventListener("click", cycleTheme);
+
+  /* ---------- copy the train command --------------------------------------- */
+  const copyBtn = document.getElementById("copyBtn");
+  const copyCmd = async () => {
+    const text = document.getElementById("cmd").textContent.trim();
+    try {
+      await navigator.clipboard.writeText(text);
+      toast("Command copied");
+    } catch {
+      // Clipboard API needs a secure context, which file:// is not. Select the
+      // text instead so the keyboard shortcut still gets the user there.
+      const range = document.createRange();
+      range.selectNodeContents(document.getElementById("cmd"));
+      const sel = window.getSelection();
+      sel.removeAllRanges();
+      sel.addRange(range);
+      toast("Selected — press Ctrl+C");
+    }
+  };
+  copyBtn.addEventListener("click", copyCmd);
+
+  /* ---------- shortcut sheet ------------------------------------------------ */
+  const overlay = document.getElementById("overlay");
+  const hintBtn = document.getElementById("hintBtn");
+  const closeBtn = document.getElementById("closeBtn");
+
+  const openSheet = () => { overlay.classList.add("on"); closeBtn.focus(); };
+  const closeSheet = () => { overlay.classList.remove("on"); hintBtn.focus(); };
+
+  hintBtn.addEventListener("click", openSheet);
+  closeBtn.addEventListener("click", closeSheet);
+  overlay.addEventListener("click", (e) => { if (e.target === overlay) closeSheet(); });
+
+  /* ---------- keys ---------------------------------------------------------- */
+  const go = (sel) => {
+    const link = document.querySelector(sel);
+    if (link) window.location.href = link.getAttribute("href");
+  };
+
+  document.addEventListener("keydown", (e) => {
+    if (e.metaKey || e.ctrlKey || e.altKey) return;
+
+    const t = e.target;
+    if (t instanceof HTMLElement && (t.isContentEditable || /^(input|textarea|select)$/i.test(t.tagName))) return;
+
+    if (e.key === "Escape" && overlay.classList.contains("on")) { closeSheet(); return; }
+    if (overlay.classList.contains("on") && e.key !== "?") return;
+
+    switch (e.key) {
+      case "1": go('[data-key="1"]'); break;
+      case "2": go('[data-key="2"]'); break;
+      case "3": copyCmd(); break;
+      case "t": case "T": cycleTheme(); break;
+      case "?": overlay.classList.contains("on") ? closeSheet() : openSheet(); break;
+      default: return;
+    }
+    e.preventDefault();
+  });
+})();
+</script>
+</body>
+</html>

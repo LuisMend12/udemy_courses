@@ -1,0 +1,179 @@
+\documentclass[conference]{IEEEtran}
+
+\usepackage{cite}
+\usepackage{amsmath,amssymb,amsfonts}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{url}
+\usepackage{xcolor}
+
+\title{Notes on Bayesian Optimization}
+
+\author{
+\IEEEauthorblockN{Luis Mendez}
+}
+
+\begin{document}
+\maketitle
+
+\section*{Overview}
+Manual, grid, and random search are all \textit{uninformed}: the next combination they evaluate does not depend on the scores already observed. Every trial is drawn independently, so information gathered at trial $t$ is thrown away when choosing trial $t+1$. Bayesian optimization is the first strategy in these notes that is \textit{informed} --- it fits a probabilistic model to the trials seen so far and uses that model to decide where to look next.
+
+This matters because in hyperparameter tuning the objective is expensive. Each evaluation means fitting a model $k$ times for $k$-fold cross-validation, so a budget of 50 evaluations may be all we can afford. When evaluations are scarce, it pays to spend computation \textit{deciding where to sample} rather than sampling blindly.
+
+\section*{The Objective and Why It Is Hard}
+Let $f(\mathbf{x})$ be the cross-validated score of a model configured with hyperparameters $\mathbf{x} \in \mathcal{X}$. We want
+\begin{equation}
+    \mathbf{x}^{*} = \arg\min_{\mathbf{x} \in \mathcal{X}} f(\mathbf{x}).
+\end{equation}
+This objective has properties that rule out classical optimization:
+\begin{itemize}
+    \item \textbf{Black box}: we have no analytic form for $f$, only the ability to evaluate it at a point.
+    \item \textbf{No gradients}: $\nabla f$ is unavailable, so gradient descent and its relatives do not apply. Some hyperparameters are not even continuous (\texttt{max\_depth} is an integer, \texttt{loss} is categorical), so a gradient would not exist regardless.
+    \item \textbf{Expensive}: one evaluation costs $k$ model fits, sometimes minutes or hours.
+    \item \textbf{Noisy}: $f$ is estimated from a finite sample, so re-evaluating the same $\mathbf{x}$ with a different CV split gives a slightly different value.
+    \item \textbf{Possibly non-convex} with multiple local optima.
+\end{itemize}
+Bayesian optimization addresses precisely this setting: derivative-free minimization of an expensive, noisy black box under a small evaluation budget.
+
+\section*{Sequential Model-Based Optimization (SMBO)}
+Bayesian optimization is an instance of the SMBO pattern. Two ingredients replace direct optimization of $f$:
+\begin{itemize}
+    \item A \textbf{surrogate model} (or response surface) --- a cheap probabilistic approximation of $f$ fitted to the trials observed so far, which returns not just a prediction but an \textit{uncertainty} at every point.
+    \item An \textbf{acquisition function} --- a cheap utility computed from the surrogate that scores how promising each candidate point is. We minimize $f$ indirectly by maximizing the acquisition function, which is cheap to evaluate and differentiable, so it can be optimized with ordinary methods.
+\end{itemize}
+
+The loop, given a budget of $n$ calls:
+\begin{enumerate}
+    \item \textbf{Initialize.} Evaluate $f$ at $n_0$ points chosen without a model (random, or a space-filling design). A surrogate cannot be fitted to zero observations, so this bootstrapping step is required. In \texttt{scikit-optimize} this is \texttt{n\_initial\_points}, default 10.
+    \item \textbf{Fit the surrogate} to all observations $\mathcal{D}_t = \{(\mathbf{x}_i, y_i)\}_{i=1}^{t}$.
+    \item \textbf{Maximize the acquisition function} over $\mathcal{X}$ to pick $\mathbf{x}_{t+1}$.
+    \item \textbf{Evaluate} $y_{t+1} = f(\mathbf{x}_{t+1})$ --- the one expensive step.
+    \item \textbf{Augment} $\mathcal{D}_{t+1} = \mathcal{D}_t \cup \{(\mathbf{x}_{t+1}, y_{t+1})\}$ and repeat until the budget is exhausted.
+\end{enumerate}
+The name is Bayesian because step 2 is a posterior update: the surrogate encodes a prior over functions, and each observation refines it into a posterior belief about where the optimum lies.
+
+\section*{The Surrogate: Gaussian Processes}
+The classic surrogate is a Gaussian process (GP). A GP places a prior over \textit{functions}, specified by a mean function and a covariance (kernel) function $k(\mathbf{x}, \mathbf{x}')$:
+\begin{equation}
+    f(\mathbf{x}) \sim \mathcal{GP}\!\left(m(\mathbf{x}),\, k(\mathbf{x}, \mathbf{x}')\right).
+\end{equation}
+Its defining property is that any finite collection of function values is jointly Gaussian. Conditioning on observed data therefore yields a closed-form Gaussian posterior at any new point $\mathbf{x}$, with mean $\mu(\mathbf{x})$ and standard deviation $\sigma(\mathbf{x})$.
+
+Those two quantities are exactly what the acquisition function needs:
+\begin{itemize}
+    \item $\mu(\mathbf{x})$ --- the best guess of the score at $\mathbf{x}$ (drives \textit{exploitation}).
+    \item $\sigma(\mathbf{x})$ --- how uncertain that guess is (drives \textit{exploration}).
+\end{itemize}
+$\sigma(\mathbf{x})$ shrinks near observed points and grows in unexplored regions, which is what lets the method reason about where it has \textit{not} yet looked. This is the crucial advantage over a non-probabilistic regressor: a plain interpolator would predict a value everywhere but could not say where it is ignorant.
+
+\subsection*{Kernels}
+The kernel encodes the assumed smoothness of $f$ and is the main modeling choice. Two common options:
+\begin{itemize}
+    \item \textbf{RBF (squared exponential)}, $k(\mathbf{x},\mathbf{x}') = \exp\!\left(-\|\mathbf{x}-\mathbf{x}'\|^2 / 2\ell^2\right)$, which assumes $f$ is infinitely differentiable --- very smooth.
+    \item \textbf{Mat\'ern}, a family parameterized by $\nu$ controlling smoothness. Finite $\nu$ (typically $\nu = 3/2$ or $5/2$) yields sample paths that are continuous but only finitely differentiable, and $\nu \to \infty$ recovers the RBF. This is \texttt{gp\_minimize}'s default because the strong smoothness assumption of the RBF is usually unrealistic for hyperparameter response surfaces.
+\end{itemize}
+The \textbf{length scale} $\ell$ sets how far correlation extends: small $\ell$ means the function may wiggle rapidly, so observations constrain only their immediate neighborhood; large $\ell$ means a few observations pin down a wide region. Kernel hyperparameters are themselves fitted (by marginal-likelihood maximization) when the GP is refitted, so there is a nested optimization inside the outer search --- an accepted cost, since the GP fit is trivial compared to a model fit.
+
+Substituting the kernel changes the search's behavior: an overly smooth kernel can cause the surrogate to miss sharp optima, while a rough kernel keeps $\sigma(\mathbf{x})$ large and makes the search behave more like random search.
+
+\section*{Acquisition Functions}
+The acquisition function converts $(\mu(\mathbf{x}), \sigma(\mathbf{x}))$ into a single score to maximize. Writing $f_{\min}$ for the best value observed so far (we are minimizing):
+
+\subsection*{Expected Improvement (EI)}
+The default, and usually the best first choice:
+\begin{equation}
+    \mathrm{EI}(\mathbf{x}) = \mathbb{E}\!\left[\max\!\left(f_{\min} - f(\mathbf{x}),\, 0\right)\right].
+\end{equation}
+It measures the expected size of the improvement, not merely its probability. Under the GP posterior it has a closed form. With $Z = (f_{\min} - \mu(\mathbf{x}))/\sigma(\mathbf{x})$,
+\begin{equation}
+    \mathrm{EI}(\mathbf{x}) = \left(f_{\min} - \mu(\mathbf{x})\right)\Phi(Z) + \sigma(\mathbf{x})\,\phi(Z),
+\end{equation}
+where $\Phi$ and $\phi$ are the standard normal CDF and PDF. The two terms show the tradeoff explicitly: the first rewards points predicted to be better than the incumbent (exploitation), the second rewards points with high uncertainty (exploration). A slack parameter $\xi$ can be added to $f_{\min}$ to bias toward exploration.
+
+\subsection*{Probability of Improvement (PI)}
+\begin{equation}
+    \mathrm{PI}(\mathbf{x}) = \Phi\!\left(\frac{f_{\min} - \mu(\mathbf{x})}{\sigma(\mathbf{x})}\right).
+\end{equation}
+This asks only \textit{whether} a point improves, ignoring by how much. It therefore tends to favor small, safe gains near the incumbent and is more prone to getting stuck than EI.
+
+\subsection*{Lower Confidence Bound (LCB)}
+\begin{equation}
+    \mathrm{LCB}(\mathbf{x}) = \mu(\mathbf{x}) - \kappa\,\sigma(\mathbf{x}),
+\end{equation}
+minimized over $\mathbf{x}$ (the maximization analogue is UCB). Here the exploration/exploitation balance is a single explicit knob: $\kappa = 0$ is pure exploitation (go to the predicted minimum), and large $\kappa$ is pure exploration (go where uncertainty is greatest). This makes LCB attractive when the tradeoff needs to be controlled directly.
+
+\subsection*{Exploration vs.\ exploitation}
+This is the central tension of any informed search. Pure exploitation converges quickly to a local optimum and can miss a better basin entirely; pure exploration degenerates into random search and wastes the surrogate. Because $\sigma(\mathbf{x})$ shrinks wherever the search has already sampled, all three acquisition functions self-correct to some degree: exploited regions become less attractive as their uncertainty collapses, which naturally pushes the search elsewhere.
+
+\section*{Implementation in Scikit-Optimize}
+\texttt{scikit-optimize} (\texttt{skopt}) provides \texttt{gp\_minimize}, which runs GP-based Bayesian optimization with a Mat\'ern kernel by default.
+
+\subsection*{Defining the search space}
+The space is a \textit{list} of dimension objects (not a dict, unlike \texttt{GridSearchCV}), because ordering matters --- results are returned as a positional list:
+\begin{itemize}
+    \item \texttt{Integer(low, high, name=...)} for integer hyperparameters.
+    \item \texttt{Real(low, high, name=...)} for continuous ones; a \texttt{prior='log-uniform'} is available for parameters spanning orders of magnitude, such as a learning rate or regularization strength.
+    \item \texttt{Categorical([...], name=...)} for unordered choices.
+\end{itemize}
+Note that these are \textit{ranges}, not enumerated candidate values. This is a genuine expressiveness gain over grid search: resolution is not capped by a grid chosen up front.
+
+\subsection*{The objective function}
+The objective takes a hyperparameter configuration, cross-validates the model, and returns a scalar to \textbf{minimize}. Since we normally want to \textit{maximize} a score such as accuracy or ROC-AUC, the function must return its \textbf{negative}. Forgetting this sign flip is the most common mistake --- the search will run without error and cheerfully return the \textit{worst} configuration it can find.
+
+The \texttt{@use\_named\_args(param\_grid)} decorator adapts an objective written with keyword arguments to the positional list \texttt{skopt} passes internally, letting the body forward them straight to \texttt{set\_params(**params)}.
+
+\subsection*{Key arguments}
+\begin{itemize}
+    \item \texttt{n\_calls} --- total evaluations of $f$, i.e.\ the whole budget.
+    \item \texttt{n\_initial\_points} --- how many of those are the initial model-free samples. The informed phase gets $\texttt{n\_calls} - \texttt{n\_initial\_points}$ evaluations, so setting these too close together leaves the surrogate almost no chance to act.
+    \item \texttt{acq\_func} --- \texttt{'EI'}, \texttt{'PI'}, or \texttt{'LCB'}.
+    \item \texttt{random\_state} --- needed for reproducibility, since the initial design is random.
+\end{itemize}
+The returned result object exposes \texttt{.x} (best hyperparameters), \texttt{.fun} (best objective value, still negated if the objective was negated), and \texttt{.func\_vals} (all observed values), with \texttt{plot\_convergence} charting the running minimum against iteration.
+
+\section*{Worked Example: Tuning a GBM}
+Tuning a \texttt{GradientBoostingClassifier} on the breast cancer dataset with \texttt{gp\_minimize} makes the mechanics concrete. The search space mixes all three dimension types:
+\begin{center}
+\footnotesize
+\begin{tabular}{@{}lll@{}}
+\toprule
+Hyperparameter & Type & Range \\
+\midrule
+\texttt{n\_estimators}       & Integer     & $[10, 120]$ \\
+\texttt{min\_samples\_split} & Real        & $[0.0001, 0.999]$ \\
+\texttt{max\_depth}          & Integer     & $[1, 5]$ \\
+\texttt{loss}                & Categorical & log\_loss, exponential \\
+\bottomrule
+\end{tabular}
+\end{center}
+The objective returns the negative mean 3-fold CV accuracy. Running with \texttt{n\_initial\_points=10}, \texttt{acq\_func='EI'}, and \texttt{n\_calls=50} --- so 10 random probes followed by 40 model-guided ones --- yields a best objective of $-0.9698$, i.e.\ mean CV accuracy $\approx 0.970$, at $(n\_estimators=120,\ min\_samples\_split=0.786,\ max\_depth=5,\ loss=\text{log\_loss})$.
+
+Two observations worth noting. First, two of the optimal values sit at the \textit{upper boundary} of their ranges ($n\_estimators=120$, $max\_depth=5$), which is a signal that the ranges were set too narrow and the true optimum may lie outside the box --- the natural next step is to widen them and re-run. Second, the selected $min\_samples\_split \approx 0.79$ is high, meaning splits are only attempted on large nodes, which regularizes the trees; a continuous \texttt{Real} dimension can express this value, whereas a coarse grid over $\{0.1, 0.3, 0.5\}$ could never have found it. That is the resolution advantage of range-based spaces in practice.
+
+\section*{Pros / Cons}
+\begin{itemize}
+    \item \textbf{Pros}: far more sample-efficient than grid or random search, typically reaching a comparable or better optimum in many fewer evaluations, which is decisive when a single evaluation is expensive; handles mixed integer/real/categorical spaces without gradients; searches continuous ranges rather than a fixed grid; the surrogate is a reusable model of the response surface, indicating which hyperparameters matter.
+    \item \textbf{Cons}: \textbf{inherently sequential} --- each trial depends on all previous ones, so it does not parallelize the way grid and random search trivially do (batch variants exist but complicate the method); per-iteration overhead of refitting the GP and optimizing the acquisition function, which is only worthwhile when $f$ is expensive; GP cost scales roughly cubically in the number of observations, so it suits budgets of tens-to-hundreds of trials rather than many thousands; performance depends on modeling choices (kernel, acquisition function, $n_0$) that are themselves hyperparameters; and GPs handle high-dimensional and heavily conditional spaces poorly, which motivates the alternative surrogates of the next section.
+\end{itemize}
+
+\section*{Comparison With the Uninformed Methods}
+\begin{itemize}
+    \item Grid and random search choose all their points independently of observed scores; Bayesian optimization chooses each point conditioned on every result so far. Uninformed search buys parallelism at the cost of sample efficiency, informed search does the reverse.
+    \item With a very large budget and abundant parallel compute, random search is often the pragmatic choice --- it is simpler, has no surrogate overhead, and scales across machines. With a small budget and expensive fits, Bayesian optimization is usually the better use of the same wall-clock time.
+    \item A practical hybrid: use random search first to establish sensible ranges, then hand those ranges to Bayesian optimization for refinement --- the same coarse-to-fine idea as two-stage grid search, but with an informed second stage.
+\end{itemize}
+
+\section*{Practical Notes}
+\begin{itemize}
+    \item \textbf{Sign convention}: \texttt{skopt} always minimizes, so any score to be maximized must be negated in the objective and un-negated when reporting.
+    \item \textbf{Boundary hits}: an optimum at the edge of a range usually means the range, not the optimum, was the constraint. Widen and re-run.
+    \item \textbf{Version constraint}: \texttt{scikit-optimize} 0.10.2 is its final release and predates the \texttt{\_\_sklearn\_tags\_\_} estimator-tag protocol introduced in scikit-learn 1.6. On scikit-learn $\geq 1.6$, \texttt{dummy\_minimize} and \texttt{gbrt\_minimize} raise \texttt{AttributeError}, so scikit-learn must be held below 1.6 to run these notebooks (see \texttt{requirements.txt}).
+    \item \textbf{Deprecated loss name}: the GBM loss formerly called \texttt{'deviance'} is now \texttt{'log\_loss'} in current scikit-learn; older course material using the old string will fail.
+\end{itemize}
+
+\section*{Looking Ahead}
+The GP is one surrogate among several, and its weaknesses in high-dimensional, conditional, and mixed spaces motivate the alternatives that follow: random forest and gradient-boosted tree surrogates (SMAC), and Tree-structured Parzen Estimators (TPE), which model $p(\mathbf{x} \mid y)$ rather than $p(y \mid \mathbf{x})$. All of them keep the SMBO loop above and swap only the surrogate and the way the acquisition step is computed.
+
+\end{document}
