@@ -494,6 +494,211 @@
   .card.slot h3 { color: var(--ink-muted); font-weight: 600; }
 
   /* ==========================================================================
+     Squads. Each panel carries its club colour as --club, so the accent
+     never has to be re-picked per element inside it.
+     ========================================================================== */
+  .squads { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 16px; }
+
+  .squad {
+    background: var(--surface);
+    border: 1px solid var(--hairline);
+    border-top: 3px solid var(--club);
+    border-radius: calc(var(--r) + 2px);
+    box-shadow: var(--shadow);
+    padding: 18px;
+  }
+  .squad.ars { --club: var(--ars); }
+  .squad.psg { --club: var(--psg); }
+
+  .squad-head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 12px;
+    padding-bottom: 12px;
+    margin-bottom: 14px;
+    border-bottom: 1px solid var(--hairline);
+  }
+  .squad-name { font-family: var(--display); font-size: 19px; font-weight: 600; letter-spacing: -0.015em; }
+  .squad-tag {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    color: var(--club);
+    font-weight: 700;
+  }
+
+  .line { display: grid; grid-template-columns: 46px minmax(0, 1fr); gap: 12px; align-items: start; padding: 7px 0; }
+  .line + .line { border-top: 1px dashed var(--hairline); }
+  .line-role {
+    font-family: var(--display);
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+    padding-top: 4px;
+  }
+  .players { display: flex; flex-wrap: wrap; gap: 6px; }
+  .player {
+    font-size: 13px;
+    line-height: 1;
+    padding: 5px 9px 6px;
+    border-radius: 100px;
+    border: 1px solid var(--hairline);
+    background: var(--sunken);
+    color: var(--ink-2);
+    white-space: nowrap;
+  }
+  /* The keeper is the only rated individual in the model, so it gets the
+     club colour and everyone else stays neutral. */
+  .player.keeper { border-color: var(--club); color: var(--ink); font-weight: 600; }
+
+  /* ==========================================================================
+     Head-to-head rating bars. Opposed from a shared centre column: which side
+     is longer is the whole message, so no gridlines compete with it.
+     ========================================================================== */
+  .h2h {
+    background: var(--surface);
+    border: 1px solid var(--hairline);
+    border-radius: calc(var(--r) + 2px);
+    box-shadow: var(--shadow);
+    padding: 18px 20px;
+  }
+  .h2h-head, .attr {
+    display: grid;
+    grid-template-columns: 38px minmax(0, 1fr) 104px minmax(0, 1fr) 38px;
+    align-items: center;
+    gap: 10px;
+  }
+  .h2h-head {
+    padding-bottom: 10px;
+    margin-bottom: 6px;
+    border-bottom: 1px solid var(--hairline);
+    font-family: var(--display);
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+  .h2h-head .lhs { grid-column: 1 / span 2; text-align: right; color: var(--ars); }
+  .h2h-head .mid { text-align: center; color: var(--ink-faint); letter-spacing: 0.06em; }
+  .h2h-head .rhs { grid-column: 4 / span 2; color: var(--psg); }
+
+  .attr { padding: 5px 0; }
+  .attr-name {
+    text-align: center;
+    font-size: 12px;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--ink-muted);
+  }
+  .attr-val {
+    font-family: var(--mono);
+    font-size: 12px;
+    font-variant-numeric: tabular-nums;
+    color: var(--ink-faint);
+  }
+  .attr-val.l { text-align: right; }
+  .attr-track { height: 11px; border-radius: 2px; background: var(--sunken); overflow: hidden; display: flex; }
+  .attr-track.l { justify-content: flex-end; }
+  .attr-fill { height: 100%; border-radius: 2px; opacity: 0.34; transition: opacity 160ms ease; }
+  .attr-fill.ars { background: var(--ars); }
+  .attr-fill.psg { background: var(--psg); }
+  /* The side that wins the attribute is the one at full strength. */
+  .attr-fill.lead { opacity: 1; }
+  .attr.lead-l .attr-val.l, .attr.lead-r .attr-val.r { color: var(--ink); font-weight: 600; }
+
+  .axis-note {
+    margin: 12px 0 0;
+    padding-top: 10px;
+    border-top: 1px solid var(--hairline);
+    font-size: 12px;
+    color: var(--ink-faint);
+    text-align: center;
+  }
+
+  .callouts { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 12px; margin-top: 16px; }
+  .callout {
+    border: 1px solid var(--hairline);
+    border-left: 3px solid var(--club, var(--accent));
+    border-radius: var(--r);
+    background: var(--sunken);
+    padding: 12px 14px;
+  }
+  .callout.ars { --club: var(--ars); }
+  .callout.psg { --club: var(--psg); }
+  .callout-key {
+    font-family: var(--mono);
+    font-size: 11.5px;
+    color: var(--club);
+    font-weight: 700;
+    letter-spacing: 0.03em;
+  }
+  .callout p { margin: 4px 0 0; font-size: 13px; color: var(--ink-2); }
+
+  /* ---------- learned policy per zone ---------- */
+  .policy { width: 100%; border-collapse: collapse; font-size: 13.5px; }
+  .policy th, .policy td { padding: 9px 10px; text-align: left; border-bottom: 1px solid var(--hairline); }
+  .policy thead th {
+    font-family: var(--display);
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+  }
+  .policy thead th.ars-col { color: var(--ars); }
+  .policy thead th.psg-col { color: var(--psg); }
+  .policy tbody tr:last-child td { border-bottom: 0; }
+  .policy .zone { font-family: var(--display); font-weight: 600; color: var(--ink); }
+  .policy .act { font-family: var(--mono); font-size: 12.5px; }
+  .policy .pct { color: var(--ink-muted); font-variant-numeric: tabular-nums; }
+
+  /* ==========================================================================
+     The numbers
+     ========================================================================== */
+  .odds { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1px; background: var(--hairline); border-radius: var(--r); overflow: hidden; }
+  .odd { background: var(--surface); padding: 16px 14px; text-align: center; }
+  .odd-val {
+    font-family: var(--display);
+    font-size: 30px;
+    font-weight: 600;
+    line-height: 1;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -0.02em;
+  }
+  .odd.ars .odd-val { color: var(--ars); }
+  .odd.psg .odd-val { color: var(--psg); }
+  .odd-key {
+    margin-top: 5px;
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+  }
+
+  .spread { display: flex; align-items: flex-end; gap: 6px; height: 84px; margin-top: 4px; }
+  .spread-run { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 5px; }
+  .spread-bar { width: 100%; background: var(--ars); border-radius: 2px 2px 0 0; opacity: 0.55; }
+  .spread-run.hi .spread-bar, .spread-run.lo .spread-bar { opacity: 1; }
+  .spread-lab { font-family: var(--mono); font-size: 10.5px; color: var(--ink-faint); }
+
+  .metrics { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 8px; }
+  .metrics li {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    color: var(--ink-2);
+    padding: 7px 10px;
+    border: 1px solid var(--hairline);
+    border-radius: 4px;
+    background: var(--sunken);
+  }
+  .metrics .tick { color: var(--accent); flex: none; }
+
+  /* ==========================================================================
      Style guide
      ========================================================================== */
   .sg { display: grid; grid-template-columns: repeat(auto-fit, minmax(290px, 1fr)); gap: 16px; }
@@ -824,6 +1029,284 @@
         </div>
       </article>
 
+    </div>
+  </section>
+
+  <!-- ===================== squads ===================== -->
+  <section id="squads">
+    <div class="section-head">
+      <h2>The squads</h2>
+      <p>Who gets named in the commentary. Eyeballed for flavour, not scouted &mdash; this is a toy.</p>
+    </div>
+
+    <div class="squads">
+
+      <div class="squad ars">
+        <div class="squad-head">
+          <span class="squad-name">Arsenal</span>
+          <span class="squad-tag">ARS</span>
+        </div>
+        <div class="line">
+          <span class="line-role">GK</span>
+          <div class="players"><span class="player keeper">Raya</span></div>
+        </div>
+        <div class="line">
+          <span class="line-role">Def</span>
+          <div class="players">
+            <span class="player">Saliba</span><span class="player">Gabriel</span>
+            <span class="player">Timber</span><span class="player">Calafiori</span>
+          </div>
+        </div>
+        <div class="line">
+          <span class="line-role">Mid</span>
+          <div class="players">
+            <span class="player">Rice</span><span class="player">Zubimendi</span>
+            <span class="player">Ødegaard</span><span class="player">Merino</span>
+          </div>
+        </div>
+        <div class="line">
+          <span class="line-role">Att</span>
+          <div class="players">
+            <span class="player">Saka</span><span class="player">Gyökeres</span>
+            <span class="player">Martinelli</span><span class="player">Trossard</span>
+            <span class="player">Eze</span><span class="player">Madueke</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="squad psg">
+        <div class="squad-head">
+          <span class="squad-name">Paris Saint-Germain</span>
+          <span class="squad-tag">PSG</span>
+        </div>
+        <div class="line">
+          <span class="line-role">GK</span>
+          <div class="players"><span class="player keeper">Chevalier</span></div>
+        </div>
+        <div class="line">
+          <span class="line-role">Def</span>
+          <div class="players">
+            <span class="player">Hakimi</span><span class="player">Marquinhos</span>
+            <span class="player">Pacho</span><span class="player">Nuno Mendes</span>
+          </div>
+        </div>
+        <div class="line">
+          <span class="line-role">Mid</span>
+          <div class="players">
+            <span class="player">Vitinha</span><span class="player">João Neves</span>
+            <span class="player">Fabián Ruiz</span><span class="player">Zaïre-Emery</span>
+          </div>
+        </div>
+        <div class="line">
+          <span class="line-role">Att</span>
+          <div class="players">
+            <span class="player">Dembélé</span><span class="player">Doué</span>
+            <span class="player">Kvaratskhelia</span><span class="player">Barcola</span>
+            <span class="player">Gonçalo Ramos</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <p style="margin:14px 0 0;font-size:13px;color:var(--ink-muted);max-width:74ch">
+      Only the keeper is rated as an individual &mdash; everyone else is drawn at
+      random from their line to put a name on an event. The football is played by
+      the team ratings below, not by the players.
+    </p>
+  </section>
+
+  <!-- ===================== ratings ===================== -->
+  <section id="ratings">
+    <div class="section-head">
+      <h2>Ratings, head to head</h2>
+      <p>Eight numbers per side. Nobody scripted a style &mdash; these are the only inputs, and the two policies diverge from them alone.</p>
+    </div>
+
+    <div class="h2h">
+      <div class="h2h-head">
+        <span class="lhs">Arsenal</span>
+        <span class="mid">Attribute</span>
+        <span class="rhs">PSG</span>
+      </div>
+
+      <div class="attr lead-r">
+        <span class="attr-val l">0.86</span>
+        <span class="attr-track l"><span class="attr-fill ars" style="width:65%"></span></span>
+        <span class="attr-name">Passing</span>
+        <span class="attr-track"><span class="attr-fill psg lead" style="width:75%"></span></span>
+        <span class="attr-val r">0.90</span>
+      </div>
+
+      <div class="attr lead-r">
+        <span class="attr-val l">0.78</span>
+        <span class="attr-track l"><span class="attr-fill ars" style="width:45%"></span></span>
+        <span class="attr-name">Dribbling</span>
+        <span class="attr-track"><span class="attr-fill psg lead" style="width:80%"></span></span>
+        <span class="attr-val r">0.92</span>
+      </div>
+
+      <div class="attr lead-r">
+        <span class="attr-val l">0.80</span>
+        <span class="attr-track l"><span class="attr-fill ars" style="width:50%"></span></span>
+        <span class="attr-name">Finishing</span>
+        <span class="attr-track"><span class="attr-fill psg lead" style="width:62.5%"></span></span>
+        <span class="attr-val r">0.85</span>
+      </div>
+
+      <div class="attr lead-l">
+        <span class="attr-val l">0.88</span>
+        <span class="attr-track l"><span class="attr-fill ars lead" style="width:70%"></span></span>
+        <span class="attr-name">Pressing</span>
+        <span class="attr-track"><span class="attr-fill psg" style="width:62.5%"></span></span>
+        <span class="attr-val r">0.85</span>
+      </div>
+
+      <div class="attr lead-l">
+        <span class="attr-val l">0.88</span>
+        <span class="attr-track l"><span class="attr-fill ars lead" style="width:70%"></span></span>
+        <span class="attr-name">Defending</span>
+        <span class="attr-track"><span class="attr-fill psg" style="width:57.5%"></span></span>
+        <span class="attr-val r">0.83</span>
+      </div>
+
+      <div class="attr lead-r">
+        <span class="attr-val l">0.80</span>
+        <span class="attr-track l"><span class="attr-fill ars" style="width:50%"></span></span>
+        <span class="attr-name">Pace</span>
+        <span class="attr-track"><span class="attr-fill psg lead" style="width:75%"></span></span>
+        <span class="attr-val r">0.90</span>
+      </div>
+
+      <div class="attr lead-l">
+        <span class="attr-val l">0.94</span>
+        <span class="attr-track l"><span class="attr-fill ars lead" style="width:85%"></span></span>
+        <span class="attr-name">Set pieces</span>
+        <span class="attr-track"><span class="attr-fill psg" style="width:35%"></span></span>
+        <span class="attr-val r">0.74</span>
+      </div>
+
+      <div class="attr lead-r">
+        <span class="attr-val l">0.85</span>
+        <span class="attr-track l"><span class="attr-fill ars" style="width:62.5%"></span></span>
+        <span class="attr-name">Keeper</span>
+        <span class="attr-track"><span class="attr-fill psg lead" style="width:67.5%"></span></span>
+        <span class="attr-val r">0.87</span>
+      </div>
+
+      <p class="axis-note">
+        Bars span 0.60&ndash;1.00, not 0&ndash;1 &mdash; every rating sits in the top
+        half, so a full-domain axis would show eight near-identical bars. The
+        printed numbers are the real values.
+      </p>
+    </div>
+
+    <div class="callouts">
+      <div class="callout ars">
+        <span class="callout-key">set_pieces = 0.94</span>
+        <p>The corner routine is worth taking, so Arsenal circulates and shoots earlier to earn one.</p>
+      </div>
+      <div class="callout psg">
+        <span class="callout-key">dribbling = 0.92</span>
+        <p>Beating your man pays, so PSG goes direct through midfield and then carries into the area.</p>
+      </div>
+    </div>
+
+    <h3 style="font-size:17px;margin:28px 0 12px">What they actually learned</h3>
+    <div class="card" style="padding:4px 16px">
+      <table class="policy">
+        <thead>
+          <tr>
+            <th>Zone</th>
+            <th class="ars-col" colspan="2">Arsenal</th>
+            <th class="psg-col" colspan="2">PSG</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="zone">Own third</td>
+            <td class="act">short_pass</td><td class="pct">78%</td>
+            <td class="act">short_pass</td><td class="pct">67%</td>
+          </tr>
+          <tr>
+            <td class="zone">Midfield</td>
+            <td class="act">short_pass</td><td class="pct">39%</td>
+            <td class="act">long_ball</td><td class="pct">39%</td>
+          </tr>
+          <tr>
+            <td class="zone">Final third</td>
+            <td class="act">shoot</td><td class="pct">39%</td>
+            <td class="act">carry</td><td class="pct">61%</td>
+          </tr>
+          <tr>
+            <td class="zone">The box</td>
+            <td class="act">shoot</td><td class="pct">67%</td>
+            <td class="act">shoot</td><td class="pct">61%</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <p style="margin:12px 0 0;font-size:13px;color:var(--ink-muted);max-width:74ch">
+      Both build out from the back. They part company in midfield &mdash; Arsenal
+      circulates, PSG goes vertical &mdash; and again in the final third, where
+      Arsenal shoots and PSG dribbles. Nobody told either side to do that.
+    </p>
+  </section>
+
+  <!-- ===================== the numbers ===================== -->
+  <section id="numbers">
+    <div class="section-head">
+      <h2>The numbers</h2>
+      <p>Averaged over five independent training runs, because any single run's odds are mostly seed noise.</p>
+    </div>
+
+    <div class="sg">
+      <div class="sg-panel">
+        <span class="eyebrow">Result over 5 runs</span>
+        <div class="odds">
+          <div class="odd ars"><div class="odd-val">45.4%</div><div class="odd-key">Arsenal win</div></div>
+          <div class="odd"><div class="odd-val">29.6%</div><div class="odd-key">Draw</div></div>
+          <div class="odd psg"><div class="odd-val">25.0%</div><div class="odd-key">PSG win</div></div>
+        </div>
+        <p style="margin:14px 0 0;font-size:13.5px;color:var(--ink-2)">
+          Average scoreline <strong>ARS 1.67 &ndash; 1.16 PSG</strong>, with 1&ndash;1,
+          1&ndash;0, 2&ndash;0 and 0&ndash;0 the most common results.
+        </p>
+      </div>
+
+      <div class="sg-panel">
+        <span class="eyebrow">Arsenal win rate, per run</span>
+        <div class="spread">
+          <div class="spread-run"><div class="spread-bar" style="height:64%"></div><span class="spread-lab">42</span></div>
+          <div class="spread-run"><div class="spread-bar" style="height:73%"></div><span class="spread-lab">48</span></div>
+          <div class="spread-run lo"><div class="spread-bar" style="height:41%"></div><span class="spread-lab">27</span></div>
+          <div class="spread-run"><div class="spread-bar" style="height:67%"></div><span class="spread-lab">44</span></div>
+          <div class="spread-run hi"><div class="spread-bar" style="height:100%"></div><span class="spread-lab">66</span></div>
+        </div>
+        <p style="margin:14px 0 0;font-size:13.5px;color:var(--ink-2)">
+          A <strong>39-point spread</strong>. Self-play is non-stationary, so different
+          seeds settle on different equilibria &mdash; on seed 7 alone PSG comes out
+          the 52% favourite.
+        </p>
+      </div>
+
+      <div class="sg-panel">
+        <span class="eyebrow">Tracked every match</span>
+        <ul class="metrics">
+          <li><svg class="tick glyph" width="13" height="13" viewBox="0 0 24 24" stroke-width="2.4" aria-hidden="true"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg>Possession</li>
+          <li><svg class="tick glyph" width="13" height="13" viewBox="0 0 24 24" stroke-width="2.4" aria-hidden="true"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg>Shots</li>
+          <li><svg class="tick glyph" width="13" height="13" viewBox="0 0 24 24" stroke-width="2.4" aria-hidden="true"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg>On target</li>
+          <li><svg class="tick glyph" width="13" height="13" viewBox="0 0 24 24" stroke-width="2.4" aria-hidden="true"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg>xG</li>
+          <li><svg class="tick glyph" width="13" height="13" viewBox="0 0 24 24" stroke-width="2.4" aria-hidden="true"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg>Big chances</li>
+          <li><svg class="tick glyph" width="13" height="13" viewBox="0 0 24 24" stroke-width="2.4" aria-hidden="true"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg>Set-piece attempts</li>
+          <li><svg class="tick glyph" width="13" height="13" viewBox="0 0 24 24" stroke-width="2.4" aria-hidden="true"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg>Final-third entries</li>
+          <li><svg class="tick glyph" width="13" height="13" viewBox="0 0 24 24" stroke-width="2.4" aria-hidden="true"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg>Turnovers</li>
+        </ul>
+        <p style="margin:14px 0 0;font-size:13.5px;color:var(--ink-2)">
+          All eight update live in the sim, alongside a cumulative xG race and a
+          full-time verdict comparing the scoreline against the xG.
+        </p>
+      </div>
     </div>
   </section>
 
