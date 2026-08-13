@@ -1,0 +1,178 @@
+\documentclass[conference]{IEEEtran}
+
+\usepackage{cite}
+\usepackage{amsmath,amssymb,amsfonts}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{url}
+\usepackage{xcolor}
+
+\title{Notes on the Gaussian Distribution}
+
+\author{
+\IEEEauthorblockN{Luis Mendez}
+}
+
+\begin{document}
+\maketitle
+
+\section*{Overview}
+The Bayesian optimization notes lean on the Gaussian at three separate points without defining it: the surrogate is a \textit{Gaussian} process, the posterior stays closed-form because a Gaussian prior with a Gaussian likelihood is \textit{conjugate}, and Expected Improvement is written with $\Phi$ and $\phi$, the standard normal CDF and PDF. These notes fill in that gap. The goal is not a general probability review but the specific set of Gaussian facts that make the SMBO loop computable.
+
+Three properties do essentially all the work:
+\begin{itemize}
+    \item \textbf{Closure under linear operations} --- affine maps and sums of independent Gaussians are Gaussian.
+    \item \textbf{Closure under conditioning} --- marginals and conditionals of a joint Gaussian are Gaussian, with means and covariances given by block formulas.
+    \item \textbf{Self-conjugacy} --- a Gaussian prior updated by a Gaussian likelihood gives a Gaussian posterior.
+\end{itemize}
+Every closed-form expression in the Gaussian process section is one of these three applied to a particular partition of variables. Nothing else about the distribution is needed to derive them.
+
+\section*{The Univariate Gaussian}
+A random variable $X$ is Gaussian (normal) with mean $\mu$ and variance $\sigma^2 > 0$, written $X \sim \mathcal{N}(\mu, \sigma^2)$, if its density is
+\begin{equation}
+    p(x) = \frac{1}{\sqrt{2\pi\sigma^2}}\exp\!\left(-\frac{(x-\mu)^2}{2\sigma^2}\right).
+\end{equation}
+The exponent is a negative squared distance from $\mu$, measured in units of $\sigma$; the prefactor is the constant that makes the density integrate to one. Two parameters fix the distribution completely, which is unusual --- there is no separate skewness or tail-weight knob to set.
+
+The \textbf{standard} normal is the case $\mu = 0$, $\sigma^2 = 1$, whose density and CDF are written
+\begin{equation}
+    \phi(z) = \frac{1}{\sqrt{2\pi}}e^{-z^2/2},
+    \qquad
+    \Phi(z) = \int_{-\infty}^{z}\phi(t)\,dt.
+\end{equation}
+Any Gaussian reduces to it by standardization: if $X \sim \mathcal{N}(\mu,\sigma^2)$ then $Z = (X-\mu)/\sigma \sim \mathcal{N}(0,1)$. This is why implementations only ever need $\phi$ and $\Phi$, and why the $Z$ in the EI formula is a difference divided by a standard deviation.
+
+$\Phi$ has no elementary closed form; it is evaluated numerically through the error function, $\Phi(z) = \tfrac{1}{2}\left[1 + \mathrm{erf}(z/\sqrt{2})\right]$. Moments:
+\begin{equation}
+    \mathbb{E}[X] = \mu, \qquad \mathrm{Var}[X] = \sigma^2, \qquad \mathbb{E}\!\left[(X-\mu)^3\right] = 0,
+\end{equation}
+so the distribution is symmetric about its mean, and mean, median, and mode coincide. Mass concentrates quickly: roughly $68\%$, $95\%$, and $99.7\%$ of it lies within one, two, and three standard deviations of $\mu$. That concentration is what makes $\sigma(\mathbf{x})$ usable as a confidence width in LCB --- $\kappa = 2$ is approximately a $95\%$ one-sided claim.
+
+\subsection*{An aside on $\Phi$ versus the sigmoid}
+$\Phi$ is a squashing function from $\mathbb{R}$ to $(0,1)$ with the same S-shape as the logistic sigmoid $\sigma(x) = 1/(1+e^{-x})$, and using it as the link in a binary classifier gives \textit{probit} regression rather than logistic regression. The two give very similar fits after rescaling; the logistic is preferred in practice because it is elementary, has the derivative identity $\sigma' = \sigma(1-\sigma)$, and pairs analytically with binary cross-entropy. The probit link is the version that arises when the latent variable driving the label is assumed Gaussian.
+
+\section*{Closure Under Linear Operations}
+If $X \sim \mathcal{N}(\mu, \sigma^2)$ and $Y = aX + b$ with $a \neq 0$, then
+\begin{equation}
+    Y \sim \mathcal{N}\!\left(a\mu + b,\; a^2\sigma^2\right).
+\end{equation}
+If $X_1 \sim \mathcal{N}(\mu_1,\sigma_1^2)$ and $X_2 \sim \mathcal{N}(\mu_2,\sigma_2^2)$ are independent, then
+\begin{equation}
+    X_1 + X_2 \sim \mathcal{N}\!\left(\mu_1 + \mu_2,\; \sigma_1^2 + \sigma_2^2\right).
+\end{equation}
+Note that variances add, not standard deviations. The consequence for modeling is direct: adding independent Gaussian observation noise to a Gaussian latent value keeps everything Gaussian and merely inflates the variance. That is exactly the $\sigma_n^2 I$ term added to the kernel matrix in the GP equations --- resampling noise in the cross-validated score, folded in without leaving the family.
+
+\section*{The Multivariate Gaussian}
+For $\mathbf{x} \in \mathbb{R}^d$ with mean vector $\boldsymbol{\mu}$ and symmetric positive-definite covariance $\Sigma$,
+\begin{equation}
+    p(\mathbf{x}) = \frac{1}{(2\pi)^{d/2}|\Sigma|^{1/2}}
+    \exp\!\left(-\tfrac{1}{2}(\mathbf{x}-\boldsymbol{\mu})^{\!\top}\Sigma^{-1}(\mathbf{x}-\boldsymbol{\mu})\right).
+\end{equation}
+The quadratic form in the exponent is the squared \textbf{Mahalanobis distance}, the natural generalization of ``how many standard deviations away'' to correlated coordinates. Level sets of the density are therefore ellipsoids of constant Mahalanobis distance. Writing the eigendecomposition $\Sigma = U\Lambda U^{\!\top}$, those ellipsoids have axes along the eigenvectors (columns of $U$) with half-lengths proportional to $\sqrt{\lambda_i}$: the eigenvectors give the directions of correlated variation and the eigenvalues give the variance along each. Special cases are worth naming --- $\Sigma = \sigma^2 I$ gives spherical contours, a diagonal $\Sigma$ gives axis-aligned ellipsoids, and off-diagonal entries are what tilt them.
+
+Affine closure carries over. For any matrix $A$ and vector $\mathbf{b}$,
+\begin{equation}
+    \mathbf{x} \sim \mathcal{N}(\boldsymbol{\mu},\Sigma)
+    \;\Longrightarrow\;
+    A\mathbf{x} + \mathbf{b} \sim \mathcal{N}\!\left(A\boldsymbol{\mu} + \mathbf{b},\; A\Sigma A^{\!\top}\right).
+\end{equation}
+Choosing $A = \Lambda^{-1/2}U^{\!\top}$ maps any Gaussian to a standard one, which is what \textit{whitening} means and how samples are generated: draw $\mathbf{z} \sim \mathcal{N}(\mathbf{0},I)$ and return $\boldsymbol{\mu} + L\mathbf{z}$, where $LL^{\!\top} = \Sigma$.
+
+Two cautions that matter when reasoning about these objects. First, for jointly Gaussian variables, zero correlation \textit{does} imply independence --- a special property, not a general fact about random variables. Second, the converse of jointness fails: each coordinate being marginally Gaussian does not make the vector jointly Gaussian, so ``Gaussian'' applied to a collection is a genuinely stronger claim than it is applied to each member.
+
+\section*{Marginals and Conditionals}
+This is the section the Gaussian process rests on. Partition a jointly Gaussian vector and its parameters conformably:
+\begin{equation}
+    \begin{bmatrix}\mathbf{x}_1\\\mathbf{x}_2\end{bmatrix}
+    \sim
+    \mathcal{N}\!\left(
+    \begin{bmatrix}\boldsymbol{\mu}_1\\\boldsymbol{\mu}_2\end{bmatrix},
+    \begin{bmatrix}\Sigma_{11} & \Sigma_{12}\\ \Sigma_{21} & \Sigma_{22}\end{bmatrix}
+    \right).
+\end{equation}
+The \textbf{marginal} is read straight off the blocks:
+\begin{equation}
+    \mathbf{x}_1 \sim \mathcal{N}(\boldsymbol{\mu}_1, \Sigma_{11}).
+\end{equation}
+Marginalizing out variables costs nothing --- delete their rows and columns. This is what licenses the GP's definition over an infinite index set while every computation touches only the finitely many points actually in play.
+
+The \textbf{conditional} is the substantive formula:
+\begin{align}
+    \mathbf{x}_1 \mid \mathbf{x}_2 &\sim \mathcal{N}\!\left(\boldsymbol{\mu}_{1|2},\, \Sigma_{1|2}\right), \\
+    \boldsymbol{\mu}_{1|2} &= \boldsymbol{\mu}_1 + \Sigma_{12}\Sigma_{22}^{-1}(\mathbf{x}_2 - \boldsymbol{\mu}_2), \\
+    \Sigma_{1|2} &= \Sigma_{11} - \Sigma_{12}\Sigma_{22}^{-1}\Sigma_{21}.
+\end{align}
+Three things to read out of it. The conditional mean is the prior mean corrected by a linear function of how far the observation fell from \textit{its} prior mean, with $\Sigma_{12}\Sigma_{22}^{-1}$ playing the role of a regression coefficient. The conditional covariance is the prior covariance minus a positive-semidefinite term, so conditioning never increases uncertainty. And --- the key point --- $\Sigma_{1|2}$ does not depend on the observed value $\mathbf{x}_2$ at all, only on which variables were observed.
+
+That last observation is the formal content of the claim in the Bayesian optimization notes that the GP's posterior variance depends on \textit{where} we sampled and not on the values obtained. It is a property of the Gaussian family, not of the kernel or the acquisition function, and it is what makes $\sigma(\mathbf{x})$ a clean exploration signal: uncertainty collapses wherever the search has looked, irrespective of whether the news was good or bad.
+
+\section*{Conjugacy: The Posterior Update}
+Take the simplest nontrivial case --- a Gaussian likelihood with known variance $\sigma^2$ and an unknown mean $\mu$ carrying a Gaussian prior:
+\begin{equation}
+    \mu \sim \mathcal{N}(\mu_0, \tau_0^2),
+    \qquad
+    x_i \mid \mu \sim \mathcal{N}(\mu, \sigma^2), \quad i = 1,\dots,n.
+\end{equation}
+Multiplying prior and likelihood gives a quadratic in $\mu$ inside an exponential, which is again a Gaussian density. Working in \textbf{precisions} (inverse variances) makes the result readable. With $\bar{x}$ the sample mean,
+\begin{align}
+    \frac{1}{\tau_n^2} &= \frac{1}{\tau_0^2} + \frac{n}{\sigma^2}, \\
+    \mu_n &= \tau_n^2\left(\frac{\mu_0}{\tau_0^2} + \frac{n\bar{x}}{\sigma^2}\right),
+\end{align}
+so $\mu \mid x_{1:n} \sim \mathcal{N}(\mu_n, \tau_n^2)$. Precisions add, and the posterior mean is a precision-weighted average of the prior mean and the data mean. The two limits behave as they should: a vague prior ($\tau_0^2 \to \infty$) leaves $\mu_n \to \bar{x}$, pure data; and $n \to \infty$ drives $\tau_n^2 \to 0$, with the prior's influence vanishing at rate $1/n$.
+
+This is the mechanism behind the remark that the GP escapes the intractable evidence integral. In general, Bayes' rule requires the normalizer $p(\mathcal{D}) = \int p(\mathcal{D}\mid\theta)p(\theta)\,d\theta$, which needs MCMC or a variational approximation. Under conjugacy the integral is a Gaussian integral, known analytically, so the update reduces to arithmetic on means and covariances. That is the difference between a surrogate that can be refitted inside every iteration and one that cannot.
+
+\section*{From the Conditional Formula to the GP Posterior}
+The GP equations quoted in the Bayesian optimization notes are now just the conditional formula applied once. A GP asserts that the function values at any finite set of inputs are jointly Gaussian, so with $X$ the observed inputs, $\mathbf{y}$ the observed (noisy) scores, $K$ the kernel matrix $K_{ij} = k(\mathbf{x}_i,\mathbf{x}_j)$, and $f(\mathbf{x}_*)$ the value at a new point, a zero-mean prior gives
+\begin{equation}
+    \begin{bmatrix}\mathbf{y}\\ f(\mathbf{x}_*)\end{bmatrix}
+    \sim
+    \mathcal{N}\!\left(\mathbf{0},
+    \begin{bmatrix}
+    K + \sigma_n^2 I & k(X,\mathbf{x}_*)\\
+    k(\mathbf{x}_*,X) & k(\mathbf{x}_*,\mathbf{x}_*)
+    \end{bmatrix}\right).
+\end{equation}
+The $\sigma_n^2 I$ block is independent observation noise added to each observed value --- the closure-under-sums property from earlier. Substituting the blocks into the conditional formulas, with $\mathbf{x}_1 = f(\mathbf{x}_*)$ and $\mathbf{x}_2 = \mathbf{y}$, gives
+\begin{align}
+    \mu(\mathbf{x}_*)      &= k(\mathbf{x}_*, X)\left[K + \sigma_n^2 I\right]^{-1}\mathbf{y}, \\
+    \sigma^2(\mathbf{x}_*) &= k(\mathbf{x}_*, \mathbf{x}_*) - k(\mathbf{x}_*, X)\left[K + \sigma_n^2 I\right]^{-1}k(X, \mathbf{x}_*),
+\end{align}
+which are exactly the surrogate equations. The interpretation follows from the general formula: the mean is a similarity-weighted combination of observed scores because $\Sigma_{12}\Sigma_{22}^{-1}$ is a regression coefficient, and the variance subtracts a nonnegative term that is larger where the kernel says the new point resembles points already seen.
+
+The $[K + \sigma_n^2 I]^{-1}$ inverse is also where the cubic scaling comes from. It is never formed explicitly; the standard route is a Cholesky factorization $K + \sigma_n^2 I = LL^{\!\top}$ followed by triangular solves, at $O(n^3)$ for the factorization and $O(n^2)$ per prediction. That cost is trivial at the tens-to-hundreds of trials a tuning budget allows and prohibitive at tens of thousands, which is the practical boundary noted among the GP's drawbacks.
+
+\section*{Maximum Likelihood, and Why Gaussian Noise Means Least Squares}
+For $n$ i.i.d.\ observations, maximizing the Gaussian likelihood gives
+\begin{equation}
+    \hat{\mu} = \frac{1}{n}\sum_{i=1}^{n}x_i,
+    \qquad
+    \hat{\sigma}^2 = \frac{1}{n}\sum_{i=1}^{n}(x_i - \hat{\mu})^2.
+\end{equation}
+The variance estimate is biased low by a factor $(n-1)/n$, since it measures spread about the estimated rather than the true mean; dividing by $n-1$ instead is the unbiased correction.
+
+More consequential is what the Gaussian assumption implies about the loss function. Suppose $y_i = f(\mathbf{x}_i) + \varepsilon_i$ with $\varepsilon_i \sim \mathcal{N}(0,\sigma^2)$ independent. The negative log-likelihood is
+\begin{equation}
+    -\log p(\mathbf{y} \mid f) = \frac{n}{2}\log(2\pi\sigma^2) + \frac{1}{2\sigma^2}\sum_{i=1}^{n}\left(y_i - f(\mathbf{x}_i)\right)^2.
+\end{equation}
+Only the second term depends on $f$, and $\sigma^2$ scales it without moving the minimum, so \textbf{maximizing a Gaussian likelihood is minimizing squared error}. Least squares and mean squared error are not arbitrary choices of convenience --- they are the maximum-likelihood estimator under additive Gaussian noise, exactly as binary cross-entropy is the maximum-likelihood loss under a Bernoulli model with a sigmoid link. The choice of noise model \textit{is} the choice of loss. This also explains the pairing of the squared exponent with the quadratic penalty throughout: a Gaussian prior on parameters contributes $\|\mathbf{w}\|^2/2\tau^2$ to the same objective, which is ridge ($L_2$) regularization.
+
+\section*{Why the Gaussian Keeps Appearing}
+Three independent reasons, beyond analytical convenience:
+\begin{itemize}
+    \item \textbf{The central limit theorem}. Sums of many independent contributions with finite variance tend to a Gaussian regardless of the individual distributions. A cross-validated score is an average over folds and over many examples, so the resampling noise $\sigma_n^2$ in the GP is Gaussian for a real reason, not just a convenient one.
+    \item \textbf{Maximum entropy}. Among all distributions on $\mathbb{R}$ with a given mean and variance, the Gaussian has the largest differential entropy, $\tfrac{1}{2}\log(2\pi e\sigma^2)$. Choosing it is therefore the least-committal choice consistent with knowing only a center and a spread --- the right default for a prior meant to assume as little as possible.
+    \item \textbf{Closure}. As shown above, the family survives affine maps, sums, marginalization, conditioning, and Bayesian updating. No other continuous family is this stable, and that stability is what turns inference into linear algebra.
+\end{itemize}
+
+\section*{Practical Notes}
+\begin{itemize}
+    \item \textbf{Never invert; factorize}. Use Cholesky and triangular solves rather than an explicit $\Sigma^{-1}$: it is faster, better conditioned, and yields the log-determinant for free as $\log|\Sigma| = 2\sum_i \log L_{ii}$, which the marginal likelihood needs.
+    \item \textbf{Add jitter}. A kernel matrix from nearly duplicate inputs is numerically singular. Adding a small $\varepsilon I$ (physically, the noise term $\sigma_n^2 I$) restores positive definiteness --- one reason to fit a noise level even when the objective is believed deterministic.
+    \item \textbf{Work in log space}. Densities underflow in more than a few dimensions. Compute log-densities and use $\log$-$\sum$-$\exp$ rather than multiplying probabilities.
+    \item \textbf{Standardize the targets}. GP implementations assume a zero-mean prior and length scales on a comparable scale across dimensions, so centering $\mathbf{y}$ and putting skewed hyperparameter ranges on a log scale both materially improve the fit.
+    \item \textbf{The tails are a real assumption}. The Gaussian puts negligible mass beyond a few $\sigma$ and unbounded support on both sides, so a GP over an accuracy score can return a posterior mean above $1$ or a symmetric interval where the true distribution is skewed and bounded. This is usually harmless for ranking candidate points but is the reason heavier-tailed or warped alternatives exist, and it is worth remembering that a $2\sigma$ interval is a claim about the model, not a guarantee about the objective.
+\end{itemize}
+
+\end{document}
