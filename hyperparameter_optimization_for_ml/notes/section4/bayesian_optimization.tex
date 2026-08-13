@@ -54,6 +54,55 @@ The loop, given a budget of $n$ calls:
 \end{enumerate}
 The name is Bayesian because step 2 is a posterior update: the surrogate encodes a prior over functions, and each observation refines it into a posterior belief about where the optimum lies.
 
+\section*{Bayes' Rule: The Update Behind Step 2}
+Step 2 was just called a posterior update, which is worth making explicit, since it is what the method is named after.
+
+For an unknown quantity $\theta$ and observed data $\mathcal{D}$, Bayes' rule is
+\begin{equation}
+    p(\theta \mid \mathcal{D}) = \frac{p(\mathcal{D} \mid \theta)\, p(\theta)}{p(\mathcal{D})},
+\end{equation}
+built from four named pieces:
+\begin{itemize}
+    \item \textbf{Prior} $p(\theta)$ --- what we believe about $\theta$ before seeing data.
+    \item \textbf{Likelihood} $p(\mathcal{D} \mid \theta)$ --- how probable the observed data would be if $\theta$ were the truth.
+    \item \textbf{Evidence} (marginal likelihood) $p(\mathcal{D}) = \int p(\mathcal{D} \mid \theta)\, p(\theta)\, d\theta$ --- a normalizing constant that does not depend on $\theta$.
+    \item \textbf{Posterior} $p(\theta \mid \mathcal{D})$ --- the updated belief, which is what we actually act on.
+\end{itemize}
+Because the evidence is constant in $\theta$, the rule is often used in the proportional form
+\begin{equation}
+    p(\theta \mid \mathcal{D}) \;\propto\; p(\mathcal{D} \mid \theta)\, p(\theta),
+\end{equation}
+i.e.\ posterior $\propto$ likelihood $\times$ prior. Data reweights the prior; it does not replace it. Where observations are dense the likelihood dominates and the posterior is sharp; where they are sparse the prior dominates and the posterior stays broad --- which is precisely the behavior the search exploits.
+
+\subsection*{What plays the role of $\theta$}
+The unknown here is not a parameter vector but the objective function itself, so $\theta = f$:
+\begin{equation}
+    p(f \mid \mathcal{D}_t) \;\propto\; p(\mathcal{D}_t \mid f)\, p(f).
+\end{equation}
+The prior $p(f)$ is the assumption that $f$ is a draw from some class of well-behaved functions --- concretely, the GP with its kernel, which is why the kernel choice is a genuine prior belief about smoothness and not a tuning detail. The likelihood $p(\mathcal{D}_t \mid f)$ is the observation model
+\begin{equation}
+    y_i = f(\mathbf{x}_i) + \varepsilon_i, \qquad \varepsilon_i \sim \mathcal{N}(0, \sigma_n^2),
+\end{equation}
+which is where the noisiness of cross-validated scores enters formally: we never observe $f$, only $f$ corrupted by resampling noise. The posterior $p(f \mid \mathcal{D}_t)$ is the surrogate. Everything downstream --- $\mu(\mathbf{x})$, $\sigma(\mathbf{x})$, and hence every acquisition function --- is a summary of this posterior, never of $f$ directly.
+
+\subsection*{Why the posterior stays tractable}
+In general the evidence integral is intractable and Bayesian inference needs MCMC or a variational approximation, which would be far too slow to run inside every iteration. The GP avoids this through \textit{conjugacy}: a Gaussian prior combined with a Gaussian likelihood yields a Gaussian posterior in closed form. Writing $X$ for the observed inputs, $\mathbf{y}$ for the observed scores, and $K$ for the kernel matrix with $K_{ij} = k(\mathbf{x}_i, \mathbf{x}_j)$,
+\begin{align}
+    \mu(\mathbf{x})      &= k(\mathbf{x}, X)\left[K + \sigma_n^2 I\right]^{-1}\mathbf{y}, \\
+    \sigma^2(\mathbf{x}) &= k(\mathbf{x}, \mathbf{x}) - k(\mathbf{x}, X)\left[K + \sigma_n^2 I\right]^{-1}k(X, \mathbf{x}).
+\end{align}
+Two things are visible in these expressions. The posterior mean is a weighted average of observed scores, weighted by kernel similarity, so nearby observations pull the prediction toward themselves. The posterior variance depends only on \textit{where} we sampled, not on the values obtained --- uncertainty falls wherever we have looked, regardless of whether the news was good. That is the formal reason $\sigma(\mathbf{x})$ can act as an exploration signal. The matrix inverse is also the source of the cubic scaling noted later among the drawbacks.
+
+\subsection*{Updating is sequential}
+The loop applies the rule once per iteration, and yesterday's posterior is today's prior:
+\begin{equation}
+    p(f \mid \mathcal{D}_{t+1}) \;\propto\; p(y_{t+1} \mid f)\, p(f \mid \mathcal{D}_t).
+\end{equation}
+Because the observations are conditionally independent given $f$, folding them in one at a time gives the same posterior as conditioning on all $t+1$ at once, so implementations simply refit the GP on the full dataset each iteration rather than updating incrementally. This recursion is what makes the search \textit{informed}: every evaluation permanently narrows the belief that selects the next one, which is exactly the link that grid and random search discard.
+
+\subsection*{The evidence is not wasted}
+Viewed as a function of the kernel's own hyperparameters $\boldsymbol{\theta}_k$ (length scale, $\nu$, noise level), the evidence $p(\mathcal{D}_t \mid \boldsymbol{\theta}_k)$ becomes an objective in its own right, and maximizing it is how those hyperparameters are chosen. This is the marginal-likelihood fit referred to in the kernel discussion below --- one level of Bayesian inference over $f$, with a point estimate at the level above it.
+
 \section*{The Surrogate: Gaussian Processes}
 The classic surrogate is a Gaussian process (GP). A GP places a prior over \textit{functions}, specified by a mean function and a covariance (kernel) function $k(\mathbf{x}, \mathbf{x}')$:
 \begin{equation}
