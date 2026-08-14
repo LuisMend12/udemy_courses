@@ -1,0 +1,148 @@
+\documentclass[conference]{IEEEtran}
+
+\usepackage{cite}
+\usepackage{amsmath,amssymb,amsfonts}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{url}
+\usepackage{xcolor}
+
+\title{Notes on Acquisition Functions}
+
+\author{
+\IEEEauthorblockN{Luis Mendez}
+}
+
+\begin{document}
+\maketitle
+
+\section*{Overview}
+The acquisition function is the half of Bayesian optimization that decides \textit{where to look next}. The surrogate says what is believed about the objective; the acquisition function converts that belief into a single number per candidate point, and the search maximizes it. This is the substitution that makes the whole method work: an expensive, noisy, gradient-free minimization of $f$ is replaced by a cheap, deterministic, differentiable maximization of a utility computed from the posterior.
+
+The Bayesian optimization notes introduced EI, PI, and LCB in a few lines each. These notes derive them, state what distinguishes them, and cover what that section left out --- the noisy-incumbent problem, batch proposals, the inner optimization, and the information-theoretic alternatives.
+
+One framing worth carrying throughout: for a Gaussian posterior, the myopic acquisition functions are all functions of the pair $(\mu(\mathbf{x}), \sigma(\mathbf{x}))$ and nothing else. They differ only in how they trade those two off. Writing $f_{\min}$ for the incumbent and keeping the minimization convention of \texttt{skopt}, a good acquisition function should decrease in $\mu$ (prefer points predicted to be good) and increase in $\sigma$ (prefer points we are ignorant about). Every function below has both properties; the interesting question is the exchange rate.
+
+\section*{Improvement-Based Acquisition}
+Define the \textbf{improvement} at $\mathbf{x}$ over the incumbent as
+\begin{equation}
+    I(\mathbf{x}) = \max\!\left(f_{\min} - f(\mathbf{x}),\, 0\right),
+\end{equation}
+a random variable, because $f(\mathbf{x})$ is unknown. The two classical acquisition functions are two different summaries of it: the probability that it is positive, and its expectation.
+
+\subsection*{Probability of Improvement}
+\begin{equation}
+    \mathrm{PI}(\mathbf{x}) = \mathbb{P}\!\left(f(\mathbf{x}) < f_{\min} - \xi\right)
+    = \Phi\!\left(\frac{f_{\min} - \xi - \mu(\mathbf{x})}{\sigma(\mathbf{x})}\right),
+\end{equation}
+which follows immediately from standardizing the Gaussian posterior. The defect is visible in the definition: a point predicted to beat the incumbent by $10^{-9}$ with certainty scores higher than one with a 60\% chance of beating it by a wide margin. PI therefore concentrates near the incumbent and is the most exploitative of the standard choices. The slack $\xi > 0$ exists mainly to blunt this --- it demands a minimum margin --- but choosing $\xi$ well is essentially the problem PI was supposed to solve.
+
+\subsection*{Expected Improvement}
+\begin{equation}
+    \mathrm{EI}(\mathbf{x}) = \mathbb{E}\!\left[\max\!\left(f_{\min} - f(\mathbf{x}),\, 0\right)\right].
+\end{equation}
+Under the Gaussian posterior this integrates in closed form. Write $\mu = \mu(\mathbf{x})$, $\sigma = \sigma(\mathbf{x})$, and
+\begin{equation}
+    z = \frac{f_{\min} - \mu}{\sigma}.
+\end{equation}
+Substituting $u = (f-\mu)/\sigma$,
+\begin{align}
+    \mathrm{EI} &= \int_{-\infty}^{f_{\min}} (f_{\min} - f)\, p(f)\, df
+     = \sigma \int_{-\infty}^{z} (z - u)\,\phi(u)\, du \notag \\
+    &= \sigma\left[z\,\Phi(z) - \int_{-\infty}^{z} u\,\phi(u)\, du\right].
+\end{align}
+The remaining integral is elementary because $\phi'(u) = -u\phi(u)$, giving $\int_{-\infty}^{z} u\phi(u)\,du = -\phi(z)$. Hence
+\begin{equation}
+    \boxed{\;\mathrm{EI}(\mathbf{x}) = \left(f_{\min} - \mu\right)\Phi(z) + \sigma\,\phi(z).\;}
+\end{equation}
+The two terms are the exploitation and exploration halves, and the split is not merely rhetorical. Differentiating,
+\begin{equation}
+    \frac{\partial\,\mathrm{EI}}{\partial \mu} = -\Phi(z) \leq 0,
+    \qquad
+    \frac{\partial\,\mathrm{EI}}{\partial \sigma} = \phi(z) \geq 0,
+\end{equation}
+where the cross terms cancel exactly. These two identities are the formal statement that EI exploits and explores, and they are strikingly clean: the sensitivity to the prediction is the probability of improvement, and the sensitivity to the uncertainty is the density at the threshold.
+
+Three consequences are worth extracting.
+
+\textbf{EI self-terminates at observed points.} At a noiselessly observed $\mathbf{x}$, $\sigma = 0$ and $\mu \geq f_{\min}$, so $z \to -\infty$ and both terms vanish. The method never wastes an evaluation re-sampling a point it has already seen --- no explicit bookkeeping required.
+
+\textbf{EI measures magnitude, not just direction.} Unlike PI, a large predicted gain with modest probability can outrank a tiny gain that is nearly certain, which is why EI is the sensible default.
+
+\textbf{EI vanishes numerically.} Late in a run, most of the domain has $z$ strongly negative, and both $\Phi(z)$ and $\phi(z)$ underflow. EI becomes exactly $0$ in floating point across large regions, its gradient with it, and the inner optimizer --- which relies on that gradient --- has nothing to climb. This is a real failure mode rather than a curiosity, and the modern fix is to optimize $\log \mathrm{EI}$ using numerically stable expansions of the log-Gaussian terms, which preserves the argmax while keeping gradients informative in the tails.
+
+\subsection*{The slack parameter}
+Adding $\xi$ to either function, via $z = (f_{\min} - \xi - \mu)/\sigma$, raises the bar for what counts as improvement and pushes the search outward. Values around $0.01$ (on standardized $\mathbf{y}$) are conventional. The dependence on standardization is the important part: $\xi$ is in the units of the objective, so the same numeric value means different things across problems unless the targets are scaled --- an argument for standardizing $\mathbf{y}$ that is independent of the GP-fitting argument.
+
+\section*{Optimism: Confidence Bounds}
+\begin{equation}
+    \mathrm{LCB}(\mathbf{x}) = \mu(\mathbf{x}) - \kappa\,\sigma(\mathbf{x}),
+\end{equation}
+minimized over $\mathbf{x}$ (the maximization analogue is UCB). This is optimism in the face of uncertainty: judge each point by the best value it could plausibly take, and the plausibility is a fixed number of standard deviations.
+
+Its appeal is that the tradeoff is a single explicit knob rather than an emergent property. $\kappa = 0$ is pure exploitation --- go to the predicted minimum --- and large $\kappa$ is pure exploration. Because the Gaussian concentration result holds ($\approx 95\%$ of mass within two standard deviations), $\kappa = 2$ carries a rough frequentist reading, though it is a claim about the model rather than about the objective.
+
+LCB is also the one classical acquisition function with a clean theoretical guarantee. With a schedule that grows $\kappa_t$ logarithmically in the iteration count, GP-UCB attains \textit{sublinear cumulative regret} under standard smoothness assumptions --- the average regret per trial goes to zero, so the method provably converges rather than merely working in practice. The bound depends on the maximum information gain of the kernel, which is where the choice of kernel re-enters the theory. The growing schedule matters: a fixed $\kappa$ has no such guarantee, because exploration must remain possible as posterior variance shrinks everywhere.
+
+\section*{Information-Theoretic and Lookahead Acquisition}
+The three above are cheap and myopic. Several alternatives ask better-posed questions at higher cost.
+
+\textbf{Thompson sampling.} Draw a single sample path $\tilde{f}$ from the GP posterior and evaluate at its minimizer. Exploration comes from posterior randomness rather than an explicit bonus, there are no tuning parameters, and --- unusually --- it parallelizes for free: $q$ independent draws give $q$ diverse points with no extra machinery. The cost is drawing an approximate sample path, typically via random Fourier features (which is the Bochner construction from the kernels notes) or on a discretization of the domain.
+
+\textbf{Entropy search and Max-value entropy search.} Rather than asking for improvement, ask which evaluation most reduces uncertainty about the \textit{location} $\mathbf{x}^*$ of the optimum (ES/PES) or its \textit{value} $f^*$ (MES). These target the quantity actually wanted and can substantially outperform EI, particularly when a good value is worth less than knowing where it lives. MES is the practical member of the family because the entropy of a scalar $f^*$ is far cheaper to estimate than that of a vector $\mathbf{x}^*$.
+
+\textbf{Knowledge gradient.} KG scores a candidate by the expected improvement in the \textit{posterior minimum} after observing it:
+\begin{equation}
+    \mathrm{KG}(\mathbf{x}) = \min_{\mathbf{x}'} \mu_n(\mathbf{x}')
+      - \mathbb{E}\!\left[\min_{\mathbf{x}'} \mu_{n+1}(\mathbf{x}') \,\middle|\, \text{sample at } \mathbf{x}\right].
+\end{equation}
+The distinction from EI is worth stating plainly: EI credits a point only for improvement realized \textit{at that point}, whereas KG credits it for improving the final recommendation anywhere. A sample that returns a poor value but sharply reduces uncertainty elsewhere scores zero under EI and positively under KG. That makes KG the better choice when the answer is the recommended configuration rather than the best value stumbled upon --- and it is strictly better suited to noisy objectives, where the best observed value is not a reliable incumbent.
+
+\subsection*{Why these are all still myopic}
+Every function above is \textit{one-step lookahead}: it scores a candidate by the value of the next observation alone, ignoring that a budget of $n$ evaluations remains. The genuinely optimal policy maximizes the expected final result over the whole remaining budget, and it satisfies a Bellman recursion --- the value of a state (the current dataset) is the best immediate utility plus the expected value of the resulting state. This is exactly the structure of the dynamic programming notes, and it is intractable here for the usual reason: the state is a dataset, the action space is continuous, and the horizon compounds both. Two-step lookahead is implementable and occasionally worth it; beyond that, one-step approximations are what everyone actually runs. Knowing this reframes EI honestly --- it is not the right objective, it is a tractable surrogate for the right objective.
+
+\section*{The Noisy Incumbent}
+The definition of improvement assumes $f_{\min}$ is known, and with cross-validated scores it is not: the best \textit{observed} value is the best draw of $f$ plus noise, so it is biased low by selection --- the luckiest fold split, not the best configuration. Plugging it into EI makes the bar too high and suppresses exploration near genuinely good regions.
+
+Three standard repairs, in increasing order of principle:
+\begin{itemize}
+    \item Use $\min_i \mu(\mathbf{x}_i)$ over evaluated points --- the best posterior \textit{mean} --- instead of the best observation, which removes most of the selection bias for free.
+    \item Use noisy EI, which integrates over the uncertain incumbent rather than conditioning on a point estimate of it.
+    \item Use knowledge gradient, which never references an incumbent at all and is therefore immune to the problem by construction.
+\end{itemize}
+This matters more than it appears in a tuning context specifically because the noise is not small: re-running the same configuration with a different CV split moves the score by an amount often comparable to the differences being resolved between configurations.
+
+\section*{The Inner Optimization}
+The acquisition function must itself be maximized, which sounds circular but is not: unlike $f$, it is cheap to evaluate, deterministic, and analytically differentiable in $\mathbf{x}$ through $\mu$ and $\sigma$. So the inner problem is attacked with ordinary tools --- typically random sampling of a few thousand candidates followed by multi-start L-BFGS from the best of them.
+
+Three things still go wrong:
+\begin{itemize}
+    \item \textbf{It is non-convex} with many local optima, especially with a short length scale, which is why multi-start is standard rather than optional.
+    \item \textbf{Gradients vanish} in the EI tails, as above, which is what makes the inner optimizer silently return near-arbitrary points late in a run.
+    \item \textbf{Mixed and categorical spaces} have no usable gradient at all, so the inner optimization degrades to enumeration or sampling over the discrete part --- one more reason those spaces are harder than their dimensionality suggests.
+\end{itemize}
+A useful diagnostic: if the search starts proposing nearly identical points repeatedly, the cause is almost always the inner optimizer failing (vanishing gradients) or the posterior variance having collapsed --- not the objective having converged.
+
+\section*{Batch Proposals}
+The Bayesian optimization notes list the inherently sequential nature of the method as its main drawback against random search. Acquisition functions are where that is addressed, since the difficulty is precisely that the standard ones score a \textit{single} point.
+
+\begin{itemize}
+    \item \textbf{$q$-EI} generalizes improvement to a set of $q$ points evaluated jointly. It is the principled answer and is expensive: closed forms exist only for small $q$, so it is usually estimated by Monte Carlo over posterior samples.
+    \item \textbf{Constant liar / Kriging believer} are the cheap heuristics. Pick the best point, then \textit{pretend} it returned some value (a constant, or the posterior mean), refit, and ask again --- repeating $q$ times. Fabricating the value is enough to suppress the acquisition function near the pending point, which is all that is needed to keep the batch diverse.
+    \item \textbf{Local penalization} multiplies the acquisition function by a factor that decays near already-selected points, achieving the same diversity without a refit.
+    \item \textbf{Thompson sampling} needs none of this, as noted above.
+\end{itemize}
+The common thread: a batch fails when its points are redundant, so every method is some device for making the acquisition function aware of what is already pending.
+
+\section*{Practical Notes}
+\begin{itemize}
+    \item \textbf{Default to EI.} It dominates PI in practice, needs no schedule, and is the default in \texttt{gp\_minimize} for good reason. Reach for LCB when the exploration/exploitation balance needs to be controlled or reported explicitly, and for KG or MES when evaluations are very expensive and the extra overhead is affordable.
+    \item \textbf{Use log-EI if the run is long.} The vanishing-gradient failure is silent and looks like premature convergence.
+    \item \textbf{Standardize $\mathbf{y}$}, so that $\xi$ and $\kappa$ carry the same meaning across problems.
+    \item \textbf{Do not over-tune the acquisition function.} As argued in the kernels notes, the kernel determines what the model believes the surface \textit{is}; the acquisition function only decides where to look given that belief. A misspecified kernel cannot be fixed by switching EI for LCB, and the reverse ordering of effort is a common mistake.
+    \item \textbf{Mind the sign convention.} \texttt{skopt} minimizes, so scores to be maximized are negated in the objective and un-negated when reported; every formula here follows that same convention, with $f_{\min}$ the incumbent to beat from below.
+    \item \textbf{Treat the incumbent carefully under noise.} Using the best posterior mean rather than the best observation is a one-line change with a real effect on how much the search explores.
+\end{itemize}
+
+\end{document}
