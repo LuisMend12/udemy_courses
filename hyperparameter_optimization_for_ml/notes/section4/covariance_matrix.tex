@@ -1,0 +1,173 @@
+\documentclass[conference]{IEEEtran}
+
+\usepackage{cite}
+\usepackage{amsmath,amssymb,amsfonts}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{url}
+\usepackage{xcolor}
+
+\title{Notes on the Covariance Matrix}
+
+\author{
+\IEEEauthorblockN{Luis Mendez}
+}
+
+\begin{document}
+\maketitle
+
+\section*{Overview}
+The Gaussian notes used $\Sigma$ throughout --- in the density, in the ellipsoid geometry, in the block formulas for conditioning --- but treated it as given. These notes are about the object itself.
+
+The first thing worth separating is that the covariance matrix has \textit{nothing} to do with the Gaussian. It is the second central moment of any random vector with finite variance, defined without reference to a distributional family. What is special about the Gaussian is the converse: for that family, $\boldsymbol{\mu}$ and $\Sigma$ are a \textit{complete} description, so fitting a Gaussian and estimating a covariance matrix are the same task. For every other distribution, $\Sigma$ captures only pairwise linear structure and discards the rest. Keeping this straight explains both why covariance estimation is so widely useful and why it is so often insufficient.
+
+The matrix appears in these notes in three guises that turn out to be the same thing: the parameter of a Gaussian, the object PCA diagonalizes, and the kernel matrix $K$ of a Gaussian process --- a kernel \textit{is} a covariance function, and $K$ is the covariance matrix of the function values at the observed points.
+
+\section*{Definition}
+For two scalar random variables, covariance is the expected product of deviations from the means,
+\begin{equation}
+    \mathrm{Cov}(X,Y) = \mathbb{E}\!\left[(X - \mu_X)(Y - \mu_Y)\right],
+\end{equation}
+which is positive when the two tend to deviate in the same direction, negative when they oppose, and zero when there is no \textit{linear} association. It carries the product of the two units, which is why it is usually normalized into the correlation
+\begin{equation}
+    \rho_{XY} = \frac{\mathrm{Cov}(X,Y)}{\sigma_X \sigma_Y} \in [-1,1].
+\end{equation}
+
+For a random vector $\mathbf{x} \in \mathbb{R}^d$ with mean $\boldsymbol{\mu} = \mathbb{E}[\mathbf{x}]$, the covariance matrix collects every pair at once:
+\begin{equation}
+    \Sigma = \mathbb{E}\!\left[(\mathbf{x}-\boldsymbol{\mu})(\mathbf{x}-\boldsymbol{\mu})^{\!\top}\right],
+    \qquad
+    \Sigma_{ij} = \mathrm{Cov}(x_i, x_j).
+\end{equation}
+It is $d \times d$, its diagonal holds the individual variances $\Sigma_{ii} = \mathrm{Var}(x_i)$, and it is symmetric because $\mathrm{Cov}(x_i,x_j) = \mathrm{Cov}(x_j,x_i)$. So $\Sigma$ has $d(d+1)/2$ free parameters, not $d^2$ --- a count that matters later, since it grows quadratically in the dimension.
+
+The \textbf{cross}-covariance between two different vectors, $\mathrm{Cov}(\mathbf{x},\mathbf{y}) = \mathbb{E}[(\mathbf{x}-\boldsymbol{\mu}_x)(\mathbf{y}-\boldsymbol{\mu}_y)^{\!\top}]$, is a distinct object: it need not be square and is not symmetric. The off-diagonal blocks $\Sigma_{12}$ in the partitioned Gaussian are cross-covariances of this kind, which is why $\Sigma_{12} = \Sigma_{21}^{\top}$ rather than $\Sigma_{12} = \Sigma_{21}$.
+
+\section*{The Sample Covariance Matrix}
+Given data as rows of $X \in \mathbb{R}^{n \times d}$, center each column by its sample mean to get $X_c$. Then
+\begin{equation}
+    S = \frac{1}{n-1} X_c^{\!\top} X_c ,
+\end{equation}
+which is the unbiased estimator; dividing by $n$ instead gives the maximum-likelihood estimator, biased low for the same reason $\hat{\sigma}^2$ is in the univariate case --- spread is measured about an estimated rather than the true mean.
+
+Two practical points about this expression. First, the centering is not optional bookkeeping: $X^{\!\top}X$ without it is a matrix of second moments (a Gram matrix), which measures magnitude rather than co-variation and has entirely different eigenvectors. Second, although $\Sigma = \mathbb{E}[\mathbf{x}\mathbf{x}^{\!\top}] - \boldsymbol{\mu}\boldsymbol{\mu}^{\!\top}$ is algebraically valid and tempting as a one-pass update, it subtracts two large nearly equal quantities and loses precision catastrophically when the mean is large relative to the spread. It can even return a matrix with negative eigenvalues, which is structurally impossible for a true covariance. Center first, then form the product, or use a numerically stable streaming update.
+
+\section*{Positive Semidefiniteness}
+The defining structural fact is that $\Sigma$ is symmetric \textbf{positive semidefinite}. The reason is a one-line identity worth internalizing, because it recurs constantly: for any fixed $\mathbf{a} \in \mathbb{R}^d$, the projection $\mathbf{a}^{\!\top}\mathbf{x}$ is a scalar random variable whose variance is
+\begin{equation}
+    \mathrm{Var}(\mathbf{a}^{\!\top}\mathbf{x}) = \mathbf{a}^{\!\top}\Sigma\,\mathbf{a} \;\geq\; 0 .
+\end{equation}
+The quadratic form is not an abstraction --- it \textit{is} the variance of the data along direction $\mathbf{a}$, and variances cannot be negative. Every property below follows from reading this identity in a different way.
+
+The semidefinite/definite distinction is where the practical trouble lives. $\mathbf{a}^{\!\top}\Sigma\mathbf{a} = 0$ for some $\mathbf{a} \neq \mathbf{0}$ means the data have \textit{zero} variance in that direction, i.e.\ the coordinates satisfy an exact linear relationship. Then $\Sigma$ is singular, $\Sigma^{-1}$ does not exist, the Gaussian density (which needs $|\Sigma|^{1/2}$ in a denominator) is undefined, and the distribution is confined to a lower-dimensional subspace. This is not exotic:
+\begin{itemize}
+    \item Redundant features --- a column that is a copy, a sum, or a unit conversion of others --- makes $S$ exactly singular.
+    \item One-hot encodings with all levels retained are singular, since the indicators sum to one; dropping a level is what fixes it.
+    \item $S$ has rank at most $\min(d,\, n-1)$, the $-1$ coming from centering. So whenever $n \leq d$, the sample covariance is singular \textit{regardless of the data}. With 30 observations in 100 dimensions there is no invertible sample covariance to be had.
+\end{itemize}
+Near-singularity is worse than singularity in practice, because it does not raise an error --- it silently produces an inverse with enormous entries, so the fit is dominated by whichever direction happens to have the least variance.
+
+\section*{Linear Transformations}
+Covariance transforms quadratically under affine maps:
+\begin{equation}
+    \mathrm{Cov}(A\mathbf{x} + \mathbf{b}) = A\,\Sigma\,A^{\!\top} .
+\end{equation}
+The shift $\mathbf{b}$ drops out, since covariance is defined about the mean. The row-vector case $A = \mathbf{a}^{\!\top}$ recovers the variance-of-a-projection identity above. For sums of random vectors,
+\begin{equation}
+    \mathrm{Cov}(\mathbf{x} + \mathbf{y}) = \Sigma_x + \Sigma_y + \mathrm{Cov}(\mathbf{x},\mathbf{y}) + \mathrm{Cov}(\mathbf{x},\mathbf{y})^{\!\top},
+\end{equation}
+which collapses to $\Sigma_x + \Sigma_y$ when the two are uncorrelated. This is the general statement of the fact used in the GP: adding independent noise to observations adds $\sigma_n^2 I$ to their covariance matrix.
+
+Note also that $A\Sigma A^{\!\top}$ is automatically PSD whatever $A$ is, so the family of valid covariance matrices is closed under linear maps --- and this is the cheapest way to \textit{construct} a valid covariance matrix, since picking entries by hand almost never yields a PSD result.
+
+\section*{Spectral Decomposition and Geometry}
+Because $\Sigma$ is symmetric PSD, the spectral theorem gives
+\begin{equation}
+    \Sigma = U \Lambda U^{\!\top}, \qquad \Lambda = \mathrm{diag}(\lambda_1 \geq \dots \geq \lambda_d \geq 0),
+\end{equation}
+with $U$ orthonormal. Substituting into the projection identity with $\mathbf{a} = \mathbf{u}_i$ gives $\mathrm{Var}(\mathbf{u}_i^{\!\top}\mathbf{x}) = \lambda_i$: the eigenvectors are the directions of \textit{uncorrelated} variation, and each eigenvalue is the variance along its own eigenvector. Maximizing $\mathbf{a}^{\!\top}\Sigma\mathbf{a}$ over unit vectors is a Rayleigh quotient whose solution is $\mathbf{u}_1$ --- which is precisely the derivation of PCA. Principal components are eigenvectors of the covariance matrix, and explained-variance ratios are $\lambda_i / \sum_j \lambda_j$.
+
+Two scalar summaries follow:
+\begin{itemize}
+    \item $\mathrm{tr}(\Sigma) = \sum_i \Sigma_{ii} = \sum_i \lambda_i$ --- \textbf{total variance}. The trace identity says the sum of the coordinate variances equals the sum of the eigenvalues, so a rotation redistributes variance among directions without creating or destroying any.
+    \item $|\Sigma| = \prod_i \lambda_i$ --- \textbf{generalized variance}, proportional to the squared volume of the concentration ellipsoid. It vanishes as soon as any single direction is degenerate, which is why a near-singular $\Sigma$ makes log-determinant terms in likelihoods diverge.
+\end{itemize}
+The \textbf{condition number} $\lambda_1/\lambda_d$ measures how elongated the ellipsoid is and how badly conditioned any solve involving $\Sigma$ will be. It is the number to look at before trusting anything computed from $\Sigma^{-1}$.
+
+\section*{Correlation Matrix and the Scale Problem}
+Writing $D = \mathrm{diag}(\Sigma_{11},\dots,\Sigma_{dd})$ for the variances, the correlation matrix is the covariance matrix of the standardized variables,
+\begin{equation}
+    R = D^{-1/2}\,\Sigma\,D^{-1/2},
+\end{equation}
+with unit diagonal and off-diagonal entries in $[-1,1]$. It is itself a valid covariance matrix, so everything above applies to it.
+
+The distinction is not cosmetic. $\Sigma$ carries units and therefore depends on how each feature is scaled: measure one variable in millimeters instead of meters and its variance grows by $10^6$, which will make it dominate the leading eigenvector no matter how uninformative it is. Consequences worth remembering:
+\begin{itemize}
+    \item PCA on $\Sigma$ and PCA on $R$ give different answers. Unless the features share meaningful units, PCA on the correlation matrix (i.e.\ standardize first) is the defensible default.
+    \item The same applies to any method built on Euclidean distance, and it is the reason hyperparameter ranges spanning orders of magnitude are put on a log scale before a GP with a shared length scale sees them.
+    \item Zero covariance and zero correlation are the same statement, so this rescaling never changes which entries vanish --- only their relative magnitudes.
+\end{itemize}
+One caveat on interpretation: a zero entry means no \textit{linear} association, not independence. Uncorrelated variables can be strongly dependent (e.g.\ $Y = X^2$ with $X$ symmetric about zero). The Gaussian notes cover the one important exception --- for jointly Gaussian variables, uncorrelated does imply independent.
+
+\section*{Whitening}
+Since $\Sigma$ is PSD, it has square roots, and any $W$ with $W\Sigma W^{\!\top} = I$ \textbf{whitens} the data --- decorrelating the coordinates and normalizing each to unit variance. Common choices:
+\begin{itemize}
+    \item $W = \Lambda^{-1/2}U^{\!\top}$ (PCA whitening): rotate onto the eigenbasis, then rescale.
+    \item $W = \Sigma^{-1/2} = U\Lambda^{-1/2}U^{\!\top}$ (ZCA whitening): the symmetric root, which rotates back afterward and so stays closest to the original coordinates.
+    \item $W = L^{-1}$ where $\Sigma = LL^{\!\top}$ is the Cholesky factor: cheapest, and triangular.
+\end{itemize}
+Whitening is only unique up to an orthogonal transformation, since $QW$ works whenever $W$ does --- which is exactly why whitening alone cannot recover meaningful axes and why ICA needs a non-Gaussian criterion on top of it. Running whitening backwards is how correlated Gaussian samples are generated: $\boldsymbol{\mu} + L\mathbf{z}$ with $\mathbf{z} \sim \mathcal{N}(\mathbf{0},I)$. Note that all of these require $\Sigma$ to be invertible, so a singular covariance must be regularized or rank-reduced first.
+
+\section*{The Precision Matrix}
+The inverse $\Theta = \Sigma^{-1}$ is the \textbf{precision} (or concentration) matrix, and it answers a different question than $\Sigma$ does. The contrast is the most useful non-obvious fact here:
+\begin{itemize}
+    \item $\Sigma_{ij} = 0$ means $x_i$ and $x_j$ are \textbf{marginally} uncorrelated --- unrelated when the other variables are ignored.
+    \item $\Theta_{ij} = 0$ means they are uncorrelated \textbf{conditionally} on all the remaining variables. For a Gaussian this is conditional independence, $x_i \perp x_j \mid \mathbf{x}_{\text{rest}}$.
+\end{itemize}
+The second is the stronger and usually more interesting claim: it distinguishes direct association from association induced through a common third variable. Two features driven by a shared cause have large $\Sigma_{ij}$ but near-zero $\Theta_{ij}$. The normalized off-diagonals of $\Theta$ are the partial correlations,
+\begin{equation}
+    \rho_{ij \mid \text{rest}} = \frac{-\Theta_{ij}}{\sqrt{\Theta_{ii}\Theta_{jj}}},
+\end{equation}
+and the zero pattern of $\Theta$ is the edge set of a Gaussian graphical model --- which is what makes the precision matrix, rather than the covariance matrix, the natural target for sparse estimation methods such as the graphical lasso. It is also the parameterization in which Bayesian updates read most cleanly, as in the precision-adding form of the conjugate update in the Gaussian notes.
+
+\section*{Block Structure and Schur Complements}
+Partitioning $\mathbf{x}$ into $(\mathbf{x}_1,\mathbf{x}_2)$ splits $\Sigma$ into blocks $\Sigma_{11}, \Sigma_{12}, \Sigma_{21}, \Sigma_{22}$. The marginal covariance of $\mathbf{x}_1$ is just $\Sigma_{11}$. The conditional covariance appearing in the Gaussian notes,
+\begin{equation}
+    \Sigma_{1|2} = \Sigma_{11} - \Sigma_{12}\Sigma_{22}^{-1}\Sigma_{21},
+\end{equation}
+is the \textbf{Schur complement} of $\Sigma_{22}$ in $\Sigma$. Naming it is useful because its properties are standard results rather than facts to memorize: it is PSD whenever $\Sigma$ is, which is the formal reason conditioning can never increase uncertainty; it is exactly the block that appears when $\Sigma$ is inverted, giving $\Theta_{11} = \Sigma_{1|2}^{-1}$ and connecting the precision matrix to conditioning; and $|\Sigma| = |\Sigma_{22}|\,|\Sigma_{1|2}|$, which factorizes the log-determinant of a Gaussian likelihood into a marginal and a conditional piece.
+
+\section*{Where It Appears in These Notes}
+Collecting the threads:
+\begin{itemize}
+    \item \textbf{The Gaussian}. $\Sigma$ is half the parameterization, and its eigendecomposition is the ellipsoid geometry of the density.
+    \item \textbf{Mahalanobis distance}. $(\mathbf{x}-\boldsymbol{\mu})^{\!\top}\Sigma^{-1}(\mathbf{x}-\boldsymbol{\mu})$ is Euclidean distance after whitening --- distance measured in units of the data's own variability, so correlated directions are not double-counted.
+    \item \textbf{PCA}. Eigenvectors of $\Sigma$, ranked by eigenvalue.
+    \item \textbf{The GP kernel matrix}. A kernel is a covariance function, and $K_{ij} = k(\mathbf{x}_i,\mathbf{x}_j)$ is the covariance matrix of the function values at the sampled points. This is why kernels must be PSD --- a non-PSD kernel would assert a negative variance for some linear combination of function values, so the requirement is the projection identity, not a technicality. It is also why $K + \sigma_n^2 I$ is used rather than $K$: adding a positive multiple of $I$ shifts every eigenvalue up by $\sigma_n^2$, which is simultaneously the noise model and the numerical fix for a rank-deficient $K$ from near-duplicate inputs.
+\end{itemize}
+The last point is worth stating plainly, since it unifies three things that look separate: adding $\sigma_n^2 I$, adding jitter for stability, and ridge regularization are the same operation on a covariance matrix.
+
+\section*{Estimation in High Dimensions}
+The sample covariance is a poor estimator when $n$ is not comfortably larger than $d$, and the failure mode is specific rather than merely a loss of accuracy. There are $d(d+1)/2$ parameters to estimate from $nd$ numbers, so with $d = 100$ that is $5050$ parameters. The eigenvalues, in particular, are biased in a structured way: large ones are overestimated and small ones underestimated, so the sample spectrum is systematically too spread out. Even when the true $\Sigma = I$, the sample eigenvalues fan out over an interval that widens with $d/n$. Since the smallest eigenvalues drive $\Sigma^{-1}$, the inverse is where this bias does the most damage.
+
+The standard remedies all trade a little bias for a large variance reduction:
+\begin{itemize}
+    \item \textbf{Diagonal loading}: $S + \varepsilon I$, which lifts every eigenvalue and guarantees invertibility. This is ridge regularization viewed as covariance repair.
+    \item \textbf{Shrinkage}: $\hat{\Sigma} = (1-\alpha)S + \alpha \frac{\mathrm{tr}(S)}{d} I$, pulling toward a scaled identity with $\alpha$ chosen analytically (Ledoit--Wolf) rather than by cross-validation.
+    \item \textbf{Structural restriction}: assume $\Sigma$ diagonal ($d$ parameters instead of $d(d+1)/2$), or spherical, or low-rank-plus-diagonal as in factor analysis. Diagonal-Gaussian and naive-Bayes models are exactly this assumption, and their persistent competitiveness in high dimensions is a statement about estimation cost, not about features really being uncorrelated.
+    \item \textbf{Sparse precision estimation}: penalize $\Theta$ directly when conditional independence structure is the actual object of interest.
+\end{itemize}
+
+\section*{Practical Notes}
+\begin{itemize}
+    \item \textbf{Factorize, never invert}. Cholesky plus triangular solves is faster and better conditioned than forming $\Sigma^{-1}$, and gives $\log|\Sigma| = 2\sum_i \log L_{ii}$ for free. A Cholesky failure is also the cheapest test for positive definiteness.
+    \item \textbf{Symmetrize}. Floating-point arithmetic drifts, and an eigensolver handed a matrix that is symmetric only to $10^{-16}$ can return complex eigenvalues. Enforce $\Sigma \leftarrow (\Sigma + \Sigma^{\!\top})/2$ after any nontrivial computation.
+    \item \textbf{Clip tiny negative eigenvalues}. A theoretically PSD matrix can come back with eigenvalues around $-10^{-15}$; clip to zero (or add jitter) rather than treating it as a modeling problem.
+    \item \textbf{Check the condition number} before relying on anything derived from $\Sigma^{-1}$. A large ratio means the result is dominated by the least-well-estimated direction.
+    \item \textbf{Center with the training mean}. Whitening and Mahalanobis distances at test time must reuse the training $\boldsymbol{\mu}$ and $\Sigma$; re-estimating them on test data leaks information and breaks the transform's meaning.
+    \item \textbf{Mind the missing data convention}. Estimating each entry from whichever rows happen to be complete for that pair produces a matrix that is not PSD, since the entries no longer come from a single consistent sample. Impute or use a method designed for it instead.
+    \item \textbf{Remember what it cannot see}. $\Sigma$ captures pairwise linear structure only. Equal covariance matrices can belong to wildly different distributions, so it is a summary of second-order behavior, not of dependence in general.
+\end{itemize}
+
+\end{document}
