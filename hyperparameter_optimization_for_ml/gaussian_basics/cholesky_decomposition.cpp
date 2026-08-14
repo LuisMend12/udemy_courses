@@ -1,6 +1,8 @@
 // CPP program to find decompose of a
 // matrix using Cholesky Decomposition
-#include <bits/stdc++.h>
+#include <iostream>
+#include <vector>
+#include <cmath>
 using namespace std;
 
 void choleskyDecomposition(vector<vector<int>> matrix){
