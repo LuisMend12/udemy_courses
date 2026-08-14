@@ -1,0 +1,183 @@
+\documentclass[conference]{IEEEtran}
+
+\usepackage{cite}
+\usepackage{amsmath,amssymb,amsfonts}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{url}
+\usepackage{xcolor}
+
+\title{Notes on Kernels}
+
+\author{
+\IEEEauthorblockN{Luis Mendez}
+}
+
+\begin{document}
+\maketitle
+
+\section*{Overview}
+The Bayesian optimization notes named the kernel ``the main modeling choice'' and then described two of them in a paragraph. That understates it: once the surrogate is a Gaussian process, the kernel is the \textit{entire} prior. The GP equations contain no other modeling assumption --- mean function aside --- so every belief about the response surface, its smoothness, its length scales, which hyperparameters matter at all, is expressed through $k$ and nowhere else. Choosing it badly cannot be repaired by a better acquisition function.
+
+There are two standard ways to read the same object, and it is worth holding both:
+\begin{itemize}
+    \item \textbf{As a similarity / inner product}. $k(\mathbf{x},\mathbf{x}')$ is a dot product in some feature space, so linear methods can be run in that space without ever visiting it. This is the view from SVMs and the kernel trick.
+    \item \textbf{As a covariance function}. $k(\mathbf{x},\mathbf{x}')$ is $\mathrm{Cov}(f(\mathbf{x}), f(\mathbf{x}'))$, the prior covariance between the function's values at two inputs. This is the view from Gaussian processes, and it is the one that makes the kernel a statement about \textit{smoothness}.
+\end{itemize}
+They are the same mathematics. The second is the useful one here, because the covariance matrix notes already established that the Gram matrix $K$ is a covariance matrix and the multivariate Gaussian notes proved what follows from that.
+
+\section*{Definition and the Positive-Semidefiniteness Requirement}
+A kernel is a symmetric function $k : \mathcal{X}\times\mathcal{X} \to \mathbb{R}$. It is a \textbf{valid} (positive semidefinite) kernel if for every finite set $\mathbf{x}_1,\dots,\mathbf{x}_n \in \mathcal{X}$ the Gram matrix $K$ with $K_{ij} = k(\mathbf{x}_i,\mathbf{x}_j)$ is positive semidefinite:
+\begin{equation}
+    \mathbf{a}^{\!\top}K\mathbf{a} = \sum_{i,j} a_i a_j\, k(\mathbf{x}_i,\mathbf{x}_j) \;\geq\; 0
+    \qquad \forall\, \mathbf{a} \in \mathbb{R}^n .
+\end{equation}
+This is not a technical side condition, and the covariance reading says exactly why. If $K$ is the covariance matrix of the function values $(f(\mathbf{x}_1),\dots,f(\mathbf{x}_n))$, then by the projection identity from the covariance notes,
+\begin{equation}
+    \mathbf{a}^{\!\top}K\mathbf{a} = \mathrm{Var}\!\left(\textstyle\sum_i a_i f(\mathbf{x}_i)\right),
+\end{equation}
+so a non-PSD kernel asserts that some linear combination of function values has negative variance. It is a contradiction, not an inconvenience --- which is why one cannot simply invent a plausible-looking similarity function and use it as a kernel.
+
+Two structure theorems say the requirement is also sufficient, i.e.\ PSD is exactly the right condition.
+
+\medskip
+\noindent\textbf{Moore--Aronszajn.}
+\textit{Every symmetric PSD kernel $k$ is the reproducing kernel of a unique Hilbert space $\mathcal{H}$ of functions on $\mathcal{X}$, in which $\varphi(\mathbf{x}) = k(\mathbf{x},\cdot)$ serves as a feature map:}
+\begin{equation}
+    \langle \varphi(\mathbf{x}), \varphi(\mathbf{x}')\rangle_{\mathcal{H}} = k(\mathbf{x},\mathbf{x}'),
+    \qquad
+    f(\mathbf{x}) = \langle f, k(\mathbf{x},\cdot)\rangle_{\mathcal{H}} .
+\end{equation}
+
+\medskip
+\noindent\textbf{Mercer.}
+\textit{For a continuous PSD kernel on a compact domain, $k(\mathbf{x},\mathbf{x}') = \sum_i \lambda_i \psi_i(\mathbf{x})\psi_i(\mathbf{x}')$ with $\lambda_i \geq 0$, where $(\lambda_i,\psi_i)$ are eigenvalues and eigenfunctions of the associated integral operator.}
+
+\medskip
+Mercer is the infinite-dimensional analogue of the eigendecomposition $\Sigma = U\Lambda U^{\!\top}$ from the covariance notes, and the decay rate of the $\lambda_i$ is a precise statement of how much of the function space the prior really occupies: fast decay means the prior is concentrated on a few smooth modes.
+
+\section*{The Kernel Trick and the Representer Theorem}
+The feature-space reading gives the computational payoff. A polynomial kernel $k(\mathbf{x},\mathbf{x}') = (\mathbf{x}^{\!\top}\mathbf{x}' + c)^p$ corresponds to a feature map listing all monomials up to degree $p$ --- a space of dimension growing combinatorially in $d$ and $p$ --- yet evaluating $k$ costs one dot product and one power. The RBF kernel corresponds to an \textit{infinite}-dimensional feature space and costs the same.
+
+What makes this usable rather than a curiosity is the representer theorem: the minimizer of a regularized empirical risk
+\begin{equation}
+    \min_{f \in \mathcal{H}} \; \sum_{i=1}^{n} L\!\left(y_i, f(\mathbf{x}_i)\right) + \Omega\!\left(\|f\|_{\mathcal{H}}\right),
+    \qquad \Omega \text{ increasing},
+\end{equation}
+always takes the form $f(\cdot) = \sum_{i=1}^{n}\alpha_i\, k(\mathbf{x}_i,\cdot)$. The solution lives in the span of the kernel evaluated at the training points, so an infinite-dimensional problem collapses to $n$ coefficients. The cost of a kernel method therefore scales with the number of \textit{observations}, not the dimension of the feature space --- which is the exact tradeoff that makes GPs excellent at 50 trials and hopeless at 50{,}000.
+
+\section*{Building Valid Kernels}
+Verifying PSD from the definition is usually impractical. In practice new kernels are assembled from known ones using closure properties. If $k_1,k_2$ are valid kernels, then so are:
+\begin{itemize}
+    \item $k_1 + k_2$ and $c\,k_1$ for $c > 0$;
+    \item $k_1 \cdot k_2$ (the Gram matrices' Hadamard product is PSD --- the Schur product theorem);
+    \item $f(\mathbf{x})\,k_1(\mathbf{x},\mathbf{x}')\,f(\mathbf{x}')$ for any real $f$, and in particular $f(\mathbf{x})f(\mathbf{x}')$ alone;
+    \item $k_1(g(\mathbf{x}), g(\mathbf{x}'))$ for any map $g$ into the kernel's domain;
+    \item $\exp(k_1)$, and any pointwise limit of valid kernels.
+\end{itemize}
+Notably \textit{absent}: $k_1 - k_2$ is generally not valid, and neither is an arbitrary elementwise transform. Subtraction is the operation people reach for when trying to encode ``dissimilar'' and it is precisely the one that breaks.
+
+The two composition rules carry most of the modeling weight. Sums behave like an OR over explanations --- an additive structure where each term can account for variation on its own scale --- and products behave like an AND, requiring both factors to be high for the total similarity to be high. A long-length-scale trend kernel plus a short-length-scale local kernel is the standard way to say ``a smooth trend with local wiggle,'' and multiplying a periodic kernel by an RBF is how a periodicity is allowed to decay rather than repeat forever.
+
+\section*{The Standard Kernels}
+Write $r = \|\mathbf{x}-\mathbf{x}'\|$ and let $\sigma_f^2$ be the output (signal) variance.
+
+\subsection*{RBF / squared exponential}
+\begin{equation}
+    k(r) = \sigma_f^2 \exp\!\left(-\frac{r^2}{2\ell^2}\right).
+\end{equation}
+Infinitely mean-square differentiable, with sample paths that are analytic. This is an extremely strong assumption --- it says that observing the function on any small open set determines it everywhere --- and it is why the RBF is a poor default despite being the most familiar. Hyperparameter response surfaces have kinks, plateaus, and cliffs at values where a model's behavior changes qualitatively; an analytic prior smooths straight through them.
+
+\subsection*{Mat\'ern}
+\begin{equation}
+    k_\nu(r) = \sigma_f^2\,\frac{2^{1-\nu}}{\Gamma(\nu)}
+    \left(\frac{\sqrt{2\nu}\,r}{\ell}\right)^{\!\nu}
+    K_\nu\!\left(\frac{\sqrt{2\nu}\,r}{\ell}\right),
+\end{equation}
+with $K_\nu$ the modified Bessel function of the second kind. The parameter $\nu$ controls smoothness directly: sample paths are $k$ times differentiable precisely when $\nu > k$. Half-integer values give elementary forms and are the ones actually used:
+\begin{align}
+    \nu = \tfrac{1}{2}: \quad & \sigma_f^2 \exp(-r/\ell), \\
+    \nu = \tfrac{3}{2}: \quad & \sigma_f^2\left(1 + \tfrac{\sqrt{3}r}{\ell}\right)\exp\!\left(-\tfrac{\sqrt{3}r}{\ell}\right), \\
+    \nu = \tfrac{5}{2}: \quad & \sigma_f^2\left(1 + \tfrac{\sqrt{5}r}{\ell} + \tfrac{5r^2}{3\ell^2}\right)\exp\!\left(-\tfrac{\sqrt{5}r}{\ell}\right),
+\end{align}
+and $\nu \to \infty$ recovers the RBF. The $\nu = 1/2$ case is the exponential (Ornstein--Uhlenbeck) kernel, giving continuous but nowhere-differentiable paths --- too rough for most surfaces. Mat\'ern-$5/2$ is the usual default, and is what \texttt{gp\_minimize} uses: twice differentiable is enough structure to interpolate sensibly while still permitting the sharp features an analytic prior would erase.
+
+\subsection*{Rational quadratic}
+\begin{equation}
+    k(r) = \sigma_f^2\left(1 + \frac{r^2}{2\alpha\ell^2}\right)^{-\alpha},
+\end{equation}
+which is a scale mixture of RBF kernels with a Gamma prior over inverse squared length scales, and tends to the RBF as $\alpha \to \infty$. Useful when variation occurs on several scales at once and committing to a single $\ell$ feels wrong.
+
+\subsection*{Periodic}
+\begin{equation}
+    k(x,x') = \sigma_f^2 \exp\!\left(-\frac{2\sin^2\!\left(\pi|x-x'|/p\right)}{\ell^2}\right),
+\end{equation}
+obtained by the composition rule: warp $x \mapsto (\sin x, \cos x)$ and apply an RBF. Rarely relevant to hyperparameter surfaces, but it is the cleanest illustration that a kernel encodes a structural belief rather than merely a distance.
+
+\subsection*{Linear and white noise}
+The dot-product kernel $k(\mathbf{x},\mathbf{x}') = \sigma_b^2 + \mathbf{x}^{\!\top}\mathbf{x}'$ makes the GP exactly Bayesian linear regression --- a useful sanity anchor, since it shows the GP is a strict generalization rather than a different family. The white-noise kernel $\sigma_n^2\,\delta(\mathbf{x},\mathbf{x}')$ contributes only on the diagonal, and adding it \textit{is} the $\sigma_n^2 I$ term in the GP posterior equations. As noted in the covariance matrix notes, this single operation is simultaneously the noise model, the numerical jitter, and ridge regularization.
+
+\section*{Stationarity and the Spectral View}
+A kernel is \textbf{stationary} if $k(\mathbf{x},\mathbf{x}') = k(\mathbf{x}-\mathbf{x}')$ and \textbf{isotropic} if it depends only on $r = \|\mathbf{x}-\mathbf{x}'\|$. Everything above except the linear kernel is stationary, which encodes a strong and often false claim: that the function is equally wiggly everywhere.
+
+\medskip
+\noindent\textbf{Bochner's theorem.}
+\textit{A continuous stationary function is a valid kernel if and only if it is the Fourier transform of a finite non-negative measure --- its spectral density.}
+
+\medskip
+This turns kernel design into spectral design, and it explains the smoothness hierarchy in one line. The RBF has a Gaussian spectral density, whose tails decay faster than any polynomial, so essentially no high-frequency power exists and paths are analytic. The Mat\'ern spectral density decays polynomially, at a rate set by $\nu$, so high-frequency power survives and paths are correspondingly rough. Smoothness assumptions and spectral tail weight are the same statement.
+
+Bochner is also the basis of random Fourier features: sample frequencies from the spectral density, build $m$ explicit random features, and approximate the kernel at $O(nm^2)$ instead of $O(n^3)$. That matters for large-$n$ kernel methods, though it is beside the point for tuning budgets of a few hundred trials where the exact Cholesky is cheap.
+
+The practical caveat is that hyperparameter response surfaces are frequently \textit{non}-stationary: the objective may be flat across a wide plateau of learning rates and then fall off a cliff. A stationary kernel must choose one length scale to describe both regimes and will get at least one wrong --- usually by over-smoothing the cliff. Input warping (fitting a monotone transform of each dimension jointly with the kernel) is the standard remedy, and putting a dimension on a log scale is the cheap manual version of it.
+
+\section*{Hyperparameters of the Kernel Itself}
+The kernel brings its own parameters $\boldsymbol{\theta}_k$, creating the nested optimization mentioned in the Bayesian optimization notes.
+
+\begin{itemize}
+    \item \textbf{Output scale} $\sigma_f^2$ --- the vertical amplitude of plausible functions. Largely absorbed by standardizing $\mathbf{y}$.
+    \item \textbf{Length scale} $\ell$ --- how far correlation extends. Small $\ell$ means observations constrain only their immediate neighborhood, so $\sigma(\mathbf{x})$ stays large and the search behaves like random search; large $\ell$ means a few points pin down a wide region, at the risk of smoothing over a real optimum.
+    \item \textbf{Noise} $\sigma_n^2$ --- resampling noise in the cross-validated score.
+\end{itemize}
+
+\subsection*{ARD, and reading relevance off the fit}
+Giving each input dimension its own length scale,
+\begin{equation}
+    k(\mathbf{x},\mathbf{x}') = \sigma_f^2 \exp\!\left(-\frac{1}{2}\sum_{d} \frac{(x_d - x'_d)^2}{\ell_d^2}\right),
+\end{equation}
+is \textbf{automatic relevance determination}. A dimension whose fitted $\ell_d$ is very large contributes almost nothing to the distance, so the model has concluded that the objective barely depends on it. This is the concrete mechanism behind the claim that the surrogate ``indicates which hyperparameters matter'': after a run, inspect the fitted length scales and the small ones are the hyperparameters worth tuning. It is one of the few genuinely free diagnostics Bayesian optimization provides, and it costs one attribute lookup on the fitted model. The tradeoff is $d$ extra parameters to fit from few observations, which is why ARD is worth enabling for a handful of dimensions and risky for dozens.
+
+\subsection*{Fitting them by marginal likelihood}
+The kernel hyperparameters are chosen by maximizing the log marginal likelihood
+\begin{equation}
+    \log p(\mathbf{y} \mid X, \boldsymbol{\theta}_k) =
+    -\tfrac{1}{2}\mathbf{y}^{\!\top}K_y^{-1}\mathbf{y}
+    -\tfrac{1}{2}\log|K_y|
+    -\tfrac{n}{2}\log 2\pi,
+\end{equation}
+where $K_y = K + \sigma_n^2 I$. The two data-dependent terms pull in opposite directions --- $\mathbf{y}^{\!\top}K_y^{-1}\mathbf{y}$ rewards fitting the observations, $\log|K_y|$ penalizes a covariance that permits too much --- so the objective embodies an automatic Occam's razor and does not need a separate validation split. Note $\log|K_y| = \sum_i \log \lambda_i$, so the penalty is literally the generalized variance from the covariance notes: a prior that allows more function space pays for it.
+
+Two cautions. The objective is non-convex with genuine local optima, so implementations restart from several initializations; and $\ell$ and $\sigma_n^2$ are weakly identifiable, since ``rough function, little noise'' and ``smooth function, much noise'' explain the same data almost equally well. A fit that lands on $\sigma_n^2$ near its upper bound with a large $\ell$ has usually decided the objective is pure noise, which is worth catching before trusting the search.
+
+\section*{Kernels for the Spaces Tuning Actually Uses}
+Most kernel exposition assumes $\mathcal{X} = \mathbb{R}^d$. Hyperparameter search spaces are not that, and the mismatch is the main reason GPs struggle here --- which is the motivation for the alternative surrogates the Bayesian optimization notes point to.
+
+\begin{itemize}
+    \item \textbf{Real dimensions spanning orders of magnitude} (learning rates, regularization strengths). A single $\ell$ cannot serve $10^{-5}$ and $10^{-1}$ simultaneously. Search on a log scale, which is the input warping described above applied by hand.
+    \item \textbf{Integer dimensions} (\texttt{max\_depth}, \texttt{n\_estimators}). The usual treatment is to optimize a real variable and round inside the objective, which makes the true objective a step function: the GP sees a smooth surface, proposes $4.3$ and $4.4$, and gets identical scores. This wastes evaluations and can convince the model there is more noise than there is. Rounding \textit{inside the kernel} --- so that the covariance itself is constant across a rounding plateau --- is the principled fix.
+    \item \textbf{Categorical dimensions} (\texttt{loss}, \texttt{solver}). One-hot encoding plus an RBF makes every pair of distinct categories equidistant, which reduces to an overlap (Hamming) kernel. That is honest when the categories have no ordering, but it also means each level must be learned largely independently, so categorical dimensions are expensive in evaluations.
+    \item \textbf{Conditional structure} --- a hyperparameter that only exists when another takes a particular value (\texttt{degree} matters only for a polynomial kernel SVM). There is no natural distance between points where a dimension is undefined, so a plain stationary kernel is not merely inaccurate but ill-defined. Tree-based surrogates (SMAC) and density-ratio methods (TPE) handle this natively by partitioning rather than measuring distance, which is precisely why they are the recommended alternatives for large conditional spaces.
+\end{itemize}
+
+\section*{Practical Notes}
+\begin{itemize}
+    \item \textbf{Kernel choice dominates acquisition choice}. Switching EI for LCB changes where the search looks next; switching RBF for Mat\'ern changes what the model believes the surface \textit{is}. Spend the attention on the kernel.
+    \item \textbf{Standardize inputs and outputs} before fitting. Length scales are only comparable across dimensions if the dimensions are, and marginal likelihood values computed under different preprocessing are not comparable to each other.
+    \item \textbf{Read the fitted length scales after every run.} Boundary hits carry the same message as the boundary hits noted for search ranges: an $\ell_d$ pinned at its bound usually means the bound, not the data, was the constraint.
+    \item \textbf{Watch the conditioning.} A very small $\ell$ drives $K \to I$ and the GP predicts the prior mean everywhere; a very large $\ell$ drives $K$ toward a matrix of ones, which is rank-one and numerically singular. Both failure modes show up first as a failed Cholesky, which is why jitter is added, and both are better diagnosed from the fitted $\ell$ than from the error.
+    \item \textbf{Sum kernels are cheap insurance.} Mat\'ern-$5/2$ plus white noise is the sensible default; adding a linear term costs little and lets the model express a global trend that a stationary kernel alone must fake with a long length scale.
+    \item \textbf{Remember the cubic cost is in $n$, not $d$.} By the representer theorem the expense scales with observations, so a 20-dimensional space with 60 trials is comfortable while a 2-dimensional space with 20{,}000 trials is not --- the opposite of the intuition carried over from parametric models.
+\end{itemize}
+
+\end{document}
