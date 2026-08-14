@@ -1,0 +1,262 @@
+\documentclass[conference]{IEEEtran}
+
+\usepackage{cite}
+\usepackage{amsmath,amssymb,amsfonts}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{url}
+\usepackage{xcolor}
+
+\title{Notes on the Multivariate Gaussian: Structure Theorems}
+
+\author{
+\IEEEauthorblockN{Luis Mendez}
+}
+
+\begin{document}
+\maketitle
+
+\section*{Scope}
+There is no single result called ``the multivariate Gaussian theorem.'' What there is instead is a small family of structure theorems --- equivalence of definitions, affine closure, marginalization, conditioning, the independence characterization --- and these notes state and prove them. The Gaussian distribution notes gave the density and used the conditioning formula; the covariance matrix notes gave the properties of $\Sigma$. This file supplies the proofs that were quoted there, so it is the rigorous spine under the other two rather than a third overview.
+
+The organizing claim is that essentially every closed-form Gaussian manipulation --- including the entire Gaussian process posterior --- is Theorem 3 (affine closure) or Theorem 6 (conditioning) applied to a particular partition. Once those two are proved, nothing further needs deriving.
+
+Throughout, $\mathbf{x} \in \mathbb{R}^d$, $\boldsymbol{\mu} = \mathbb{E}[\mathbf{x}]$, and $\Sigma = \mathbb{E}[(\mathbf{x}-\boldsymbol{\mu})(\mathbf{x}-\boldsymbol{\mu})^{\!\top}]$.
+
+\section*{Three Definitions, and Why They Agree}
+The density is the definition usually given first, but it is the \textit{least} general of the three, because it requires $\Sigma$ to be invertible. The following are the standard alternatives.
+
+\medskip
+\noindent\textbf{Theorem 1 (Equivalence of definitions).}
+\textit{For a random vector $\mathbf{x} \in \mathbb{R}^d$ the following are equivalent:}
+\begin{itemize}
+    \item[(a)] \textit{$\mathbf{x} \stackrel{d}{=} \boldsymbol{\mu} + A\mathbf{z}$ for some matrix $A \in \mathbb{R}^{d \times k}$ and $\mathbf{z} \sim \mathcal{N}(\mathbf{0}, I_k)$ with independent standard normal entries;}
+    \item[(b)] \textit{$\mathbf{a}^{\!\top}\mathbf{x}$ is univariate Gaussian for every $\mathbf{a} \in \mathbb{R}^d$ (a point mass counting as the degenerate case);}
+    \item[(c)] \textit{the characteristic function is}
+    \begin{equation}
+        \varphi_{\mathbf{x}}(\mathbf{t}) = \mathbb{E}\!\left[e^{i\mathbf{t}^{\!\top}\mathbf{x}}\right]
+        = \exp\!\left(i\mathbf{t}^{\!\top}\boldsymbol{\mu} - \tfrac{1}{2}\mathbf{t}^{\!\top}\Sigma\mathbf{t}\right),
+    \end{equation}
+    \textit{with $\Sigma = AA^{\!\top}$ positive semidefinite.}
+\end{itemize}
+\textit{If in addition $\Sigma$ is positive definite, these are equivalent to $\mathbf{x}$ having the density}
+\begin{equation}
+    p(\mathbf{x}) = (2\pi)^{-d/2}|\Sigma|^{-1/2}
+    \exp\!\left(-\tfrac{1}{2}(\mathbf{x}-\boldsymbol{\mu})^{\!\top}\Sigma^{-1}(\mathbf{x}-\boldsymbol{\mu})\right).
+\end{equation}
+
+\medskip
+\textit{Proof sketch.} (a) $\Rightarrow$ (c): compute directly, using independence of the entries of $\mathbf{z}$ and the univariate transform $\mathbb{E}[e^{isz}] = e^{-s^2/2}$, giving
+$\varphi_{\mathbf{x}}(\mathbf{t}) = e^{i\mathbf{t}^{\!\top}\boldsymbol{\mu}}\varphi_{\mathbf{z}}(A^{\!\top}\mathbf{t}) = \exp(i\mathbf{t}^{\!\top}\boldsymbol{\mu} - \tfrac{1}{2}\|A^{\!\top}\mathbf{t}\|^2)$, and $\|A^{\!\top}\mathbf{t}\|^2 = \mathbf{t}^{\!\top}AA^{\!\top}\mathbf{t}$. (c) $\Rightarrow$ (b): set $\mathbf{t} = s\mathbf{a}$ to read off the transform of $\mathbf{a}^{\!\top}\mathbf{x}$ as that of $\mathcal{N}(\mathbf{a}^{\!\top}\boldsymbol{\mu}, \mathbf{a}^{\!\top}\Sigma\mathbf{a})$. (b) $\Rightarrow$ (c): the transform of $\mathbf{a}^{\!\top}\mathbf{x}$ evaluated at $s=1$ \textit{is} $\varphi_{\mathbf{x}}(\mathbf{a})$, so knowing every projection is Gaussian pins the joint transform. (c) $\Rightarrow$ (a): take $A = U\Lambda^{1/2}$ from the eigendecomposition $\Sigma = U\Lambda U^{\!\top}$, which exists because $\Sigma$ is PSD. $\square$
+
+\medskip
+Two remarks are worth more than the proof. First, (a) and (c) make sense for \textit{singular} $\Sigma$ while the density does not, so they define a strictly larger family --- see Theorem 12. Second, (b) says something practically useful: to check joint Gaussianity, check that every one-dimensional projection is Gaussian. This is the Cram\'er--Wold device, and it is the reason a Gaussian assumption is falsifiable by looking at projections one at a time.
+
+\medskip
+\noindent\textbf{Theorem 2 (Cram\'er--Wold device).}
+\textit{The distribution of $\mathbf{x} \in \mathbb{R}^d$ is uniquely determined by the collection of distributions of $\mathbf{a}^{\!\top}\mathbf{x}$ over all $\mathbf{a} \in \mathbb{R}^d$.}
+
+\medskip
+\textit{Proof.} Knowing the law of $\mathbf{a}^{\!\top}\mathbf{x}$ gives $\mathbb{E}[e^{is\mathbf{a}^{\!\top}\mathbf{x}}]$ for all $s$; taking $s = 1$ and ranging over $\mathbf{a}$ recovers $\varphi_{\mathbf{x}}$ everywhere, and the characteristic function determines the law. $\square$
+
+\section*{Affine Closure}
+\noindent\textbf{Theorem 3 (Affine transformation).}
+\textit{If $\mathbf{x} \sim \mathcal{N}(\boldsymbol{\mu},\Sigma)$, $B \in \mathbb{R}^{m \times d}$ and $\mathbf{b} \in \mathbb{R}^m$, then}
+\begin{equation}
+    B\mathbf{x} + \mathbf{b} \;\sim\; \mathcal{N}\!\left(B\boldsymbol{\mu} + \mathbf{b},\; B\Sigma B^{\!\top}\right).
+\end{equation}
+
+\medskip
+\textit{Proof.} With $\mathbf{y} = B\mathbf{x} + \mathbf{b}$,
+\begin{align}
+    \varphi_{\mathbf{y}}(\mathbf{t})
+    &= \mathbb{E}\!\left[e^{i\mathbf{t}^{\!\top}(B\mathbf{x}+\mathbf{b})}\right]
+     = e^{i\mathbf{t}^{\!\top}\mathbf{b}}\,\varphi_{\mathbf{x}}(B^{\!\top}\mathbf{t}) \notag \\
+    &= \exp\!\left(i\mathbf{t}^{\!\top}(B\boldsymbol{\mu}+\mathbf{b})
+      - \tfrac{1}{2}\mathbf{t}^{\!\top}B\Sigma B^{\!\top}\mathbf{t}\right),
+\end{align}
+which is the transform of $\mathcal{N}(B\boldsymbol{\mu}+\mathbf{b},\, B\Sigma B^{\!\top})$; transforms determine laws. $\square$
+
+\medskip
+Note how much cheaper this is than a change-of-variables argument on the density: no Jacobian, no invertibility requirement on $B$, and $m \neq d$ is allowed. Every subsequent theorem in this file is an instance of it.
+
+\medskip
+\noindent\textbf{Theorem 4 (Sums of independents).}
+\textit{If $\mathbf{x} \sim \mathcal{N}(\boldsymbol{\mu}_1,\Sigma_1)$ and $\mathbf{y} \sim \mathcal{N}(\boldsymbol{\mu}_2,\Sigma_2)$ are independent, then $\mathbf{x}+\mathbf{y} \sim \mathcal{N}(\boldsymbol{\mu}_1+\boldsymbol{\mu}_2,\, \Sigma_1+\Sigma_2)$.}
+
+\medskip
+\textit{Proof.} Independence makes the joint transform factor, and $\varphi_{\mathbf{x}}(\mathbf{t})\varphi_{\mathbf{y}}(\mathbf{t})$ adds the exponents. $\square$
+
+\medskip
+This is the theorem behind adding $\sigma_n^2 I$ to a kernel matrix: independent observation noise on top of a Gaussian latent value stays Gaussian and adds covariances.
+
+\section*{Marginalization}
+\noindent\textbf{Theorem 5 (Marginals).}
+\textit{Partition $\mathbf{x} = (\mathbf{x}_1, \mathbf{x}_2)$ with $\boldsymbol{\mu}$ and $\Sigma$ partitioned conformably. Then $\mathbf{x}_1 \sim \mathcal{N}(\boldsymbol{\mu}_1, \Sigma_{11})$.}
+
+\medskip
+\textit{Proof.} Apply Theorem 3 with $B = [\,I \;\; 0\,]$: the mean is $B\boldsymbol{\mu} = \boldsymbol{\mu}_1$ and the covariance is $B\Sigma B^{\!\top} = \Sigma_{11}$. $\square$
+
+\medskip
+Marginalizing a Gaussian therefore costs nothing but deleting rows and columns --- no integral is ever performed. This is precisely what makes a Gaussian process well defined over an infinite index set while every computation touches only the finitely many points in play: the consistency requirement of the Kolmogorov extension theorem is exactly Theorem 5.
+
+\section*{Conditioning}
+This is the substantive one. The density-algebra proof (completing the square in a block quadratic form) is unpleasant; the following argument is short and explains \textit{why} the answer has the form it does.
+
+\medskip
+\noindent\textbf{Theorem 6 (Conditional distribution).}
+\textit{With the partition above and $\Sigma_{22}$ invertible,}
+\begin{align}
+    \mathbf{x}_1 \mid \mathbf{x}_2 = \mathbf{a} &\sim \mathcal{N}\!\left(\boldsymbol{\mu}_{1|2}, \Sigma_{1|2}\right), \\
+    \boldsymbol{\mu}_{1|2} &= \boldsymbol{\mu}_1 + \Sigma_{12}\Sigma_{22}^{-1}(\mathbf{a} - \boldsymbol{\mu}_2), \\
+    \Sigma_{1|2} &= \Sigma_{11} - \Sigma_{12}\Sigma_{22}^{-1}\Sigma_{21}.
+\end{align}
+
+\medskip
+\textit{Proof.} Write $B = \Sigma_{12}\Sigma_{22}^{-1}$ and define the residual
+\begin{equation}
+    \mathbf{w} = \mathbf{x}_1 - B\mathbf{x}_2 .
+\end{equation}
+Then $(\mathbf{w}, \mathbf{x}_2)$ is an affine image of $(\mathbf{x}_1,\mathbf{x}_2)$, hence jointly Gaussian by Theorem 3. Its cross-covariance vanishes by construction:
+\begin{equation}
+    \mathrm{Cov}(\mathbf{w}, \mathbf{x}_2) = \Sigma_{12} - B\Sigma_{22} = \Sigma_{12} - \Sigma_{12}\Sigma_{22}^{-1}\Sigma_{22} = 0 .
+\end{equation}
+By Theorem 7 below, jointly Gaussian and uncorrelated implies \textit{independent}, so $\mathbf{w} \perp\!\!\!\perp \mathbf{x}_2$. Its moments are $\mathbb{E}[\mathbf{w}] = \boldsymbol{\mu}_1 - B\boldsymbol{\mu}_2$ and
+\begin{align}
+    \mathrm{Var}(\mathbf{w}) &= \Sigma_{11} - B\Sigma_{21} - \Sigma_{12}B^{\!\top} + B\Sigma_{22}B^{\!\top} \notag \\
+    &= \Sigma_{11} - \Sigma_{12}\Sigma_{22}^{-1}\Sigma_{21},
+\end{align}
+the last three terms collapsing because each equals $\Sigma_{12}\Sigma_{22}^{-1}\Sigma_{21}$. Now write $\mathbf{x}_1 = \mathbf{w} + B\mathbf{x}_2$ and condition on $\mathbf{x}_2 = \mathbf{a}$. Since $\mathbf{w}$ is independent of $\mathbf{x}_2$, its law is unaffected by the conditioning, while $B\mathbf{x}_2$ becomes the constant $B\mathbf{a}$. Hence $\mathbf{x}_1 \mid \mathbf{x}_2 = \mathbf{a}$ is Gaussian with mean $\boldsymbol{\mu}_1 - B\boldsymbol{\mu}_2 + B\mathbf{a}$ and covariance $\mathrm{Var}(\mathbf{w})$. $\square$
+
+\medskip
+The proof is really one idea: \textit{subtract off the part of $\mathbf{x}_1$ that $\mathbf{x}_2$ can explain linearly, and what remains is independent of $\mathbf{x}_2$.} Three corollaries follow immediately and are the facts actually used downstream.
+
+\medskip
+\noindent\textbf{Corollary 6.1 (The conditional variance is data-free).}
+\textit{$\Sigma_{1|2}$ does not depend on the observed value $\mathbf{a}$.}
+
+\medskip
+This is the formal content of the claim in the Bayesian optimization notes that a GP's posterior variance depends on \textit{where} the objective was sampled and not on the scores obtained. It is a property of the Gaussian family, not of the kernel or the acquisition function, and it is what lets $\sigma(\mathbf{x})$ serve as a pure exploration signal.
+
+\medskip
+\noindent\textbf{Corollary 6.2 (Linear conditional mean).}
+\textit{$\mathbb{E}[\mathbf{x}_1 \mid \mathbf{x}_2]$ is an affine function of $\mathbf{x}_2$. Hence for jointly Gaussian vectors the best predictor in mean-square equals the best \textit{linear} predictor.}
+
+\medskip
+In general these two differ and the conditional expectation can be arbitrarily nonlinear; under joint Gaussianity linear regression is not an approximation but the exact optimum. This is the precise sense in which the Gaussian world is a linear world, and it is worth knowing as the assumption one is implicitly making when reaching for a linear model.
+
+\medskip
+\noindent\textbf{Corollary 6.3 (Conditioning cannot increase uncertainty).}
+\textit{$\Sigma_{11} - \Sigma_{1|2} = \Sigma_{12}\Sigma_{22}^{-1}\Sigma_{21}$ is positive semidefinite, so $\mathbf{a}^{\!\top}\Sigma_{1|2}\mathbf{a} \leq \mathbf{a}^{\!\top}\Sigma_{11}\mathbf{a}$ for every $\mathbf{a}$.}
+
+\medskip
+\textit{Proof.} $\Sigma_{12}\Sigma_{22}^{-1}\Sigma_{21} = C^{\!\top}C$ with $C = \Sigma_{22}^{-1/2}\Sigma_{21}$. $\square$
+
+\section*{Independence and Uncorrelatedness}
+\noindent\textbf{Theorem 7 (Characterization of independence).}
+\textit{If $(\mathbf{x}_1,\mathbf{x}_2)$ is jointly Gaussian, then $\mathbf{x}_1$ and $\mathbf{x}_2$ are independent if and only if $\Sigma_{12} = 0$.}
+
+\medskip
+\textit{Proof.} Independence always implies zero covariance. Conversely, if $\Sigma_{12}=0$ then $\Sigma$ is block diagonal, so $\mathbf{t}^{\!\top}\Sigma\mathbf{t} = \mathbf{t}_1^{\!\top}\Sigma_{11}\mathbf{t}_1 + \mathbf{t}_2^{\!\top}\Sigma_{22}\mathbf{t}_2$ and the joint characteristic function factors as $\varphi_{\mathbf{x}_1}(\mathbf{t}_1)\varphi_{\mathbf{x}_2}(\mathbf{t}_2)$, which is equivalent to independence. (With $\Sigma$ nonsingular one can equally note that $|\Sigma| = |\Sigma_{11}||\Sigma_{22}|$ and $\Sigma^{-1}$ is block diagonal, so the density factors.) $\square$
+
+\medskip
+This is a genuinely special property --- for general random variables zero correlation says nothing about independence --- and it is the engine of the conditioning proof. But the hypothesis of \textit{joint} Gaussianity is doing real work, and dropping it breaks the theorem:
+
+\medskip
+\noindent\textbf{Counterexample 8 (Marginal normality is not enough).}
+\textit{Let $X \sim \mathcal{N}(0,1)$ and let $S$ be independent of $X$ with $\mathbb{P}(S = \pm 1) = 1/2$, and set $Y = SX$. Then $Y \sim \mathcal{N}(0,1)$ and}
+\begin{equation}
+    \mathrm{Cov}(X,Y) = \mathbb{E}[SX^2] = \mathbb{E}[S]\,\mathbb{E}[X^2] = 0,
+\end{equation}
+\textit{yet $X$ and $Y$ are not independent, since $|X| = |Y|$ always. Consistently with Theorem 7, $(X,Y)$ is not jointly Gaussian: $X + Y = X(1+S)$ equals $0$ with probability $1/2$, so it is not a Gaussian random variable, contradicting Theorem 1(b).}
+
+\medskip
+The moral is the one stated without proof in the covariance notes: ``Gaussian'' applied to a vector is a strictly stronger claim than ``Gaussian'' applied to each coordinate, and every theorem above requires the stronger version.
+
+\section*{The Precision Matrix and Conditional Independence}
+\noindent\textbf{Theorem 9 (Partitioned inverse).}
+\textit{With $\Theta = \Sigma^{-1}$ partitioned conformably,}
+\begin{equation}
+    \Theta_{11} = \Sigma_{1|2}^{-1},
+    \qquad
+    \Theta_{12} = -\Sigma_{1|2}^{-1}\Sigma_{12}\Sigma_{22}^{-1},
+\end{equation}
+\textit{and $|\Sigma| = |\Sigma_{22}|\,|\Sigma_{1|2}|$.}
+
+\medskip
+The first identity says the precision matrix stores conditional information directly: the block of $\Theta$ for a set of variables is the inverse conditional covariance given all the others. Specializing to a single pair, with $\mathbf{x}_1 = (x_i, x_j)$ and $\mathbf{x}_2$ everything else, gives the result quoted in the covariance notes.
+
+\medskip
+\noindent\textbf{Corollary 9.1 (Gaussian graphical models).}
+\textit{For $\mathbf{x} \sim \mathcal{N}(\boldsymbol{\mu},\Sigma)$ with $\Theta = \Sigma^{-1}$,}
+\begin{equation}
+    \Theta_{ij} = 0 \iff x_i \perp\!\!\!\perp x_j \mid \mathbf{x}_{\text{rest}} .
+\end{equation}
+
+\medskip
+\textit{Proof.} By Theorem 9 the conditional covariance of $(x_i,x_j)$ given the rest is $\Theta_{11}^{-1}$ where $\Theta_{11}$ is the corresponding $2\times 2$ block of $\Theta$. Inverting a $2\times2$ matrix negates and rescales the off-diagonal, so the conditional covariance between $x_i$ and $x_j$ vanishes exactly when $\Theta_{ij} = 0$; the conditional law is Gaussian by Theorem 6, so Theorem 7 upgrades uncorrelated to independent. $\square$
+
+\medskip
+The determinant identity in Theorem 9 is the other half of the practical payoff: it factors a Gaussian log-likelihood into a marginal piece and a conditional piece, which is what makes chain-rule factorizations of $\log p(\mathbf{x})$ computable term by term.
+
+\section*{Quadratic Forms}
+\noindent\textbf{Theorem 10 (Mahalanobis distance).}
+\textit{If $\mathbf{x} \sim \mathcal{N}(\boldsymbol{\mu},\Sigma)$ with $\Sigma$ positive definite, then}
+\begin{equation}
+    (\mathbf{x}-\boldsymbol{\mu})^{\!\top}\Sigma^{-1}(\mathbf{x}-\boldsymbol{\mu}) \;\sim\; \chi^2_d .
+\end{equation}
+
+\medskip
+\textit{Proof.} Let $\mathbf{z} = \Sigma^{-1/2}(\mathbf{x}-\boldsymbol{\mu})$. By Theorem 3, $\mathbf{z} \sim \mathcal{N}(\mathbf{0}, I_d)$, so its entries are i.i.d.\ standard normal and the quadratic form equals $\mathbf{z}^{\!\top}\mathbf{z} = \sum_{i=1}^{d} z_i^2$, which is $\chi^2_d$ by definition. $\square$
+
+\medskip
+This is what calibrates the ellipsoid picture. The set $\{\mathbf{x} : (\mathbf{x}-\boldsymbol{\mu})^{\!\top}\Sigma^{-1}(\mathbf{x}-\boldsymbol{\mu}) \leq \chi^2_{d,1-\alpha}\}$ is an exact $(1-\alpha)$ confidence region, and the theorem is also the basis for Mahalanobis-distance outlier tests. One consequence surprises people: the mode of $\chi^2_d$ is at $d-2$, so in high dimensions almost no probability mass sits near the mean --- samples concentrate on a shell at radius roughly $\sqrt{d}$ in whitened coordinates. The Gaussian ``bell'' intuition is a one-dimensional picture that does not survive.
+
+\section*{Estimation}
+\noindent\textbf{Theorem 11 (Maximum likelihood, and independence of the estimators).}
+\textit{Given $\mathbf{x}_1,\dots,\mathbf{x}_n$ i.i.d.\ $\mathcal{N}(\boldsymbol{\mu},\Sigma)$ with $n > d$, the maximum-likelihood estimators are}
+\begin{equation}
+    \hat{\boldsymbol{\mu}} = \bar{\mathbf{x}},
+    \qquad
+    \hat{\Sigma} = \frac{1}{n}\sum_{i=1}^{n}(\mathbf{x}_i-\bar{\mathbf{x}})(\mathbf{x}_i-\bar{\mathbf{x}})^{\!\top}.
+\end{equation}
+\textit{Moreover $\bar{\mathbf{x}}$ and $\hat{\Sigma}$ are independent, with $\bar{\mathbf{x}} \sim \mathcal{N}(\boldsymbol{\mu}, \Sigma/n)$ and $n\hat{\Sigma}$ following a Wishart law with $n-1$ degrees of freedom.}
+
+\medskip
+The independence claim is the multivariate version of the fact that the sample mean and sample variance of a normal sample are independent, and it is worth flagging because it \textit{characterizes} the Gaussian: no other distribution has it. Its one-dimensional consequence is the $t$-distribution, since the ratio of a mean to an independently estimated standard error is only tractable because numerator and denominator do not interact.
+
+\medskip
+\noindent\textbf{Theorem 12 (Maximum entropy).}
+\textit{Among all distributions on $\mathbb{R}^d$ with mean $\boldsymbol{\mu}$ and covariance $\Sigma$, the Gaussian uniquely maximizes differential entropy, attaining}
+\begin{equation}
+    h = \tfrac{1}{2}\log\!\left((2\pi e)^d |\Sigma|\right).
+\end{equation}
+
+\medskip
+\textit{Proof sketch.} For any competitor $q$ with the same first two moments, $0 \leq D_{\mathrm{KL}}(q \,\|\, p) = -h(q) - \mathbb{E}_q[\log p]$, and since $\log p$ is a quadratic in $\mathbf{x}$, the expectation $\mathbb{E}_q[\log p]$ depends on $q$ only through its mean and covariance --- which match $p$'s. Hence $\mathbb{E}_q[\log p] = \mathbb{E}_p[\log p] = -h(p)$ and $h(q) \leq h(p)$, with equality iff $q = p$. $\square$
+
+\medskip
+This is the honest justification for a Gaussian prior: it is the least-committal distribution consistent with specifying only a center and a spread, so choosing it adds no assumptions beyond the two moments one is willing to state.
+
+\section*{The Degenerate Case}
+Every theorem above except those needing $\Sigma^{-1}$ holds for singular $\Sigma$, and it is worth being explicit about what happens there, since singular covariance matrices arise routinely (redundant features, $n \leq d$ sample covariances, deterministic linear constraints).
+
+\medskip
+\noindent\textbf{Theorem 13 (Singular Gaussians).}
+\textit{If $\Sigma$ is PSD with rank $r < d$, then $\mathbf{x} \sim \mathcal{N}(\boldsymbol{\mu},\Sigma)$ has no density with respect to Lebesgue measure on $\mathbb{R}^d$. Its support is the affine subspace $\boldsymbol{\mu} + \mathrm{range}(\Sigma)$ of dimension $r$, on which it has a density with respect to $r$-dimensional Lebesgue measure, obtained by replacing $\Sigma^{-1}$ with the pseudo-inverse $\Sigma^{+}$ and $|\Sigma|$ with the product of the nonzero eigenvalues.}
+
+\medskip
+The practical reading is that a singular Gaussian is not pathological, merely lower-dimensional: the distribution lives on a flat inside $\mathbb{R}^d$, and all the structure theorems continue to describe it as long as one works with the characteristic function (Theorem 1(c)) rather than the density. In computation the same fact appears as a Cholesky factorization that fails, which is why a jitter term $\varepsilon I$ is added --- it perturbs the degenerate distribution into a nondegenerate one that a solver can handle.
+
+\section*{Summary: What Gets Used Where}
+\begin{itemize}
+    \item \textbf{Theorem 3} (affine closure) is the workhorse; Theorems 4, 5, 10 are all corollaries of it.
+    \item \textbf{Theorem 6} (conditioning) applied to the joint over observed scores and a new function value gives the entire GP posterior --- mean, variance, and the $\sigma_n^2 I$ noise block --- with no further derivation.
+    \item \textbf{Corollary 6.1} is why GP posterior variance is a valid exploration signal.
+    \item \textbf{Theorem 7} is the step that makes the conditioning proof work and the reason Gaussian models can treat ``uncorrelated'' as ``independent.''
+    \item \textbf{Theorem 9} is why sparse-precision methods target $\Theta$ rather than $\Sigma$.
+    \item \textbf{Theorem 12} is the argument for using a Gaussian prior at all.
+\end{itemize}
+
+\end{document}
