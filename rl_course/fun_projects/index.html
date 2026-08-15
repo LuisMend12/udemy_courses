@@ -946,6 +946,10 @@
             Play the match
             <kbd>1</kbd>
           </a>
+          <a class="btn" href="arsenal_vs_psg/frontend-3d/index.html" data-key="4">
+            Play it in 3D
+            <kbd>4</kbd>
+          </a>
           <a class="btn" href="arsenal_vs_psg/README.md" data-key="2">
             Read the write-up
             <kbd>2</kbd>
@@ -981,6 +985,25 @@
         <div class="path">arsenal_vs_psg/frontend/index.html</div>
         <div class="actions">
           <a class="btn btn-sm" href="arsenal_vs_psg/frontend/index.html">Open</a>
+        </div>
+      </article>
+
+      <article class="card hoverable">
+        <span class="card-icon" aria-hidden="true">
+          <svg width="19" height="19" viewBox="0 0 24 24" class="glyph">
+            <path d="M12 3.5 20.5 8v8L12 20.5 3.5 16V8z"/>
+            <path d="M3.5 8 12 12.5 20.5 8M12 12.5V20.5"/>
+          </svg>
+        </span>
+        <h3>The 3D viewer</h3>
+        <p>
+          Same trained tables, tilted broadcast camera. The ground is a flat scene rotated
+          with CSS, the ball is a billboarded sphere that lifts along a real 3D arc on a
+          long ball or a shot &mdash; no WebGL, no dependency.
+        </p>
+        <div class="path">arsenal_vs_psg/frontend-3d/index.html</div>
+        <div class="actions">
+          <a class="btn btn-sm" href="arsenal_vs_psg/frontend-3d/index.html">Open</a>
         </div>
       </article>
 
@@ -1441,6 +1464,7 @@
       <li><span>Play the match</span><kbd>1</kbd></li>
       <li><span>Read the write-up</span><kbd>2</kbd></li>
       <li><span>Copy the train command</span><kbd>3</kbd></li>
+      <li><span>Play it in 3D</span><kbd>4</kbd></li>
       <li><span>Cycle theme</span><kbd>T</kbd></li>
       <li><span>Show this sheet</span><kbd>?</kbd></li>
       <li><span>Close</span><kbd>Esc</kbd></li>
@@ -1544,6 +1568,7 @@
       case "1": go('[data-key="1"]'); break;
       case "2": go('[data-key="2"]'); break;
       case "3": copyCmd(); break;
+      case "4": go('[data-key="4"]'); break;
       case "t": case "T": cycleTheme(); break;
       case "?": overlay.classList.contains("on") ? closeSheet() : openSheet(); break;
       default: return;

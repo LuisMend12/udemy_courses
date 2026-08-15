@@ -112,6 +112,9 @@
 
   h1, h2, h3 { font-family: var(--display); font-weight: 600; text-wrap: balance; margin: 0; }
 
+  a.quiet { color: var(--ink-muted); text-decoration: none; border-bottom: 1px dashed var(--hairline-firm); }
+  a.quiet:hover { color: var(--ink); border-bottom-color: var(--ink-faint); }
+
   .eyebrow {
     font-family: var(--display);
     font-size: 11px;
@@ -751,6 +754,7 @@
         only on <em>goal scored</em> and <em>goal conceded</em>, playing against a copy of the
         other that was learning at the same time. The panel on the right is the table being
         read in real time &mdash; that is the whole brain.
+        Same tables, tilted broadcast camera: <a class="quiet" href="../frontend-3d/index.html">watch it in 3D</a>.
       </p>
     </div>
 

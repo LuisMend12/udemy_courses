@@ -30,6 +30,21 @@ against the Python numbers rather than assumed: 2,000 headless matches give
 ARS 1.36 - 0.78 PSG against Python's 1.44 - 0.87 on the same seed, with the same
 win/draw/loss split.
 
+There's also a [3D version](frontend-3d/index.html): the same engine and the
+same trained tables, but the pitch is a tilted broadcast camera built out of
+CSS 3D transforms, and the ball actually lifts off the turf on a long ball or
+a shot instead of just sliding between zones. No WebGL, no dependency - the
+ground is a flat scene rotated with `rotateX`, and the ball is a billboarded
+sphere translated along `translateZ` in an arc sized to the action, with a
+shadow that shrinks as it climbs. Retrain and re-export once, then inline the
+tables into both frontends:
+
+```bash
+python football_rl.py --episodes 12000 --seed 42 --export frontend/policy.json
+cd frontend && python build.py policy.json
+cd ../frontend-3d && python build.py ../frontend/policy.json
+```
+
 ## The frontend
 
 `frontend/index.html` plays the **trained** policy in the browser &mdash; open it
