@@ -160,12 +160,12 @@ def main():
                          FIGURES_DIR / "learning_curve_synthetic.png")
     print("Saved learning_curve_synthetic.png")
 
-    X, y = load_pca_reduced("wine", n_qubits=4, seed=SEED)
-    sizes = [10, 20, 30, 50, 70, 90, 110]
-    curves = learning_curve(X, y, 4, "wine_pca4", best_hp, sizes)
-    plot_learning_curve(curves, sizes, "Sample efficiency: Wine (PCA-4)",
-                         FIGURES_DIR / "learning_curve_wine.png")
-    print("Saved learning_curve_wine.png")
+    X, y = load_pca_reduced("miniboone", n_qubits=4, seed=SEED)
+    sizes = [15, 30, 50, 80, 110, 150, 200, 260]
+    curves = learning_curve(X, y, 4, "miniboone_pca4", best_hp, sizes)
+    plot_learning_curve(curves, sizes, "Sample efficiency: MiniBooNE (PCA-4)",
+                         FIGURES_DIR / "learning_curve_miniboone.png")
+    print("Saved learning_curve_miniboone.png")
 
     decision_boundary_figure(FIGURES_DIR / "decision_boundary.png")
     print("Saved decision_boundary.png")

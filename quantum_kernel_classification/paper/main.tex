@@ -43,10 +43,13 @@ classical (RBF, polynomial, linear) kernels under an identical model-selection
 protocol. On a synthetic dataset engineered so its labels are a function of
 the same feature map (a positive control), the quantum kernel reaches
 $98.3\%$ test accuracy versus $48$--$53\%$ (chance level) for every classical
-kernel. On two standard tabular UCI benchmarks (Wine, Breast Cancer) with no
-such engineered structure, the result reverses sharply: classical kernels
-reach $92$--$98\%$ accuracy while the quantum kernel collapses to
-$66.7\%$ -- on Wine, exactly the majority-class baseline. We diagnose this
+kernel. On the MiniBooNE particle-identification benchmark -- a real
+high-energy-physics classification task (Fermilab electron-neutrino vs.\
+muon-neutrino events) with no engineered relationship to any quantum feature
+map -- the result reverses sharply: classical kernels reach $81$--$87\%$
+accuracy while the quantum kernel collapses to $71.7\%$ at both PCA
+dimensionalities we test, exactly the majority-class baseline in both cases.
+We diagnose this
 gap using kernel-target alignment and kernel-value statistics, and connect it
 to existing theory on the inductive bias and concentration of quantum
 kernels. Our results are an honest negative result for quantum kernels as a
@@ -84,9 +87,11 @@ for the quantum kernel and three classical kernels (RBF, polynomial, linear)
 on: (1) a synthetic dataset explicitly engineered, following
 \citet{havlicek2019supervised}, so that its ground-truth labels are a
 function of the same feature map -- a positive control that should favor the
-quantum kernel; and (2) two standard UCI tabular datasets (Wine, Breast
-Cancer) with no such engineered relationship to any quantum feature map --
-datasets a practitioner might realistically want to classify.
+quantum kernel; and (2) the MiniBooNE particle identification dataset
+\citep{roe2010miniboone}, a real high-energy-physics benchmark distinguishing
+electron-neutrino signal events from muon-neutrino background events at the
+MiniBooNE experiment, with no engineered relationship to any quantum feature
+map -- a task a practitioner might realistically want to classify.
 
 \textbf{Contributions.}
 \begin{itemize}
@@ -100,8 +105,9 @@ datasets a practitioner might realistically want to classify.
   (Section~\ref{sec:synthetic}).
   \item A controlled empirical comparison, under one shared model-selection
   protocol and a common kernel normalization, of the quantum kernel against
-  classical kernels on both the engineered positive control and two real
-  UCI benchmarks (Sections~\ref{sec:setup}--\ref{sec:results}).
+  classical kernels on both the engineered positive control and a real
+  high-energy-physics benchmark, MiniBooNE
+  (Sections~\ref{sec:setup}--\ref{sec:results}).
   \item A diagnosis of \emph{why} the quantum kernel fails on real data
   using kernel-target alignment \citep{cristianini2001kernel} and raw
   kernel-value statistics, connected to the inductive-bias and
@@ -269,14 +275,23 @@ each with $200$ class-balanced samples.
 \label{sec:setup}
 
 \textbf{Datasets.} In addition to the two synthetic datasets above, we use
-two standard UCI classification benchmarks via scikit-learn
-\citep{pedregosa2011scikit}: \emph{Wine} (one class vs.\ rest, $178$
-samples) and \emph{Breast Cancer Wisconsin} (malignant vs.\ benign, $569$
-samples). For both, we standardize features, project to $4$ principal
-components (matching $n=4$ qubits) with PCA, and rescale to $[0, 2\pi)$ with
-a min-max scaler -- the same representation is fed to every kernel, so
-comparisons isolate the choice of kernel rather than confounding it with
-different preprocessing.
+the \emph{MiniBooNE particle identification} dataset
+\citep{roe2010miniboone}, a real high-energy-physics benchmark distinguishing
+electron-neutrino signal events from muon-neutrino background events at the
+MiniBooNE experiment (Fermilab), described by $50$ reconstructed kinematic
+variables per event; it is also used as a non-toy tabular-classification
+benchmark in the deep-learning-for-tabular-data literature
+\citep{gorishniy2021revisiting}. We access it via OpenML
+\citep{pedregosa2011scikit}, drop the $0.36\%$ of events containing a
+$-999$ missing-value sentinel in one or more features, and take a
+class-stratified subsample of $400$ events. We then standardize features,
+project with PCA to $4$ or $6$ principal components (matching $n=4$ and
+$n=6$ qubits, mirroring the two synthetic configurations), and rescale to
+$[0, 2\pi)$ with a min-max scaler -- the same representation is fed to
+every kernel, so comparisons isolate the choice of kernel rather than
+confounding it with different preprocessing. The underlying $400$-event
+subsample is identical across the two PCA dimensionalities, so they compare
+the same points at different projections rather than different data.
 
 \textbf{Baselines.} RBF, polynomial (degree $\in \{2,3\}$, $\mathrm{coef0}=1$),
 and linear kernels, via scikit-learn's pairwise-kernel functions, each fed
@@ -305,9 +320,10 @@ except the kernel matrix computation itself.
   \caption{Test accuracy, cross-validation accuracy, and kernel-target
   alignment for the best hyperparameter setting of each kernel family
   (selected by CV accuracy), on each dataset. Bold marks the best test
-  accuracy per dataset. Majority-class baselines: $50.0\%$ (both synthetic
-  datasets, class-balanced by construction), $66.7\%$ (Wine), $62.6\%$
-  (Breast Cancer).}
+  accuracy per dataset (ties bolded jointly). Majority-class baselines:
+  $50.0\%$ (both synthetic datasets, class-balanced by construction),
+  $71.7\%$ (MiniBooNE, both PCA dimensionalities, same underlying
+  subsample).}
   \label{tab:main}
   \centering
   \small
@@ -327,17 +343,17 @@ except the kernel matrix computation itself.
       & Polynomial   & $0.643$ & $0.450$ & $0.014$ \\
       & Linear       & $0.607$ & $0.533$ & $0.005$ \\
     \midrule
-    \multirow{4}{*}{Wine (PCA-4)}
-      & Quantum (ZZ) & $0.669$ & $0.667$ & $0.108$ \\
-      & RBF          & $0.984$ & $0.944$ & $0.236$ \\
-      & Polynomial   & $0.976$ & $\mathbf{0.981}$ & $0.142$ \\
-      & Linear       & $0.935$ & $0.926$ & $0.121$ \\
+    \multirow{4}{*}{MiniBooNE (PCA-4)}
+      & Quantum (ZZ) & $0.718$ & $0.717$ & $0.159$ \\
+      & RBF          & $0.875$ & $\mathbf{0.817}$ & $0.253$ \\
+      & Polynomial   & $0.854$ & $0.808$ & $0.212$ \\
+      & Linear       & $0.854$ & $\mathbf{0.817}$ & $0.202$ \\
     \midrule
-    \multirow{4}{*}{Breast Cancer (PCA-4)}
-      & Quantum (ZZ) & $0.718$ & $0.667$ & $0.073$ \\
-      & RBF          & $0.982$ & $\mathbf{0.936}$ & $0.286$ \\
-      & Polynomial   & $0.980$ & $0.942$ & $0.130$ \\
-      & Linear       & $0.962$ & $0.947$ & $0.101$ \\
+    \multirow{4}{*}{MiniBooNE (PCA-6)}
+      & Quantum (ZZ) & $0.718$ & $0.717$ & $0.144$ \\
+      & RBF          & $0.868$ & $\mathbf{0.867}$ & $0.223$ \\
+      & Polynomial   & $0.854$ & $0.833$ & $0.210$ \\
+      & Linear       & $0.850$ & $0.817$ & $0.197$ \\
     \bottomrule
   \end{tabular}
 \end{table}
@@ -346,22 +362,23 @@ Table~\ref{tab:main} shows the central result. On both engineered datasets,
 the quantum kernel dominates every classical kernel by a wide margin
 ($98.3\%$ vs.\ $\le 48.3\%$ at $n{=}4$; $73.3\%$ vs.\ $\le 53.3\%$ at
 $n{=}6$, with all classical kernels within a few points of the $50\%$
-chance level). On the two real datasets, the ranking reverses completely:
-classical kernels reach $92$--$98\%$ test accuracy while the quantum kernel
-falls to $66.7\%$ on both -- on Wine, this is \emph{exactly} the
-majority-class baseline, and on Breast Cancer it is only $4.1$ points above
-it, versus $27$--$32$ points above baseline for every classical kernel.
+chance level). On MiniBooNE, the ranking reverses completely: classical
+kernels reach $81$--$87\%$ test accuracy while the quantum kernel falls to
+$71.7\%$ at \emph{both} PCA dimensionalities -- exactly the majority-class
+baseline in both cases -- versus $9$--$15$ points above baseline for every
+classical kernel setting.
 
 \textbf{Sample efficiency.} Figure~\ref{fig:learning-curves} tracks test
 accuracy as a function of training set size. On the engineered dataset
 (left), the quantum kernel improves steadily from $72\%$ at $10$ training
 points to $96\%$ at $130$, while every classical kernel is flat at
 chance level regardless of how much data it sees -- more data does not help
-a kernel whose inductive bias does not match the task. On Wine (right), the
-pattern is a mirror image: all three classical kernels climb quickly to
-$92$--$98\%$, while the quantum kernel is a flat line at $66.7\%$ from the
-smallest training size onward, i.e.\ it never learns anything past the
-majority class, even with $110$ training examples.
+a kernel whose inductive bias does not match the task. On MiniBooNE (right),
+the pattern is a mirror image: all three classical kernels climb quickly to
+roughly $80$--$82\%$ within the first $50$ training points, while the
+quantum kernel is a flat line at $71.7\%$ from the smallest training size
+onward, i.e.\ it never learns anything past the majority class, even with
+$260$ training examples.
 
 \begin{figure}[t]
   \centering
@@ -370,14 +387,15 @@ majority class, even with $110$ training examples.
   \end{subfigure}
   \hfill
   \begin{subfigure}{0.48\textwidth}
-    \includegraphics[width=\textwidth]{../figures/learning_curve_wine.png}
+    \includegraphics[width=\textwidth]{../figures/learning_curve_miniboone.png}
   \end{subfigure}
   \caption{Test accuracy vs.\ training set size (mean $\pm$ std over $8$
   random training subsets at each size, fixed hyperparameters from
   Table~\ref{tab:main}). \textbf{Left:} engineered quantum-advantage data --
-  the quantum kernel is the only one that learns. \textbf{Right:} Wine
-  (real data) -- the quantum kernel is flat at the majority-class baseline
-  regardless of training set size, while classical kernels learn quickly.}
+  the quantum kernel is the only one that learns. \textbf{Right:} MiniBooNE
+  (real particle-physics data) -- the quantum kernel is flat at the
+  majority-class baseline regardless of training set size, while classical
+  kernels learn quickly.}
   \label{fig:learning-curves}
 \end{figure}
 
@@ -410,61 +428,67 @@ low-order boundaries, are close to chance ($52\%$, $54\%$).
 
 \textbf{Alignment tracks accuracy, but only within a kernel family.} Within
 the classical kernels on real data, alignment and test accuracy move
-together in a rough but not perfectly monotonic way (e.g.\ on Breast Cancer,
-alignment increases from $0.10$ to $0.29$ as RBF's $\gamma$ grows, while
-accuracy peaks in the middle of that range before a mild overfitting-driven
-drop) -- consistent with alignment being a useful, if imperfect, proxy for
+together in a rough but not perfectly monotonic way (e.g.\ on MiniBooNE
+PCA-6, alignment rises monotonically from $0.207$ to $0.240$ as RBF's
+$\gamma$ grows from $0.02$ to $0.2$, while accuracy peaks earlier, at
+$\gamma=0.05$ ($86.7\%$), before mildly declining even as alignment keeps
+rising) -- consistent with alignment being a useful, if imperfect, proxy for
 kernel quality \citep{cristianini2001kernel}. But alignment values alone do
 not explain the quantum-vs-classical gap in Table~\ref{tab:main}: the
-quantum kernel's alignment on Wine ($0.108$) is comparable to, or even
-higher than, several classical settings with far higher accuracy, and higher
-than its own alignment on the engineered $n{=}6$ dataset ($0.095$) where it
-nonetheless generalizes far better. Alignment computed on the training fold
-captures how separable the \emph{training} labels look under the kernel, but
-does not on its own diagnose whether that separability will transfer to
-unseen points, particularly for a kernel whose off-diagonal values are
-weak and diffuse to begin with.
+quantum kernel's alignment on MiniBooNE ($0.159$ at PCA-4) is \emph{higher}
+than its own alignment on the engineered $n{=}6$ dataset ($0.095$), even
+though it generalizes far better on the latter ($73.3\%$ test accuracy, well
+above the $50\%$ baseline) than on the former ($71.7\%$, exactly at
+baseline). Alignment computed on the training fold captures how separable
+the \emph{training} labels look under the kernel, but does not on its own
+diagnose whether that separability will transfer to unseen points,
+particularly for a kernel whose off-diagonal values are weak and diffuse to
+begin with.
 
 \textbf{Kernel concentration, not just alignment.} A direct check of the raw
-kernel values is more revealing. Off-diagonal quantum-kernel entries on Wine
-have mean $0.081$ and standard deviation $0.077$; on the engineered $n{=}4$
-dataset the corresponding statistics are $0.069$ and $0.068$ -- nearly
-identical, and both close to $1/2^n = 1/16 = 0.0625$, the value expected for
-Haar-random states. In other words, the quantum kernel is similarly
-``concentrated'' -- most points look almost equally (dis)similar to each
-other -- on \emph{both} datasets; concentration alone, as studied by
-\citet{thanasilp2024exponential}, does not distinguish the case where the
-kernel works from the case where it does not. What differs is whether the
-few non-negligible off-diagonal similarities that do survive line up with
-the actual labels. On the engineered dataset they do, by construction: the
-labeling rule $y(x) = \mathrm{sign}\langle\phi(x)|M|\phi(x)\rangle$ is
-defined directly from the same feature map that the kernel measures
-similarity in, so the SVM's max-margin hyperplane in that induced space is,
-by design, close to the true decision rule. On Wine, the labels have no
-relationship whatsoever to the randomly chosen $V$ and observable mask that
-would have to align with them, so the concentrated, largely unstructured
-similarities give the SVM nothing to exploit and it falls back to the
-majority-class solution -- precisely the failure mode
-\citet{thanasilp2024exponential} predict, and an instance of the general
-inductive-bias mismatch formalized by \citet{kubler2021inductive}: a
-generic quantum feature map is only a good prior for tasks whose structure
-happens to match it, and there is no reason a priori for Wine or Breast
-Cancer classification to have that structure.
+kernel values is more revealing. Off-diagonal quantum-kernel entries on
+MiniBooNE (PCA-4) have mean $0.091$ and standard deviation $0.087$; on the
+engineered $n{=}4$ dataset the corresponding statistics are $0.069$ and
+$0.068$ -- broadly similar in magnitude, and both in the vicinity of
+$1/2^n = 1/16 = 0.0625$, the value expected for Haar-random states. In other
+words, the quantum kernel is comparably ``concentrated'' -- most points look
+almost equally (dis)similar to each other -- on \emph{both} datasets;
+concentration alone, as studied by \citet{thanasilp2024exponential}, does
+not distinguish the case where the kernel works from the case where it does
+not. What differs is whether the few non-negligible off-diagonal
+similarities that do survive line up with the actual labels. On the
+engineered dataset they do, by construction: the labeling rule $y(x) =
+\mathrm{sign}\langle\phi(x)|M|\phi(x)\rangle$ is defined directly from the
+same feature map that the kernel measures similarity in, so the SVM's
+max-margin hyperplane in that induced space is, by design, close to the
+true decision rule. On MiniBooNE, the labels are determined by real
+neutrino-interaction physics with no relationship whatsoever to the
+randomly chosen $V$ and observable mask that would have to align with them,
+so the concentrated, largely unstructured similarities give the SVM nothing
+to exploit and it falls back to the majority-class solution -- precisely
+the failure mode \citet{thanasilp2024exponential} predict, and an instance
+of the general inductive-bias mismatch formalized by
+\citet{kubler2021inductive}: a generic quantum feature map is only a good
+prior for tasks whose structure happens to match it, and there is no reason
+a priori for a neutrino-event classification task to share structure with a
+randomly chosen quantum observable.
 
 \textbf{Limitations.} (1) Exact simulation restricts us to $n \le 6$ qubits;
 we make no claim about behavior at the qubit counts where a quantum
 computer would offer a computational advantage, nor about runtime -- our
 claim is purely about statistical generalization at accessible scale. (2)
-We test one feature map (ZZ, full entanglement, $R{=}2$) and two real
-datasets; other feature maps (e.g.\ data re-uploading or trainable
-ansätze) or a wider benchmark suite could behave differently, and a larger
-study is needed before drawing conclusions about quantum kernels in
-general rather than this specific, widely-used construction. (3) Our
-PCA-to-4-dimensions preprocessing, chosen to match a small qubit count, may
-itself discard information a classical kernel operating on the full feature
-set could have used; we control for this by feeding classical kernels the
-same reduced representation, but a practitioner would not normally handicap
-a classical baseline this way. (4) We select $C$ (and, for classical
+We test one feature map (ZZ, full entanglement, $R{=}2$) and one real
+benchmark family (MiniBooNE, at two PCA dimensionalities of the same
+underlying subsample); other feature maps (e.g.\ data re-uploading or
+trainable ans\"atze) or a wider benchmark suite spanning multiple real-data
+domains could behave differently, and a larger study is needed before
+drawing conclusions about quantum kernels in general rather than this
+specific, widely-used construction. (3) Our PCA-based preprocessing (to $4$
+or $6$ dimensions), chosen to match a small qubit count, may itself discard
+information a classical kernel operating on the full $50$-feature set could
+have used; we control for this by feeding classical kernels the same
+reduced representation, but a practitioner would not normally handicap a
+classical baseline this way. (4) We select $C$ (and, for classical
 kernels, one additional kernel hyperparameter) by cross-validation, but do
 not tune the quantum feature map's own hyperparameters (number of qubits,
 repetitions, entanglement pattern) as extensively as we tune the classical
@@ -487,9 +511,10 @@ a function of whether the data's structure matches the feature map, not an
 intrinsic property of ``being quantum.'' On data engineered to match it, the
 quantum kernel dominates classical baselines by up to $50$ points of test
 accuracy and is the only kernel that benefits from additional training
-data; on unmodified real tabular data, it collapses to the majority-class
-baseline while classical kernels reach $92$--$98\%$ accuracy under an
-identical protocol. This gap is explained by a combination of concentrated
+data; on a real high-energy-physics benchmark (MiniBooNE), it collapses to
+the majority-class baseline while classical kernels reach $81$--$87\%$
+accuracy under an identical protocol. This gap is explained by a
+combination of concentrated
 off-diagonal kernel values and, critically, the absence of any relationship
 between those values and the real labels -- consistent with existing
 inductive-bias and concentration theory for quantum kernels. We release our

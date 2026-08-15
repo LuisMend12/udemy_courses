@@ -84,12 +84,12 @@ def run_benchmark():
     rows, _ = evaluate_all_kernels(X, y, n_qubits=6, dataset_name="synthetic_n6_gamma0.2")
     all_rows += rows
 
-    X, y = load_pca_reduced("wine", n_qubits=4, seed=SEED)
-    rows, _ = evaluate_all_kernels(X, y, n_qubits=4, dataset_name="wine_pca4")
+    X, y = load_pca_reduced("miniboone", n_qubits=4, seed=SEED)
+    rows, _ = evaluate_all_kernels(X, y, n_qubits=4, dataset_name="miniboone_pca4")
     all_rows += rows
 
-    X, y = load_pca_reduced("breast_cancer", n_qubits=4, seed=SEED)
-    rows, _ = evaluate_all_kernels(X, y, n_qubits=4, dataset_name="breast_cancer_pca4")
+    X, y = load_pca_reduced("miniboone", n_qubits=6, seed=SEED)
+    rows, _ = evaluate_all_kernels(X, y, n_qubits=6, dataset_name="miniboone_pca6")
     all_rows += rows
 
     with open(RESULTS_DIR / "benchmark.json", "w") as f:
