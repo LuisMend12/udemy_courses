@@ -1,0 +1,186 @@
+[
+  {
+    "dataset": "synthetic_n4_gamma0.3",
+    "kernel": "quantum(ZZ,full,reps=2)",
+    "hyperparams": {
+      "C": 1.0
+    },
+    "cv_acc": 1.0,
+    "test_acc": 0.9833333333333333,
+    "alignment": 0.16593536462475655,
+    "seconds": 0.07759308815002441
+  },
+  {
+    "dataset": "synthetic_n4_gamma0.3",
+    "kernel": "rbf",
+    "hyperparams": {
+      "gamma": 0.5,
+      "C": 30.0
+    },
+    "cv_acc": 0.6571428571428571,
+    "test_acc": 0.48333333333333334,
+    "alignment": 0.08420581219096465,
+    "seconds": 0.07506155967712402
+  },
+  {
+    "dataset": "synthetic_n4_gamma0.3",
+    "kernel": "poly",
+    "hyperparams": {
+      "degree": 2,
+      "C": 100.0
+    },
+    "cv_acc": 0.5928571428571427,
+    "test_acc": 0.48333333333333334,
+    "alignment": 0.001795876964660965,
+    "seconds": 0.07593369483947754
+  },
+  {
+    "dataset": "synthetic_n4_gamma0.3",
+    "kernel": "linear",
+    "hyperparams": {
+      "C": 30.0
+    },
+    "cv_acc": 0.5,
+    "test_acc": 0.48333333333333334,
+    "alignment": 0.0005187458738634724,
+    "seconds": 0.07967638969421387
+  },
+  {
+    "dataset": "synthetic_n6_gamma0.2",
+    "kernel": "quantum(ZZ,full,reps=2)",
+    "hyperparams": {
+      "C": 1.0
+    },
+    "cv_acc": 0.8428571428571429,
+    "test_acc": 0.7333333333333333,
+    "alignment": 0.0946443732554828,
+    "seconds": 0.08756422996520996
+  },
+  {
+    "dataset": "synthetic_n6_gamma0.2",
+    "kernel": "rbf",
+    "hyperparams": {
+      "gamma": 0.1,
+      "C": 0.1
+    },
+    "cv_acc": 0.6142857142857143,
+    "test_acc": 0.4666666666666667,
+    "alignment": 0.06236273854300159,
+    "seconds": 0.08108782768249512
+  },
+  {
+    "dataset": "synthetic_n6_gamma0.2",
+    "kernel": "poly",
+    "hyperparams": {
+      "degree": 3,
+      "C": 30.0
+    },
+    "cv_acc": 0.6428571428571428,
+    "test_acc": 0.45,
+    "alignment": 0.014026208315848533,
+    "seconds": 0.08689308166503906
+  },
+  {
+    "dataset": "synthetic_n6_gamma0.2",
+    "kernel": "linear",
+    "hyperparams": {
+      "C": 10.0
+    },
+    "cv_acc": 0.6071428571428571,
+    "test_acc": 0.5333333333333333,
+    "alignment": 0.005005526458649301,
+    "seconds": 0.0709085464477539
+  },
+  {
+    "dataset": "wine_pca4",
+    "kernel": "quantum(ZZ,full,reps=2)",
+    "hyperparams": {
+      "C": 0.1
+    },
+    "cv_acc": 0.6693333333333333,
+    "test_acc": 0.6666666666666666,
+    "alignment": 0.10837259978030749,
+    "seconds": 0.0710291862487793
+  },
+  {
+    "dataset": "wine_pca4",
+    "kernel": "rbf",
+    "hyperparams": {
+      "gamma": 0.05,
+      "C": 1.0
+    },
+    "cv_acc": 0.9836666666666666,
+    "test_acc": 0.9444444444444444,
+    "alignment": 0.2358334070514977,
+    "seconds": 0.0642385482788086
+  },
+  {
+    "dataset": "wine_pca4",
+    "kernel": "poly",
+    "hyperparams": {
+      "degree": 3,
+      "C": 100.0
+    },
+    "cv_acc": 0.9756666666666666,
+    "test_acc": 0.9814814814814815,
+    "alignment": 0.14232785724739458,
+    "seconds": 0.06256961822509766
+  },
+  {
+    "dataset": "wine_pca4",
+    "kernel": "linear",
+    "hyperparams": {
+      "C": 30.0
+    },
+    "cv_acc": 0.9349999999999999,
+    "test_acc": 0.9259259259259259,
+    "alignment": 0.12116580090350011,
+    "seconds": 0.06714701652526855
+  },
+  {
+    "dataset": "breast_cancer_pca4",
+    "kernel": "quantum(ZZ,full,reps=2)",
+    "hyperparams": {
+      "C": 1.0
+    },
+    "cv_acc": 0.7184493670886075,
+    "test_acc": 0.6666666666666666,
+    "alignment": 0.07301798413034594,
+    "seconds": 0.23565220832824707
+  },
+  {
+    "dataset": "breast_cancer_pca4",
+    "kernel": "rbf",
+    "hyperparams": {
+      "gamma": 0.2,
+      "C": 1.0
+    },
+    "cv_acc": 0.9823417721518988,
+    "test_acc": 0.935672514619883,
+    "alignment": 0.28589404938450574,
+    "seconds": 0.09209990501403809
+  },
+  {
+    "dataset": "breast_cancer_pca4",
+    "kernel": "poly",
+    "hyperparams": {
+      "degree": 2,
+      "C": 100.0
+    },
+    "cv_acc": 0.9798101265822785,
+    "test_acc": 0.9415204678362573,
+    "alignment": 0.1298470461940034,
+    "seconds": 0.08561134338378906
+  },
+  {
+    "dataset": "breast_cancer_pca4",
+    "kernel": "linear",
+    "hyperparams": {
+      "C": 100.0
+    },
+    "cv_acc": 0.9623101265822784,
+    "test_acc": 0.9473684210526315,
+    "alignment": 0.1008255390298883,
+    "seconds": 0.0917348861694336
+  }
+]

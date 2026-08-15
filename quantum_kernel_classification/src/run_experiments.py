@@ -9,7 +9,7 @@ import numpy as np
 from sklearn.model_selection import train_test_split
 
 from quantum_kernel import quantum_kernel_matrix, kernel_target_alignment
-from kernels import classical_kernel_fn
+from kernels import classical_kernel_fn, normalize_kernel
 from model_selection import cv_select_and_test
 from synthetic_data import generate_quantum_advantage_dataset
 from datasets import load_pca_reduced
@@ -31,53 +31,37 @@ def evaluate_all_kernels(X, y, n_qubits, dataset_name, reps=2, seed=SEED):
     )
     rows = []
 
+    def _run(kernel_label, K_raw, hyperparams):
+        t0 = time.time()
+        K = normalize_kernel(K_raw)
+        res = cv_select_and_test(K, y, train_idx, test_idx, C_GRID, seed=seed)
+        align = kernel_target_alignment(K[np.ix_(train_idx, train_idx)], y[train_idx])
+        dt = time.time() - t0
+        print(f"  [{dataset_name}] {kernel_label} {hyperparams} "
+              f"cv_acc={res['cv_acc']:.3f} test_acc={res['test_acc']:.3f} "
+              f"align={align:.3f} ({dt:.1f}s)", flush=True)
+        row = {
+            "dataset": dataset_name, "kernel": kernel_label,
+            "hyperparams": {**hyperparams, "C": res["best_C"]}, "cv_acc": res["cv_acc"],
+            "test_acc": res["test_acc"], "alignment": align, "seconds": dt,
+        }
+        return row
+
     # --- quantum kernel ---
-    t0 = time.time()
     K_q = quantum_kernel_matrix(X, X, n_qubits=n_qubits, reps=reps)
-    res = cv_select_and_test(K_q, y, train_idx, test_idx, C_GRID, seed=seed)
-    align = kernel_target_alignment(K_q[np.ix_(train_idx, train_idx)], y[train_idx])
-    rows.append({
-        "dataset": dataset_name, "kernel": "quantum(ZZ,full,reps=%d)" % reps,
-        "hyperparams": {"C": res["best_C"]}, "cv_acc": res["cv_acc"],
-        "test_acc": res["test_acc"], "alignment": align,
-        "seconds": time.time() - t0,
-    })
+    rows.append(_run("quantum(ZZ,full,reps=%d)" % reps, K_q, {}))
 
     # --- classical kernels ---
     for gamma in RBF_GAMMA_GRID:
-        t0 = time.time()
         K = classical_kernel_fn("rbf", gamma=gamma)(X, X)
-        res = cv_select_and_test(K, y, train_idx, test_idx, C_GRID, seed=seed)
-        align = kernel_target_alignment(K[np.ix_(train_idx, train_idx)], y[train_idx])
-        rows.append({
-            "dataset": dataset_name, "kernel": "rbf",
-            "hyperparams": {"gamma": gamma, "C": res["best_C"]}, "cv_acc": res["cv_acc"],
-            "test_acc": res["test_acc"], "alignment": align,
-            "seconds": time.time() - t0,
-        })
+        rows.append(_run("rbf", K, {"gamma": gamma}))
 
     for degree in POLY_DEGREE_GRID:
-        t0 = time.time()
         K = classical_kernel_fn("poly", degree=degree, gamma=1.0)(X, X)
-        res = cv_select_and_test(K, y, train_idx, test_idx, C_GRID, seed=seed)
-        align = kernel_target_alignment(K[np.ix_(train_idx, train_idx)], y[train_idx])
-        rows.append({
-            "dataset": dataset_name, "kernel": "poly",
-            "hyperparams": {"degree": degree, "C": res["best_C"]}, "cv_acc": res["cv_acc"],
-            "test_acc": res["test_acc"], "alignment": align,
-            "seconds": time.time() - t0,
-        })
+        rows.append(_run("poly", K, {"degree": degree}))
 
-    t0 = time.time()
     K = classical_kernel_fn("linear")(X, X)
-    res = cv_select_and_test(K, y, train_idx, test_idx, C_GRID, seed=seed)
-    align = kernel_target_alignment(K[np.ix_(train_idx, train_idx)], y[train_idx])
-    rows.append({
-        "dataset": dataset_name, "kernel": "linear",
-        "hyperparams": {"C": res["best_C"]}, "cv_acc": res["cv_acc"],
-        "test_acc": res["test_acc"], "alignment": align,
-        "seconds": time.time() - t0,
-    })
+    rows.append(_run("linear", K, {}))
 
     # collapse gamma/degree sweeps to the single best-by-CV row per kernel family
     best_by_family = {}
