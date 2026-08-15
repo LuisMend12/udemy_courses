@@ -1,0 +1,229 @@
+\documentclass[11pt]{article}
+
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath, amssymb, amsthm}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\usepackage{hyperref}
+\usepackage{enumitem}
+
+\title{Notes on On-Policy Monte Carlo Control}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Setting}
+
+We work in the usual MDP framework: an agent interacts with an environment
+through states $s \in \mathcal{S}$, actions $a \in \mathcal{A}$, rewards
+$r \in \mathbb{R}$, and a discount factor $\gamma \in [0,1]$. A policy
+$\pi(a \mid s)$ is a (possibly stochastic) mapping from states to actions.
+The action-value function under $\pi$ is
+
+\[
+    Q^\pi(s,a) = \mathbb{E}_\pi\!\left[\, \sum_{k=0}^{\infty} \gamma^k R_{t+k} \;\middle|\; S_t = s, A_t = a \,\right].
+\]
+
+Monte Carlo (MC) methods estimate $Q^\pi$ directly from \emph{complete episodes}
+of experience, without requiring a model of the environment's dynamics
+(unlike dynamic programming). \emph{On-policy} means the policy used to
+generate the behaviour (and therefore the data) is the same policy we are
+trying to evaluate and improve.
+
+\section{Why not just be greedy?}
+
+If we always act greedily with respect to the current estimate
+$\hat{Q}(s,a)$, we may never visit state-action pairs that look bad only
+because they have been sampled too few times. MC control needs
+\emph{maintained exploration}. The standard fix is an $\varepsilon$-greedy
+policy:
+
+\[
+    \pi(a \mid s) =
+    \begin{cases}
+        1 - \varepsilon + \dfrac{\varepsilon}{|\mathcal{A}(s)|}, & a = \arg\max_{a'} \hat{Q}(s,a') \\[4pt]
+        \dfrac{\varepsilon}{|\mathcal{A}(s)|}, & \text{otherwise.}
+    \end{cases}
+\]
+
+This keeps every action selectable with probability at least
+$\varepsilon / |\mathcal{A}(s)|$, so every $(s,a)$ pair keeps getting
+visited in the limit.
+
+\subsection{GLIE: Greedy in the Limit with Infinite Exploration}
+
+For MC control to provably converge to $Q^*$, the policy sequence
+$\{\pi_k\}$ should satisfy the \textbf{GLIE} conditions:
+
+\begin{enumerate}[label=(\roman*)]
+    \item Every state-action pair is visited infinitely often.
+    \item The policy converges to a greedy policy in the limit,
+        e.g.\ $\varepsilon_k \to 0$ as $k \to \infty$ (a common choice is
+        $\varepsilon_k = 1/k$).
+\end{enumerate}
+
+In practice, many implementations (including the one in this notebook) use
+a small \emph{fixed} $\varepsilon$ instead of decaying it. This sacrifices
+the formal convergence guarantee but is simpler and works well enough for
+small, stochastic-free-ish problems: the learned policy converges to a
+near-optimal $\varepsilon$-greedy policy rather than the exactly optimal
+greedy one.
+
+\section{Generalized Policy Iteration with MC}
+
+MC control instantiates \textbf{Generalized Policy Iteration (GPI)}: alternate
+between
+
+\begin{itemize}
+    \item \textbf{Policy evaluation}: estimate $Q^\pi(s,a)$ from sampled
+        returns.
+    \item \textbf{Policy improvement}: make $\pi$ ($\varepsilon$-)greedy
+        with respect to the current $\hat{Q}$.
+\end{itemize}
+
+Unlike DP, evaluation here is done from \emph{sampled episodes} rather than
+full sweeps over the state space, and the two steps are interleaved at the
+granularity of a single episode rather than run to convergence separately.
+
+\section{Computing returns from an episode}
+
+Given an episode
+$S_0, A_0, R_1, S_1, A_1, R_2, \dots, S_{T-1}, A_{T-1}, R_T$,
+the return from time $t$ is
+
+\[
+    G_t = R_{t+1} + \gamma R_{t+2} + \gamma^2 R_{t+3} + \cdots
+        = \sum_{k=0}^{T-t-1} \gamma^k R_{t+k+1}.
+\]
+
+It is computed efficiently backward through the trajectory:
+
+\[
+    G_T = 0, \qquad G_t = R_{t+1} + \gamma\, G_{t+1}.
+\]
+
+\section{Every-visit MC control (sample-average updates)}
+
+Let $\text{Returns}(s,a)$ be the (growing) list of returns observed after
+visiting $(s,a)$. The value estimate is the sample mean:
+
+\[
+    \hat{Q}(s,a) = \frac{1}{N(s,a)} \sum_{i=1}^{N(s,a)} G^{(i)}(s,a).
+\]
+
+\begin{algorithm}[h]
+\caption{On-policy every-visit MC control ($\varepsilon$-greedy, sample average)}
+\begin{algorithmic}[1]
+\State Initialize $\hat{Q}(s,a) \leftarrow 0$ for all $s,a$; $\text{Returns}(s,a) \leftarrow \emptyset$
+\For{episode $= 1, 2, \dots$}
+    \State Generate episode $S_0, A_0, R_1, \dots, S_{T-1}, A_{T-1}, R_T$ using $\varepsilon$-greedy w.r.t.\ $\hat{Q}$
+    \State $G \leftarrow 0$
+    \For{$t = T-1, T-2, \dots, 0$}
+        \State $G \leftarrow R_{t+1} + \gamma G$
+        \State append $G$ to $\text{Returns}(S_t, A_t)$
+        \State $\hat{Q}(S_t, A_t) \leftarrow \text{mean}\big(\text{Returns}(S_t, A_t)\big)$
+    \EndFor
+\EndFor
+\end{algorithmic}
+\end{algorithm}
+
+Note this is \emph{every-visit}, not first-visit: if $(S_t, A_t)$ repeats
+within the same episode, each occurrence contributes its own return to the
+average. This is exactly what \texttt{on\_policy\_mc\_control} does in
+\texttt{Section\_4\_on\_policy\_control\_complete.ipynb}: it stores all
+returns per $(s,a)$ pair in a dictionary and recomputes \texttt{np.mean}
+after every episode.
+
+A useful incremental identity avoids storing the whole return history: with
+$N \leftarrow N+1$,
+
+\[
+    \hat{Q}(s,a) \leftarrow \hat{Q}(s,a) + \frac{1}{N(s,a)} \Big( G - \hat{Q}(s,a) \Big).
+\]
+
+\section{Constant-$\alpha$ MC control}
+
+Replacing the diminishing step size $1/N(s,a)$ with a fixed
+$\alpha \in (0,1]$ gives \textbf{constant-$\alpha$ MC}:
+
+\[
+    \hat{Q}(s,a) \leftarrow \hat{Q}(s,a) + \alpha \Big( G - \hat{Q}(s,a) \Big).
+\]
+
+\begin{algorithm}[h]
+\caption{On-policy MC control, constant step size $\alpha$}
+\begin{algorithmic}[1]
+\State Initialize $\hat{Q}(s,a) \leftarrow 0$ for all $s,a$
+\For{episode $= 1, 2, \dots$}
+    \State Generate episode using $\varepsilon$-greedy w.r.t.\ $\hat{Q}$
+    \State $G \leftarrow 0$
+    \For{$t = T-1, T-2, \dots, 0$}
+        \State $G \leftarrow R_{t+1} + \gamma G$
+        \State $\hat{Q}(S_t, A_t) \leftarrow \hat{Q}(S_t, A_t) + \alpha \big( G - \hat{Q}(S_t, A_t) \big)$
+    \EndFor
+\EndFor
+\end{algorithmic}
+\end{algorithm}
+
+This is the \texttt{constant\_alpha\_mc} function in
+\texttt{opmc\_c/Section\_4\_on\_policy\_constant\_alpha\_mc\_complete.ipynb}.
+
+\paragraph{Why use constant $\alpha$?} Two practical reasons:
+\begin{itemize}
+    \item \textbf{Non-stationarity.} Because the policy keeps changing
+        (it is greedy w.r.t.\ a moving $\hat{Q}$), older returns were
+        generated under a stale, worse policy. A sample average weighs all
+        past returns equally; constant-$\alpha$ instead forms an
+        exponentially decaying weighted average, giving recent returns —
+        generated under a more recent, better policy — more influence.
+    \item \textbf{Memory.} No need to store the full list of past returns
+        per $(s,a)$, just the running estimate.
+\end{itemize}
+
+The trade-off is that the estimate no longer converges to the true mean
+(it keeps tracking / fluctuating), so $\alpha$ acts as a bias-variance /
+adaptivity knob: larger $\alpha$ tracks a moving target faster but is
+noisier; smaller $\alpha$ is smoother but slower to adapt.
+
+\section{First-visit vs. every-visit}
+
+\begin{itemize}
+    \item \textbf{First-visit MC}: only the \emph{first} occurrence of
+        $(s,a)$ in an episode contributes a return to the average.
+    \item \textbf{Every-visit MC}: \emph{every} occurrence contributes.
+\end{itemize}
+
+Both converge to $Q^\pi$ under standard assumptions (each is an unbiased or
+asymptotically consistent estimator), but every-visit is simpler to
+implement — no need to track "have we seen this pair yet this episode?" —
+which is why the notebook implementation above uses it.
+
+\section{Convergence remarks}
+
+\begin{itemize}
+    \item MC control with GLIE exploration and sample-average updates
+        converges to the optimal $Q^*$ (and hence an optimal
+        $\varepsilon$-greedy-turned-greedy policy) with probability 1, as
+        both the number of episodes and the exploration schedule satisfy
+        the conditions above.
+    \item With \emph{fixed} $\varepsilon$ and/or constant $\alpha$, the
+        method instead converges (in a suitable stochastic-approximation
+        sense) to a stationary distribution around a near-optimal
+        $\varepsilon$-greedy policy, trading exact optimality for
+        simplicity, adaptivity to non-stationarity, and faster empirical
+        learning.
+    \item MC methods require \emph{episodic} tasks (no bootstrapping): the
+        return $G_t$ can only be computed once the episode terminates.
+        This is the key difference from TD-based control methods
+        (Sarsa, Q-learning), which bootstrap from $\hat{Q}$ and can learn
+        online, step by step, in continuing tasks.
+\end{itemize}
+
+\section{Reference}
+
+Sutton, R.\ S., \& Barto, A.\ G.\ \emph{Reinforcement Learning: An
+Introduction}, 2nd ed., Chapter 5 (Monte Carlo Methods).
+
+\end{document}
