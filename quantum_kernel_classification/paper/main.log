@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.28 (MiKTeX 25.12) (preloaded format=pdflatex 2026.4.14)  14 AUG 2026 21:49
+This is pdfTeX, Version 3.141592653-2.6-1.40.28 (MiKTeX 25.12) (preloaded format=pdflatex 2026.4.14)  14 AUG 2026 21:51
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -574,7 +574,7 @@ Package caption Info: End \AtBeginDocument code.
 File: mt-cmr.cfg 2013/05/19 v2.2 microtype config. file: Computer Modern Roman 
 (RS)
 )
-LaTeX Font Info:    Trying to load font information for U+msa on input line 31.
+LaTeX Font Info:    Trying to load font information for U+msa on input line 33.
 
 
 (C:\Program Files\MiKTeX\tex/latex/amsfonts\umsa.fd
@@ -583,7 +583,7 @@ File: umsa.fd 2013/01/14 v3.01 AMS symbols A
 (C:\Program Files\MiKTeX\tex/latex/microtype\mt-msa.cfg
 File: mt-msa.cfg 2006/02/04 v1.1 microtype config. file: AMS symbols (a) (RS)
 )
-LaTeX Font Info:    Trying to load font information for U+msb on input line 31.
+LaTeX Font Info:    Trying to load font information for U+msb on input line 33.
 
 
 (C:\Program Files\MiKTeX\tex/latex/amsfonts\umsb.fd
@@ -596,7 +596,7 @@ Package microtype Info: Loading generic protrusion settings for font family
 (microtype)             `cmtt' (encoding: T1).
 (microtype)             For optimal results, create family-specific settings.
 (microtype)             See the microtype manual for details.
-LaTeX Font Info:    Trying to load font information for T1+phv on input line 54
+LaTeX Font Info:    Trying to load font information for T1+phv on input line 56
 .
 
 (C:\Program Files\MiKTeX\tex/latex/psnfss\t1phv.fd
@@ -612,7 +612,7 @@ Package microtype Info: Loading generic protrusion settings for font family
 {C:/Users/Luis Mendez/AppData/Local/MiKTeX/fonts/map/pdftex/pdftex.map}{C:/Prog
 ram Files/MiKTeX/fonts/enc/dvips/base/8r.enc}]
 LaTeX Font Info:    Trying to load font information for TS1+ptm on input line 9
-1.
+3.
  (C:\Program Files\MiKTeX\tex/latex/psnfss\ts1ptm.fd
 File: ts1ptm.fd 2001/06/04 font definitions for TS1/ptm.
 )
@@ -621,35 +621,23 @@ File: ts1ptm.fd 2001/06/04 font definitions for TS1/ptm.
 File: ../figures/learning_curve_synthetic.png Graphic file (type png)
 <use ../figures/learning_curve_synthetic.png>
 Package pdftex.def Info: ../figures/learning_curve_synthetic.png  used on input
- line 367.
+ line 369.
 (pdftex.def)             Requested size: 190.79109pt x 152.63382pt.
 <../figures/learning_curve_wine.png, id=150, 361.35pt x 289.08pt>
 File: ../figures/learning_curve_wine.png Graphic file (type png)
 <use ../figures/learning_curve_wine.png>
 Package pdftex.def Info: ../figures/learning_curve_wine.png  used on input line
- 371.
+ 373.
 (pdftex.def)             Requested size: 190.79109pt x 152.63382pt.
  [4]
 <../figures/decision_boundary.png, id=163, 1156.32pt x 289.08pt>
 File: ../figures/decision_boundary.png Graphic file (type png)
 <use ../figures/decision_boundary.png>
 Package pdftex.def Info: ../figures/decision_boundary.png  used on input line 3
-97.
+99.
 (pdftex.def)             Requested size: 397.48499pt x 99.371pt.
-
-Underfull \vbox (badness 10000) has occurred while \output is active []
-
-
-Underfull \vbox (badness 10000) has occurred while \output is active []
-
  [5 <../figures/learning_curve_synthetic.png> <../figures/learning_curve_wine.p
-ng>]
-Underfull \vbox (badness 10000) has occurred while \output is active []
-
-
-Underfull \vbox (badness 10000) has occurred while \output is active []
-
- [6 <../figures/decision_boundary.png>] (main.bbl) [7] (main.aux)
+ng>] [6 <../figures/decision_boundary.png>] (main.bbl) [7] (main.aux)
  ***********
 LaTeX2e <2025-11-01>
 L3 programming layer <2025-12-24>
@@ -680,7 +668,7 @@ nts/symbols/msbm10.pfb><C:/Program Files/MiKTeX/fonts/type1/urw/helvetic/uhvr8a
 .pfb><C:/Program Files/MiKTeX/fonts/type1/urw/times/utmb8a.pfb><C:/Program File
 s/MiKTeX/fonts/type1/urw/times/utmr8a.pfb><C:/Program Files/MiKTeX/fonts/type1/
 urw/times/utmri8a.pfb>
-Output written on main.pdf (7 pages, 573366 bytes).
+Output written on main.pdf (7 pages, 573349 bytes).
 PDF statistics:
  281 PDF objects out of 1000 (max. 8388607)
  35 named destinations out of 1000 (max. 500000)
