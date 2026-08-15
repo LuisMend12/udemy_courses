@@ -1,0 +1,75 @@
+\begin{thebibliography}{10}
+\providecommand{\natexlab}[1]{#1}
+\providecommand{\url}[1]{\texttt{#1}}
+\expandafter\ifx\csname urlstyle\endcsname\relax
+  \providecommand{\doi}[1]{doi: #1}\else
+  \providecommand{\doi}{doi: \begingroup \urlstyle{rm}\Url}\fi
+
+\bibitem[Cortes and Vapnik(1995)]{cortes1995support}
+Corinna Cortes and Vladimir Vapnik.
+\newblock Support-vector networks.
+\newblock \emph{Machine Learning}, 20\penalty0 (3):\penalty0 273--297, 1995.
+
+\bibitem[Cristianini et~al.(2001)Cristianini, Shawe-Taylor, Elisseeff, and
+  Kandola]{cristianini2001kernel}
+Nello Cristianini, John Shawe-Taylor, Andre Elisseeff, and Jaz Kandola.
+\newblock On kernel-target alignment.
+\newblock In \emph{Advances in Neural Information Processing Systems},
+  volume~14, 2001.
+
+\bibitem[Havl{\'i}{\v{c}}ek et~al.(2019)Havl{\'i}{\v{c}}ek, C{\'o}rcoles,
+  Temme, Harrow, Kandala, Chow, and Gambetta]{havlicek2019supervised}
+Vojt{\v{e}}ch Havl{\'i}{\v{c}}ek, Antonio~D C{\'o}rcoles, Kristan Temme, Aram~W
+  Harrow, Abhinav Kandala, Jerry~M Chow, and Jay~M Gambetta.
+\newblock Supervised learning with quantum-enhanced feature spaces.
+\newblock \emph{Nature}, 567\penalty0 (7747):\penalty0 209--212, 2019.
+
+\bibitem[Huang et~al.(2021)Huang, Broughton, Mohseni, Babbush, Boixo, Neven,
+  and McClean]{huang2021power}
+Hsin-Yuan Huang, Michael Broughton, Masoud Mohseni, Ryan Babbush, Sergio Boixo,
+  Hartmut Neven, and Jarrod~R McClean.
+\newblock Power of data in quantum machine learning.
+\newblock \emph{Nature Communications}, 12\penalty0 (1):\penalty0 2631, 2021.
+
+\bibitem[K{\"u}bler et~al.(2021)K{\"u}bler, Buchholz, and
+  Sch{\"o}lkopf]{kubler2021inductive}
+Jonas K{\"u}bler, Simon Buchholz, and Bernhard Sch{\"o}lkopf.
+\newblock The inductive bias of quantum kernels.
+\newblock In \emph{Advances in Neural Information Processing Systems},
+  volume~34, 2021.
+
+\bibitem[Mezzadri(2007)]{mezzadri2007generate}
+Francesco Mezzadri.
+\newblock How to generate random matrices from the classical compact groups.
+\newblock \emph{Notices of the American Mathematical Society}, 54:\penalty0
+  592--604, 2007.
+
+\bibitem[Pedregosa et~al.(2011)Pedregosa, Varoquaux, Gramfort, Michel, Thirion,
+  Grisel, Blondel, Prettenhofer, Weiss, Dubourg, et~al.]{pedregosa2011scikit}
+Fabian Pedregosa, Ga{\"e}l Varoquaux, Alexandre Gramfort, Vincent Michel,
+  Bertrand Thirion, Olivier Grisel, Mathieu Blondel, Peter Prettenhofer, Ron
+  Weiss, Vincent Dubourg, et~al.
+\newblock Scikit-learn: Machine learning in python.
+\newblock \emph{Journal of Machine Learning Research}, 12:\penalty0 2825--2830,
+  2011.
+
+\bibitem[Rebentrost et~al.(2014)Rebentrost, Mohseni, and
+  Lloyd]{rebentrost2014quantum}
+Patrick Rebentrost, Masoud Mohseni, and Seth Lloyd.
+\newblock Quantum support vector machine for big data classification.
+\newblock \emph{Physical Review Letters}, 113\penalty0 (13):\penalty0 130503,
+  2014.
+
+\bibitem[Schuld and Killoran(2019)]{schuld2019quantum}
+Maria Schuld and Nathan Killoran.
+\newblock Quantum machine learning in feature hilbert spaces.
+\newblock \emph{Physical Review Letters}, 122\penalty0 (4):\penalty0 040504,
+  2019.
+
+\bibitem[Thanasilp et~al.(2024)Thanasilp, Wang, Cerezo, and
+  Holmes]{thanasilp2024exponential}
+Supanut Thanasilp, Samson Wang, M~Cerezo, and Zo{\"e} Holmes.
+\newblock Exponential concentration in quantum kernel methods.
+\newblock \emph{Nature Communications}, 15, 2024.
+
+\end{thebibliography}

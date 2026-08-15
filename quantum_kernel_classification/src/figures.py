@@ -100,7 +100,7 @@ def plot_learning_curve(curves, train_sizes, title, out_path):
         ax.fill_between(train_sizes, means - stds, means + stds, alpha=0.15, color=PALETTE[fam])
     ax.set_xlabel("Training set size")
     ax.set_ylabel("Test accuracy")
-    ax.set_title(title)
+    ax.set_title(title, fontsize=11)
     ax.set_ylim(0.35, 1.02)
     ax.legend(fontsize=8)
     fig.tight_layout()
@@ -133,14 +133,17 @@ def decision_boundary_figure(out_path, n_qubits=2, gamma=0.35, seed=SEED):
         clf = SVC(kernel="precomputed", C=10.0, max_iter=200_000)
         clf.fit(K_data[np.ix_(train_idx, train_idx)], y[train_idx])
         pred = clf.predict(K_grid[:, train_idx]).reshape(GX.shape)
+        test_acc = clf.score(K_data[np.ix_(test_idx, train_idx)], y[test_idx])
         ax.contourf(GX, GY, pred, levels=[-1.5, 0, 1.5], colors=["#DDE7F5", "#FBE3D6"], alpha=0.9)
         ax.scatter(X[y == 1, 0], X[y == 1, 1], c=PALETTE["quantum"], s=14, label="+1", edgecolors="none")
         ax.scatter(X[y == -1, 0], X[y == -1, 1], c=PALETTE["rbf"], s=14, label="-1", edgecolors="none")
-        ax.set_title(LABELS[fam])
+        ax.set_title(f"{LABELS[fam]} (test acc={test_acc:.2f})")
         ax.set_xlabel("$x_1$")
     axes[0].set_ylabel("$x_2$")
     axes[0].legend(fontsize=8, loc="upper right")
-    fig.suptitle("Decision regions on the 2-qubit quantum-advantage dataset")
+    fig.suptitle("Decision regions on the 2-qubit quantum-advantage dataset\n"
+                 "(fragmented regions = the true boundary is intricate in raw (x₁,x₂) space; "
+                 "only the kernel matching the data's structure resolves it)")
     fig.tight_layout()
     fig.savefig(out_path, dpi=200)
     plt.close(fig)
@@ -153,7 +156,7 @@ def main():
     X, y, _ = generate_quantum_advantage_dataset(n_qubits=4, n_samples=200, gamma=0.3, seed=SEED)
     sizes = [10, 20, 30, 50, 70, 90, 110, 130]
     curves = learning_curve(X, y, 4, "synthetic_n4_gamma0.3", best_hp, sizes)
-    plot_learning_curve(curves, sizes, "Sample efficiency: engineered quantum-advantage data",
+    plot_learning_curve(curves, sizes, "Sample efficiency: engineered data",
                          FIGURES_DIR / "learning_curve_synthetic.png")
     print("Saved learning_curve_synthetic.png")
 
