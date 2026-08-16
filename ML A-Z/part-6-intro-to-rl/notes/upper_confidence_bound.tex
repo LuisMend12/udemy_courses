@@ -1,0 +1,141 @@
+\documentclass[11pt]{article}
+
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath, amssymb}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\usepackage{hyperref}
+
+\title{Upper Confidence Bound (UCB)}
+\author{Reinforcement Learning Notes}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{The Multi-Armed Bandit Problem}
+
+We have $d$ options (``arms''), e.g. $d$ ad versions to show to users. At each
+round $n = 1, \dots, N$ we must choose one arm $i \in \{1, \dots, d\}$ to
+play. Playing arm $i$ returns a reward $r_i(n) \in \{0, 1\}$ (e.g.\ whether
+the user clicked the ad).
+
+Each arm $i$ has an unknown, fixed expected reward $\mu_i$ (its true
+click-through rate). The goal is to maximize cumulative reward over $N$
+rounds, which requires balancing:
+
+\begin{itemize}
+  \item \textbf{Exploitation} --- keep choosing the arm that looks best so far.
+  \item \textbf{Exploration} --- try other arms to check whether they are
+        actually better, since estimates from few trials are unreliable.
+\end{itemize}
+
+UCB resolves this exploration/exploitation trade-off deterministically, by
+choosing at each round the arm with the highest \emph{upper confidence
+bound} on its expected reward.
+
+\section{Notation}
+
+At the start of round $n$, for each arm $i$ define:
+
+\begin{itemize}
+  \item $N_i(n)$: number of times arm $i$ has been selected in the rounds
+        before $n$.
+  \item $R_i(n)$: sum of rewards obtained from arm $i$ so far.
+  \item $\bar{r}_i(n) = \dfrac{R_i(n)}{N_i(n)}$: empirical average reward
+        of arm $i$ (exploitation term).
+\end{itemize}
+
+\section{Confidence Interval and Upper Bound}
+
+By Hoeffding's inequality, the true mean $\mu_i$ lies within
+\[
+  \bar{r}_i(n) - \Delta_i(n) \;\le\; \mu_i \;\le\; \bar{r}_i(n) + \Delta_i(n)
+\]
+with high probability, where the confidence radius is
+\[
+  \Delta_i(n) = \sqrt{\frac{3}{2} \cdot \frac{\log(n)}{N_i(n)}}.
+\]
+
+Note that $\Delta_i(n)$:
+\begin{itemize}
+  \item \textbf{shrinks} as $N_i(n)$ grows --- the more we've tried arm $i$,
+        the more confident we are in $\bar{r}_i(n)$ (exploitation dominates).
+  \item \textbf{grows slowly} with $n$ (the round number) --- arms we
+        haven't tried in a while regain some uncertainty, encouraging
+        exploration.
+\end{itemize}
+
+The \emph{upper confidence bound} for arm $i$ at round $n$ is
+\[
+  \text{UCB}_i(n) = \bar{r}_i(n) + \Delta_i(n).
+\]
+
+This is an optimistic estimate of $\mu_i$: the best-case value consistent
+with the data observed so far. This is the ``optimism in the face of
+uncertainty'' principle.
+
+\section{Algorithm}
+
+\begin{algorithm}[h]
+\caption{Upper Confidence Bound}
+\begin{algorithmic}[1]
+\State $N_i \gets 0$, $R_i \gets 0$ for all $i = 1, \dots, d$
+\For{$n = 1, \dots, N$}
+  \For{$i = 1, \dots, d$}
+    \If{$N_i > 0$}
+      \State $\bar{r}_i \gets R_i / N_i$
+      \State $\Delta_i \gets \sqrt{\tfrac{3}{2}\log(n)/N_i}$
+      \State $\text{UCB}_i \gets \bar{r}_i + \Delta_i$
+    \Else
+      \State $\text{UCB}_i \gets +\infty$ \Comment{force every arm to be tried once}
+    \EndIf
+  \EndFor
+  \State play arm $i^\ast = \arg\max_i \text{UCB}_i$
+  \State observe reward $r$; update $N_{i^\ast} \gets N_{i^\ast} + 1$,
+         $R_{i^\ast} \gets R_{i^\ast} + r$
+\EndFor
+\end{algorithmic}
+\end{algorithm}
+
+The $+\infty$ initialization (\texttt{1e400} in the notebook code) guarantees
+every arm is sampled at least once during the first $d$ rounds, since an
+untried arm always beats any finite UCB value.
+
+\section{Correspondence with the Implementation}
+
+The notebook (\texttt{upper\_confidence\_bound.ipynb}) implements exactly
+this loop over the \texttt{Ads\_CTR\_Optimisation.csv} dataset, with
+$N = 10000$ rounds and $d = 10$ ads:
+
+\begin{center}
+\begin{tabular}{ll}
+\textbf{Math} & \textbf{Code} \\
+\hline
+$N_i(n)$ & \texttt{numbers\_of\_selections[i]} \\
+$R_i(n)$ & \texttt{sums\_of\_rewards[i]} \\
+$\bar{r}_i(n)$ & \texttt{average\_reward} \\
+$\Delta_i(n)$ & \texttt{delta\_i} \\
+$\text{UCB}_i(n)$ & \texttt{upper\_bound} \\
+$\arg\max_i \text{UCB}_i(n)$ & \texttt{ad} (tracked via \texttt{max\_upper\_bound}) \\
+\end{tabular}
+\end{center}
+
+The final histogram of \texttt{ads\_selected} shows that, as $n$ grows, the
+algorithm converges to selecting the ad with the highest true CTR far more
+often than the others --- the exploration term shrinks for the best arm
+as its estimate becomes reliable, while inferior arms are selected less
+and less.
+
+\section{Key Takeaways}
+
+\begin{itemize}
+  \item UCB is a \emph{deterministic} strategy: no randomness is used to
+        pick an arm, unlike Thompson Sampling.
+  \item It requires updating estimates after every single round (cannot be
+        batched/deferred), since $N_i(n)$ and $n$ both change per round.
+  \item It has strong theoretical regret bounds: cumulative regret grows
+        only logarithmically in $N$.
+\end{itemize}
+
+\end{document}
