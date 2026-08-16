@@ -4,3 +4,6 @@
 [submodule "Deep_learning_cnns/machine_learning_examples"]
 	path = Deep_learning_cnns/machine_learning_examples
 	url = https://github.com/lazyprogrammer/machine_learning_examples.git
+[submodule "quantum_machine_learning_qiskit"]
+	path = quantum_machine_learning_qiskit
+	url = https://github.com/LuisMend12/Quantum-Machine-Learning-with-Qiskit-2.x.git
