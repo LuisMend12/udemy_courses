@@ -1,0 +1,124 @@
+\documentclass[conference]{IEEEtran}
+
+\usepackage{cite}
+\usepackage{amsmath,amssymb,amsfonts}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{url}
+\usepackage{xcolor}
+
+\title{Notes on Other SMBO Models: Random Forests (SMAC) and TPE}
+
+\author{
+\IEEEauthorblockN{Luis Mendez}
+}
+
+\begin{document}
+\maketitle
+
+\section*{Overview}
+The previous note (Bayesian optimization with a Gaussian process surrogate) ended by flagging the GP's weak spots: cubic cost in the number of observations, and poor handling of high-dimensional, categorical, or \textit{conditional} hyperparameter spaces (e.g., ``number of dense layers'' gating whether ``layer\_3\_units'' is even meaningful). This note covers two alternative surrogates that keep the exact same SMBO loop --- initialize, fit surrogate, maximize acquisition, evaluate, augment --- and swap out only the surrogate and how the acquisition step is computed from it: random forests (the approach used by SMAC) and the Tree-structured Parzen Estimator (TPE). It closes with simulated annealing, a cheaper sequential heuristic that is not really SMBO at all, included here because it is offered by the same libraries as a lightweight alternative.
+
+\section*{Recap: The SMBO Loop}
+All three methods below instantiate the loop from the previous note: evaluate a handful of points to bootstrap, fit a model to $\mathcal{D}_t = \{(\mathbf{x}_i, y_i)\}$, use that model to pick the next $\mathbf{x}_{t+1}$, evaluate the expensive objective, and repeat. What changes is only \textit{what} is fitted to $\mathcal{D}_t$ and \textit{how} the next point is chosen from it.
+
+\section*{Bayesian Optimization with Random Forests (SMAC)}
+\subsection*{Why swap the surrogate}
+A GP models $p(y \mid \mathbf{x})$ through a kernel that measures similarity between points, which implicitly assumes a continuous space with a meaningful distance metric. Real hyperparameter spaces are often a mix of integers, unordered categories, and conditional structure, none of which a stationary kernel represents naturally. SMAC (Sequential Model-based Algorithm Configuration) replaces the GP with a random forest regressor, which splits on any variable type without needing a distance metric at all.
+
+\subsection*{Random forest as a surrogate}
+Fit a random forest regression model to $\mathcal{D}_t$ in the usual way: each tree is grown on a bootstrap sample with random feature subsampling at each split. Two quantities are then read off the forest to stand in for the GP's $\mu(\mathbf{x})$ and $\sigma(\mathbf{x})$:
+\begin{equation}
+    \mu(\mathbf{x}) = \frac{1}{T}\sum_{t=1}^{T} \hat{f}_t(\mathbf{x}), \qquad
+    \sigma^2(\mathbf{x}) = \frac{1}{T}\sum_{t=1}^{T}\left(\hat{f}_t(\mathbf{x}) - \mu(\mathbf{x})\right)^2,
+\end{equation}
+the mean and empirical variance of the individual trees' predictions. These are then plugged directly into the same EI, PI, or LCB formulas from the previous note --- the acquisition machinery does not change, only the $(\mu, \sigma)$ that feed it.
+
+It is worth being explicit that $\sigma(\mathbf{x})$ here is a \textit{heuristic} disagreement-between-trees measure, not a calibrated posterior standard deviation the way the GP's is. It has no conjugacy argument behind it. In practice it still behaves the right way qualitatively (low where the forest has seen nearby points, higher where it has not), which is enough for the acquisition function to do its job.
+
+\subsection*{Why random forests handle mixed and conditional spaces well}
+\begin{itemize}
+    \item \textbf{Categorical variables}: a tree splits a categorical feature into subsets directly; no kernel or embedding is required.
+    \item \textbf{Conditional hyperparameters}: inactive parameters (e.g., a third convolutional layer's kernel size when only two layers are used) can simply be filled with a placeholder value; trees are robust to such structurally-irrelevant inputs in a way a kernel's distance computation is not.
+    \item \textbf{Scaling}: fitting a forest is roughly linear in the number of observations per tree, versus the GP's $O(n^3)$ matrix inverse, so the surrogate itself stays cheap even as trials accumulate.
+    \item \textbf{High dimensions}: random feature subsampling at each split makes forests comparatively robust as the number of hyperparameters grows, whereas a single shared length scale (or one per dimension, in ARD) becomes harder to fit well with few observations per dimension.
+\end{itemize}
+
+\subsection*{Implementation in Scikit-Optimize}
+\texttt{skopt.forest\_minimize} mirrors \texttt{gp\_minimize}'s interface exactly (\texttt{n\_calls}, \texttt{n\_initial\_points}, \texttt{acq\_func}, \texttt{random\_state}), with a \texttt{base\_estimator} of \texttt{'RF'} (random forest) or \texttt{'ET'} (extra trees); \texttt{gbrt\_minimize} is the same idea with gradient-boosted trees as the surrogate instead, trading the forest's variance-across-trees uncertainty for one derived from quantile regression.
+
+\subsection*{Worked example}
+Tuning a small CNN (2 convolutional blocks, a variable number of dense layers and nodes, ReLU/sigmoid activation, learning rate) on MNIST digit images with \texttt{forest\_minimize}: the search space is defined with \texttt{skopt.space}'s \texttt{Integer}, \texttt{Real}, and \texttt{Categorical} dimensions exactly as in the GP note, the objective trains the CNN and returns negative validation accuracy, and \texttt{plot\_objective}/\texttt{plot\_evaluations} are used afterward to inspect which hyperparameters the forest surrogate found most influential and in what order the space was explored. The resulting CNN reaches strong accuracy across all ten digit classes, confirming the forest surrogate is a workable drop-in even though its uncertainty is only a heuristic.
+
+\subsection*{Pros / Cons}
+\begin{itemize}
+    \item \textbf{Pros}: handles categorical and conditional hyperparameters natively, no kernel to design, scales better than a GP as observations accumulate, robust in higher dimensions.
+    \item \textbf{Cons}: tree predictions are piecewise-constant, so $\mu(\mathbf{x})$ and $\sigma(\mathbf{x})$ are step functions rather than smooth surfaces, which can make the acquisition function's optimum less precisely localized than under a GP; the forest's variance is a heuristic uncertainty proxy with no probabilistic guarantee behind it, unlike the GP's closed-form posterior.
+\end{itemize}
+
+\section*{Tree-structured Parzen Estimator (TPE)}
+\subsection*{The key idea: model $p(\mathbf{x} \mid y)$, not $p(y \mid \mathbf{x})$}
+Both the GP and the random forest surrogate are regression models: fit $p(y \mid \mathbf{x})$, then derive $\mu$ and $\sigma$ at candidate points. TPE inverts this. Fix a threshold $y^{*}$ (in practice the $\gamma$-quantile of observed scores so far, e.g.\ $\gamma = 0.15$, itself a hyperparameter of the algorithm) and split the observed pairs into two groups by whether they cleared it:
+\begin{equation}
+    p(\mathbf{x} \mid y) =
+    \begin{cases}
+        \ell(\mathbf{x}) & y < y^{*} \quad \text{(the ``good'' points)} \\
+        g(\mathbf{x}) & y \geq y^{*} \quad \text{(the ``bad'' points),}
+    \end{cases}
+\end{equation}
+with $p(y < y^{*}) = \gamma$. Each of $\ell$ and $g$ is a nonparametric density built from Parzen windows (kernel density estimation): every observed $\mathbf{x}_i$ in the group contributes a kernel centered at $\mathbf{x}_i$, and the density is their sum. ``Tree-structured'' refers to how this density is built over the search space itself: for a space with conditional hyperparameters (a choice node gating which child hyperparameters exist), $\ell$ and $g$ are built hierarchically over that tree, only modeling a child hyperparameter's density using the trials where it was actually active. This is what lets TPE represent deeply nested spaces --- exactly the kind Hyperopt's \texttt{hp.choice} is designed to express --- without any special-casing.
+
+\subsection*{Connection to Expected Improvement}
+This inverted model is not an ad hoc replacement for EI; Bergstra et al.\ (2011) show it computes the same quantity. Expanding $\mathrm{EI}_{y^{*}}(\mathbf{x})$ from the previous note using Bayes' rule to swap $p(y \mid \mathbf{x})$ for $p(\mathbf{x} \mid y)$, and using $p(\mathbf{x}) = \gamma \ell(\mathbf{x}) + (1-\gamma) g(\mathbf{x})$, yields
+\begin{equation}
+    \mathrm{EI}_{y^{*}}(\mathbf{x}) \;\propto\; \left(\gamma + \frac{g(\mathbf{x})}{\ell(\mathbf{x})}(1-\gamma)\right)^{-1},
+\end{equation}
+which is monotonically increasing in $\ell(\mathbf{x})/g(\mathbf{x})$. So maximizing EI under this model is the same as maximizing the ratio of the ``good'' density to the ``bad'' density --- a point is promising exactly when it looks like where good scores have come from and unlike where bad scores have come from.
+
+\subsection*{Why this is convenient algorithmically}
+The GP and random forest both need an explicit inner optimization to maximize the acquisition function over $\mathcal{X}$. TPE sidesteps this: because $\ell(\mathbf{x})$ is built to be directly samplable (it is a mixture of kernels), the algorithm draws a batch of candidate points from $\ell(\mathbf{x})$ itself, scores each by $\ell(\mathbf{x})/g(\mathbf{x})$, and keeps the best-scoring candidate as $\mathbf{x}_{t+1}$. This avoids a separate global optimization step entirely, at the cost of only searching where $\ell$ already places mass rather than the whole space.
+
+\subsection*{Implementation with Hyperopt}
+Hyperopt's \texttt{hp} module defines the search space (\texttt{hp.quniform}, \texttt{hp.uniform}, \texttt{hp.choice} for categorical/conditional branches), \texttt{tpe.suggest} is passed as the \texttt{algo} to \texttt{fmin}, and a \texttt{Trials} object records every evaluated configuration and its loss for later inspection, exactly as \texttt{skopt}'s result object does.
+
+\subsection*{Worked example}
+The same MNIST CNN tuned with \texttt{forest\_minimize} above is retuned with \texttt{fmin(algo=tpe.suggest)}: same search space (learning rate, layer counts, node counts, activation), same objective (negative validation accuracy). Because the search space is expressed with \texttt{hp.choice} nodes for the layer counts, the conditional structure (whether a fourth dense layer's node count is even sampled) falls out naturally from the tree-structured density, with no manual placeholder values needed the way the random forest surrogate required.
+
+\subsection*{Pros / Cons}
+\begin{itemize}
+    \item \textbf{Pros}: naturally expresses nested/conditional search spaces, which is precisely what deeply branching spaces like neural architecture choices need; fitting kernel density estimates is cheap and needs no matrix inversion; candidate generation by direct sampling from $\ell(\mathbf{x})$ avoids a separate acquisition-maximization step.
+    \item \textbf{Cons}: the default estimator treats hyperparameters independently when building $\ell$ and $g$, so it does not capture interactions between hyperparameters the way a jointly-fit GP or forest regression can; the quantile $\gamma$ is itself a tuning choice; uncertainty is implicit in the density ratio rather than an explicit, interpretable $\sigma(\mathbf{x})$.
+\end{itemize}
+
+\section*{Simulated Annealing: A Non-Surrogate Sequential Heuristic}
+Hyperopt also offers \texttt{anneal.suggest}, described as ``simulated annealing'': it starts like random search and, as trials accumulate, narrows sampling toward the region around the best trials found so far, with the width of that neighborhood shrinking over the run. Unlike SMAC or TPE it fits no explicit probabilistic model of $\mathcal{D}_t$ --- there is no likelihood, no posterior, no acquisition function being maximized, only a shrinking-neighborhood sampling rule anchored on the current incumbent. It is informed only in the loose sense that later samples depend on which earlier trials scored well, not through any surrogate.
+
+\subsection*{Worked comparison}
+Tuning an XGBoost classifier on the breast cancer dataset with 30 evaluations each of \texttt{rand.suggest} (pure random search) and \texttt{anneal.suggest}: random search reached mean CV accuracy $\approx 0.972$, simulated annealing $\approx 0.962$. On this particular run, simulated annealing did not outperform pure random search. This is a useful negative result: with a budget this small, most of it is still spent in (or near) the initial exploratory phase, leaving little room for the narrowing behavior to pay off, and a single run says little about typical behavior given the added randomness of the annealing schedule itself. It is a reminder that ``sequential'' and ``informed'' do not automatically mean ``better than random search'' at small budgets --- the SMAC and TPE results above are informed in a much stronger sense (an explicit model of the response surface) and are the methods worth reaching for when sample efficiency actually matters.
+
+\section*{Comparing the Surrogates}
+\begin{center}
+\footnotesize
+\begin{tabular}{@{}lllll@{}}
+\toprule
+Method & Models & Uncertainty & Mixed/conditional spaces & Cost per iteration \\
+\midrule
+GP (previous note) & $p(y\mid\mathbf{x})$ & Closed-form posterior $\sigma(\mathbf{x})$ & Poor without care & $O(n^3)$ \\
+Random forest (SMAC) & $p(y\mid\mathbf{x})$ & Heuristic, variance across trees & Good & $\approx O(n\log n)$ \\
+TPE & $p(\mathbf{x}\mid y)$ & Implicit, in density ratio & Good, esp.\ nested spaces & Cheap KDE fit \\
+Simulated annealing & Neither & None & N/A --- no model & Trivial \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\section*{Practical Guidance}
+\begin{itemize}
+    \item Prefer the \textbf{GP} for low-to-moderate dimensional, mostly continuous spaces with a modest evaluation budget, where its calibrated uncertainty is worth the cubic cost.
+    \item Prefer \textbf{random forests (SMAC)} when the space mixes categorical and continuous hyperparameters, has some conditional structure, or has enough dimensions that a shared kernel becomes hard to trust.
+    \item Prefer \textbf{TPE} for deeply nested/conditional spaces (architecture search, pipelines with many optional stages), where the tree structure of the space itself is the main difficulty.
+    \item Treat \textbf{simulated annealing} (or plain random search) as the cheap baseline to beat, not as a substitute for a real surrogate-based search when evaluations are expensive enough that sample efficiency matters.
+    \item All four are available behind near-identical interfaces (\texttt{skopt.gp\_minimize}/\texttt{forest\_minimize}/\texttt{gbrt\_minimize}, \texttt{hyperopt.fmin} with \texttt{tpe.suggest}/\texttt{anneal.suggest}/\texttt{rand.suggest}), so switching between them in practice is mostly a one-line change plus adapting the search-space definition to the library's API.
+\end{itemize}
+
+\end{document}
