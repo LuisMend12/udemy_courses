@@ -1,0 +1,146 @@
+\documentclass[11pt]{article}
+
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath, amssymb}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\usepackage{hyperref}
+\usepackage{graphicx}
+
+\title{Notes on Thompson Sampling}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{The Multi-Armed Bandit Problem}
+
+We have $d$ arms (in the ads example, $d = 10$ ads). At each round $n = 1, \dots, N$
+we select one arm $i \in \{1, \dots, d\}$ and observe a reward
+$r_i(n) \in \{0, 1\}$ (click / no click), drawn from an unknown Bernoulli
+distribution with parameter $\theta_i$ specific to that arm:
+\[
+    r_i(n) \sim \text{Bernoulli}(\theta_i).
+\]
+The $\theta_i$ (true click-through rates) are unknown and must be estimated
+online. The goal is to maximize cumulative reward, i.e. balance
+\textbf{exploration} (trying arms we are unsure about) against
+\textbf{exploitation} (playing the arm that currently looks best).
+
+\section{Bayesian Idea}
+
+Thompson Sampling treats each $\theta_i$ as a random variable and maintains a
+posterior belief over it, updated after every observation. At each round it
+\emph{samples} a value from each arm's posterior and picks the arm with the
+highest sampled value --- i.e. it acts greedily with respect to a random draw
+from what it currently believes, rather than a fixed statistic (like UCB's
+upper confidence bound).
+
+\subsection*{Prior}
+
+Since rewards are Bernoulli, the conjugate prior for $\theta_i$ is the
+Beta distribution. We start with an uninformative prior for every arm:
+\[
+    \theta_i \sim \text{Beta}(\alpha_i, \beta_i), \qquad
+    \alpha_i = 1,\ \beta_i = 1 \quad (\text{i.e. Uniform}(0,1)).
+\]
+
+\subsection*{Posterior update (conjugacy)}
+
+Let
+\[
+    N_i^1(n) = \text{number of times arm } i \text{ received reward } 1 \text{ up to round } n,
+\]
+\[
+    N_i^0(n) = \text{number of times arm } i \text{ received reward } 0 \text{ up to round } n.
+\]
+Because Beta is conjugate to Bernoulli, the posterior after observing these
+counts is again Beta:
+\[
+    \theta_i \mid N_i^1(n), N_i^0(n) \;\sim\; \text{Beta}\big(N_i^1(n) + 1,\; N_i^0(n) + 1\big).
+\]
+This is exactly \texttt{numbers\_of\_rewards\_1} and
+\texttt{numbers\_of\_rewards\_0} in the implementation, and it is why the
+sampling step is \verb|random.betavariate(N1[i] + 1, N0[i] + 1)|.
+
+\section{Algorithm}
+
+\begin{algorithm}[h]
+\caption{Thompson Sampling for Bernoulli bandits}
+\begin{algorithmic}[1]
+\State $N_i^1 \gets 0,\; N_i^0 \gets 0$ for all arms $i = 1, \dots, d$
+\For{$n = 1$ to $N$}
+    \For{$i = 1$ to $d$}
+        \State draw $\hat\theta_i \sim \text{Beta}(N_i^1 + 1,\, N_i^0 + 1)$
+    \EndFor
+    \State select arm $i^\ast = \arg\max_i \hat\theta_i$
+    \State observe reward $r \in \{0, 1\}$ for arm $i^\ast$
+    \If{$r = 1$}
+        \State $N_{i^\ast}^1 \gets N_{i^\ast}^1 + 1$
+    \Else
+        \State $N_{i^\ast}^0 \gets N_{i^\ast}^0 + 1$
+    \EndIf
+\EndFor
+\end{algorithmic}
+\end{algorithm}
+
+\section{Why It Works: Exploration vs. Exploitation}
+
+\begin{itemize}
+    \item Early on, with few observations, $\text{Beta}(1,1)$ or
+        $\text{Beta}(\text{small}, \text{small})$ is wide/flat, so sampled
+        $\hat\theta_i$ values vary a lot round to round $\Rightarrow$ arms get
+        explored roughly uniformly.
+    \item As $N_i^1, N_i^0$ grow for a given arm, the Beta posterior
+        concentrates around the empirical rate
+        $\frac{N_i^1}{N_i^1 + N_i^0}$, so sampled values become
+        consistent and predictable $\Rightarrow$ the algorithm exploits the
+        arm if it truly is good.
+    \item Arms that look bad get sampled less, so their posteriors stay
+        wide for longer, keeping a nonzero (but shrinking) chance they still
+        get explored, in case early evidence was misleading.
+\end{itemize}
+
+This randomized-but-principled trade-off is why Thompson Sampling tends to
+outperform simpler heuristics and even Upper Confidence Bound (UCB) in
+practice, especially with delayed/batched feedback.
+
+\section{Thompson Sampling vs. UCB}
+
+\begin{center}
+\begin{tabular}{|l|l|l|}
+\hline
+& \textbf{UCB} & \textbf{Thompson Sampling} \\
+\hline
+Nature & Deterministic & Probabilistic (stochastic) \\
+\hline
+Selection rule & $\arg\max_i \left(\bar r_i + \sqrt{\tfrac{3}{2}\tfrac{\log n}{n_i}}\right)$
+    & $\arg\max_i \hat\theta_i,\ \hat\theta_i \sim \text{Beta}(N_i^1+1, N_i^0+1)$ \\
+\hline
+Feedback timing & Needs update every round & Can tolerate delayed/batched updates \\
+\hline
+Empirical performance & Good & Often better in practice \\
+\hline
+\end{tabular}
+\end{center}
+
+\section{Correspondence to the Notebook Code}
+
+\begin{center}
+\begin{tabular}{|l|l|}
+\hline
+\textbf{Math} & \textbf{Code (\texttt{thompson\_sampling.ipynb})} \\
+\hline
+$d$ & \texttt{d = 10} (number of ads) \\
+$N$ & \texttt{N = 10000} (number of rounds/users) \\
+$N_i^1(n)$ & \texttt{numbers\_of\_rewards\_1[i]} \\
+$N_i^0(n)$ & \texttt{numbers\_of\_rewards\_0[i]} \\
+$\hat\theta_i \sim \text{Beta}(N_i^1+1, N_i^0+1)$ & \texttt{random.betavariate(N1[i]+1, N0[i]+1)} \\
+$i^\ast = \arg\max_i \hat\theta_i$ & \texttt{if random\_beta > max\_random: ad = i} \\
+cumulative reward & \texttt{total\_reward} \\
+\hline
+\end{tabular}
+\end{center}
+
+\end{document}
