@@ -1,0 +1,113 @@
+\documentclass[11pt]{article}
+
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{hyperref}
+\usepackage{booktabs}
+
+\lstset{
+  basicstyle=\ttfamily\small,
+  breaklines=true,
+  frame=single,
+  columns=fullflexible,
+  backgroundcolor=\color{gray!10}
+}
+
+\title{Natural Language Processing: Notes}
+\author{ML A-Z --- Part 7}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{What this notebook implements}
+
+The notebook \texttt{natural\_language\_processing.ipynb} builds a
+sentiment classifier for restaurant reviews using a classic
+\textbf{Bag of Words} pipeline:
+
+\begin{enumerate}
+  \item \textbf{Load the data.} Read \texttt{Restaurant\_Reviews.tsv},
+        a tab-separated file of 1000 reviews, each labeled \texttt{0}
+        (negative) or \texttt{1} (positive).
+  \item \textbf{Clean the text.} For each review:
+        \begin{itemize}
+          \item strip everything except letters (\texttt{re.sub('[\^{}a-zA-Z]', ' ', \dots)}),
+          \item lowercase and tokenize by splitting on whitespace,
+          \item remove English stopwords (\texttt{nltk.corpus.stopwords}),
+                \emph{except} the word \texttt{"not"}, which is kept because
+                negation carries sentiment information,
+          \item stem each remaining token with the Porter stemmer
+                (e.g. \texttt{"loved"} $\to$ \texttt{"love"}).
+        \end{itemize}
+  \item \textbf{Vectorize.} Turn the cleaned corpus into a Bag-of-Words
+        matrix with \texttt{CountVectorizer(max\_features=1500)}: each
+        review becomes a row, each of the 1500 most frequent remaining
+        words becomes a column, and each entry is that word's count in
+        that review.
+  \item \textbf{Split.} 80/20 train/test split (\texttt{random\_state=0}).
+  \item \textbf{Classify.} Train a \texttt{GaussianNB} (Gaussian Naive
+        Bayes) classifier on the training matrix.
+  \item \textbf{Evaluate.} Predict on the test set and report a
+        confusion matrix and accuracy score.
+
+\end{enumerate}
+
+\subsection{Result}
+On the held-out test set (200 reviews), the model achieves:
+\[
+  \text{Confusion matrix} =
+  \begin{pmatrix} 55 & 42 \\ 12 & 91 \end{pmatrix},
+  \qquad \text{Accuracy} = 0.73
+\]
+i.e.\ 55 true negatives, 91 true positives, 42 false positives, and
+12 false negatives, for 73\% overall accuracy.
+
+\section{About the delimiter}
+
+The dataset is loaded with:
+\begin{lstlisting}[language=Python]
+dataset = pd.read_csv('Restaurant_Reviews.tsv',
+                       delimiter = '\t', quoting = 3)
+\end{lstlisting}
+
+\subsection{\texttt{delimiter = '\textbackslash t'}}
+\texttt{Restaurant\_Reviews.tsv} is a \textbf{TSV} (tab-separated
+values) file, not a comma-separated CSV. Review text routinely
+contains commas (e.g.\ ``Great food, terrible service''), so a
+comma delimiter would incorrectly split a single review into multiple
+fields. Using \texttt{'\textbackslash t'} (the tab character) as the
+field separator avoids this, since tabs essentially never appear
+inside the review text itself.
+
+\subsection{\texttt{quoting = 3}}
+\texttt{quoting = 3} corresponds to \texttt{csv.QUOTE\_NONE} in
+Python's \texttt{csv} module. It tells the parser to treat the quote
+character (\texttt{"}) as an ordinary character instead of a field
+delimiter. This matters here because review text frequently contains
+stray double quotes (e.g.\ someone quoting the menu, or writing
+\texttt{"amazing"} sarcastically). With the default quoting behavior,
+pandas would try to interpret those quotes as marking the start/end of
+a quoted field, which can corrupt parsing (merging rows or truncating
+fields). Disabling quote interpretation makes the tab character the
+only thing that matters for splitting columns, which is exactly what a
+raw TSV of free-text reviews needs.
+
+The four valid values of the \texttt{quoting} parameter (from Python's
+\texttt{csv} module) are:
+\begin{center}
+\begin{tabular}{@{}cll@{}}
+\toprule
+Value & Constant & Meaning \\
+\midrule
+0 & \texttt{QUOTE\_MINIMAL} & Quote only fields containing special characters (default) \\
+1 & \texttt{QUOTE\_ALL} & Quote every field \\
+2 & \texttt{QUOTE\_NONNUMERIC} & Quote all non-numeric fields \\
+3 & \texttt{QUOTE\_NONE} & Never treat the quote character specially \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\end{document}
