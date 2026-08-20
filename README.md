@@ -13,12 +13,13 @@ Personal notes, notebooks, and exercises from Udemy courses on machine learning,
 | [`ultimate_rag_bootcamp/`](ultimate_rag_bootcamp) | RAG (Retrieval-Augmented Generation) bootcamp notes, starting with an intro-to-RAG writeup |
 | [`ECE469_Artificial_Intelligence/`](ECE469_Artificial_Intelligence) | Coursework for ECE-469 Artificial Intelligence at Cooper Union — homeworks (`hw1`–`hw3`), lecture slides, and two programming projects (a game-playing AI checker, an artificial neural network) |
 | [`quantum_kernel_classification/`](quantum_kernel_classification) | Independent research project/paper: "When Do Quantum Kernels Help?" — a from-scratch NumPy simulation of the Havlíček et al. ZZ feature-map quantum kernel, benchmarked against classical kernels, with a NeurIPS-format writeup in `paper/` |
+| [`quantum_machine_learning_qiskit/`](quantum_machine_learning_qiskit) | "Quantum Machine Learning with Qiskit 2.x" course — Qiskit primitives (`SamplerV2`/`EstimatorV2`), classical-to-quantum data encoding/feature maps, variational quantum classifiers, and quantum-kernel SVMs, with notebooks numbered in build order (1 → 4c) and LaTeX notes on encoding schemes |
 | [`brownian_motion_sim/`](brownian_motion_sim) | C++ Brownian motion (Wiener process) simulator producing particle trajectory data |
 | [`assets/`](assets) | Standalone images (e.g. STEM-GNN architecture diagrams) referenced from notes |
 
 ## Notes
 
-- Some subfolders (`Deep_learning_cnns/machine_learning_examples`, `hyperparameter_optimization_for_ml/hyperparameter-optimization`) are git submodules pointing at external course repositories — see [`.gitmodules`](.gitmodules).
+- Some subfolders (`Deep_learning_cnns/machine_learning_examples`, `hyperparameter_optimization_for_ml/hyperparameter-optimization`, `quantum_machine_learning_qiskit`) are git submodules pointing at external course repositories — see [`.gitmodules`](.gitmodules).
 - Course notes are largely written in LaTeX (`.tex`, compiled to `.pdf`) alongside Jupyter notebooks (`.ipynb`) and R scripts.
 - `quantum_kernel_classification/` and `ECE469_Artificial_Intelligence/` aren't Udemy material — they're adjacent coursework/research kept here alongside it.
 - This is a study/reference repo, not a packaged library — there's no single install step or entry point; open the relevant notebook, notes file, or project `README.md` for a given topic.
