@@ -125,6 +125,32 @@ Empirical performance & Good & Often better in practice \\
 \end{tabular}
 \end{center}
 
+\section{When to Use Which}
+
+\begin{itemize}
+    \item \textbf{UCB} is deterministic and easy to reason about: given the
+        same history, it always makes the same choice. It needs the full
+        cumulative history recomputed every round, and it forces every arm
+        to be tried once up front (an infinite/very large upper bound is
+        assigned to unseen arms, seen in code as
+        \texttt{upper\_bound = 1e400}). It has a tunable exploration
+        constant (the $\sqrt{3/2 \cdot \cdot}$ term) that controls how
+        aggressively it explores. Good fit for stationary problems where
+        reward feedback arrives immediately every round and you want a
+        reproducible, auditable selection rule.
+    \item \textbf{Thompson Sampling} is probabilistic: it only needs the
+        latest success/failure counts (not the full history) to draw a
+        sample, so it updates cheaply and incrementally. There is no
+        tunable exploration parameter --- the Beta(1,1) prior is naturally
+        wide for unseen arms, so cold start is handled for free. It also
+        tends to tolerate delayed or batched reward feedback better, since
+        stale posteriors just stay wide instead of stalling the algorithm.
+        This is why Thompson Sampling is generally preferred in production
+        settings such as ad serving, online A/B testing, and
+        recommendation systems, and why it converges faster / earns a
+        higher \texttt{total\_reward} than UCB on this dataset in practice.
+\end{itemize}
+
 \section{Correspondence to the Notebook Code}
 
 \begin{center}
