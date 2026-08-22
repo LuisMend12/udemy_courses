@@ -4,6 +4,7 @@
 \usepackage{amsmath, amssymb}
 \usepackage{algorithm}
 \usepackage{algpseudocode}
+\usepackage{booktabs}
 \usepackage{hyperref}
 
 \title{Artificial Neural Networks: Notes}
@@ -135,33 +136,155 @@ its gradient,
   \mathbf{w} \gets \mathbf{w} - \eta \, \nabla_{\mathbf{w}} C,
 \]
 
-where $\eta$ is the \textbf{learning rate}. Too large an $\eta$ can cause
-the update to overshoot and diverge; too small makes training
-impractically slow.
+where $\eta$ is the \textbf{learning rate}.
 
-\subsection{Batch vs. Stochastic Gradient Descent}
+\subsection{Why the Negative Gradient Decreases the Cost}
+
+A first-order Taylor expansion of $C$ around the current weights
+$\mathbf{w}$ justifies the update. For a small step $\Delta\mathbf{w}$,
+
+\[
+  C(\mathbf{w} + \Delta\mathbf{w}) \approx C(\mathbf{w})
+  + \nabla_{\mathbf{w}} C(\mathbf{w})^\top \Delta\mathbf{w}.
+\]
+
+Choosing $\Delta\mathbf{w} = -\eta \, \nabla_{\mathbf{w}} C(\mathbf{w})$ for
+small $\eta > 0$ gives
+
+\[
+  C(\mathbf{w} + \Delta\mathbf{w}) \approx C(\mathbf{w})
+  - \eta \left\lVert \nabla_{\mathbf{w}} C(\mathbf{w}) \right\rVert^2
+  \le C(\mathbf{w}),
+\]
+
+since a squared norm is never negative. So, at least locally, stepping
+opposite the gradient is guaranteed not to increase the cost --- this is
+the entire justification for the algorithm, and it is why any \emph{other}
+direction (not just the steepest one) would still decrease $C$ as long as
+it has positive dot product with $-\nabla_{\mathbf{w}} C$.
+
+\subsection{Choosing the Learning Rate}
+
+The approximation above only holds for small $\eta$, so $\eta$ is not a
+free parameter to set arbitrarily large:
 
 \begin{itemize}
-  \item \textbf{Batch gradient descent} computes $\nabla_{\mathbf{w}} C$
-        using the \emph{entire} training set before making one update.
-        This gives an accurate gradient, but each step is expensive, and
-        because $C$ is generally nonconvex, batch GD can get stuck in a
-        local minimum.
+  \item \textbf{Too large:} the linear approximation breaks down, the
+        step overshoots the minimum, and $C$ can oscillate or diverge
+        entirely instead of decreasing.
+  \item \textbf{Too small:} each step barely moves $\mathbf{w}$, so
+        training converges correctly but impractically slowly, and is
+        more likely to stall in a shallow local minimum or saddle point
+        before making meaningful progress.
+\end{itemize}
+
+In practice $\eta$ is often not held constant: a \textbf{learning rate
+schedule} shrinks $\eta$ over training (e.g. by a fixed decay factor every
+few epochs, or on a cosine schedule), taking large, fast steps early and
+smaller, more precise steps as training approaches a minimum.
+
+\subsection{A Worked Example}
+
+To make the update rule concrete, take a single-parameter toy cost
+$C(w) = (w - 3)^2$, so $\nabla_w C = 2(w - 3)$ and the true minimum is
+$w^\star = 3$. Starting at $w_0 = 0$ with $\eta = 0.1$:
+
+\[
+\begin{aligned}
+  w_1 &= w_0 - \eta \cdot 2(w_0 - 3) = 0 - 0.1(-6) = 0.6, \\
+  w_2 &= w_1 - \eta \cdot 2(w_1 - 3) = 0.6 - 0.1(-4.8) = 1.08, \\
+  w_3 &= w_2 - \eta \cdot 2(w_2 - 3) = 1.08 - 0.1(-3.84) = 1.464.
+\end{aligned}
+\]
+
+Each step covers a shrinking fraction of the remaining distance to
+$w^\star = 3$, since the gradient itself shrinks as $w$ approaches the
+minimum --- this geometric-decay behavior is typical of gradient descent
+on a smooth, well-conditioned cost near its minimum. With
+$\eta = 1.1$ instead, the same recursion gives $w_1 = 6.6$,
+$w_2 = -0.6$, growing in magnitude on each step: a concrete instance of
+the ``too large $\eta$ diverges'' failure mode above.
+
+\subsection{Batch, Stochastic, and Mini-Batch Gradient Descent}
+
+The update rule $\mathbf{w} \gets \mathbf{w} - \eta \nabla_{\mathbf{w}} C$
+says nothing about \emph{how much data} is used to compute
+$\nabla_{\mathbf{w}} C$ before each step. That choice defines three
+variants, writing $C_i$ for the per-example cost of training example $i$
+out of $n$ total, so $C = \frac{1}{n}\sum_{i=1}^n C_i$:
+
+\begin{itemize}
+  \item \textbf{Batch gradient descent} computes the exact gradient using
+        the \emph{entire} training set before making one update,
+        \[
+          \nabla_{\mathbf{w}} C = \frac{1}{n}\sum_{i=1}^{n} \nabla_{\mathbf{w}} C_i.
+        \]
+        This gives an accurate descent direction, but each step costs a
+        full pass over the data, and because $C$ is generally nonconvex,
+        batch GD follows the same direction deterministically every time
+        and can get permanently stuck in a local minimum.
 
   \item \textbf{Stochastic gradient descent (SGD)} updates the weights
-        after \emph{each} individual training example, using that
-        example's (noisy) gradient. The noise in these single-example
-        updates actually helps: it lets the optimizer jump out of local
-        minima that would trap batch GD, and it makes each step far
-        cheaper. SGD is also better suited to large datasets, since it
-        does not need to hold the whole dataset in memory to take a step.
+        after \emph{each} individual training example $i$, using that
+        example's (noisy) gradient in place of the true one,
+        \[
+          \mathbf{w} \gets \mathbf{w} - \eta \, \nabla_{\mathbf{w}} C_i.
+        \]
+        This single-example gradient is an unbiased estimate of the true
+        gradient ($\mathbb{E}_i[\nabla_{\mathbf{w}} C_i] = \nabla_{\mathbf{w}} C$
+        when $i$ is drawn uniformly at random) but a high-variance one.
+        SGD is also better suited to large or streaming datasets, since it
+        never needs the whole dataset in memory to take a step.
 
   \item \textbf{Mini-batch gradient descent} is the practical middle
         ground used by most deep learning frameworks: compute the
-        gradient over a small batch (e.g. 32--256 examples) at a time.
-        This retains much of SGD's escape-local-minima behavior and
-        memory efficiency, while vectorizing the batch's computation for
-        speed.
+        gradient over a small batch $B$ of size $m$ (e.g. 32--256
+        examples) at a time,
+        \[
+          \mathbf{w} \gets \mathbf{w} - \eta \cdot \frac{1}{m}\sum_{i \in B} \nabla_{\mathbf{w}} C_i.
+        \]
+        This retains much of SGD's escape-local-minima behavior while
+        reducing gradient variance relative to single-example SGD, and it
+        vectorizes cleanly onto GPU hardware for speed.
+\end{itemize}
+
+\begin{center}
+\begin{tabular}{lccc}
+  \toprule
+  & Batch GD & SGD & Mini-batch GD \\
+  \midrule
+  Examples per update & $n$ (all) & $1$ & $m \ll n$ \\
+  Gradient variance & none (exact) & high & moderate \\
+  Cost per update & high & very low & low \\
+  Updates per epoch & $1$ & $n$ & $n/m$ \\
+  \bottomrule
+\end{tabular}
+\end{center}
+
+\subsection{Why Does SGD's Noise Help?}
+
+It seems counterintuitive that using a \emph{worse} (noisier) estimate of
+the gradient could help optimization, but the noise plays two distinct
+useful roles:
+
+\begin{itemize}
+  \item \textbf{Escaping local minima and saddle points.} Batch GD's
+        direction is a deterministic function of $\mathbf{w}$, so once it
+        reaches a point with zero gradient it stops there, whether that
+        point is a good minimum or not. SGD's per-step direction varies
+        randomly around the true gradient, so even at a point where the
+        \emph{true} gradient is zero, the noisy single-example gradient
+        usually is not --- giving the optimizer a chance to keep moving
+        through shallow local minima and saddle points instead of
+        stalling in them.
+  \item \textbf{Implicit regularization.} Because SGD never fully
+        converges to any single sharp minimum of a mini-batch's cost
+        surface (the next batch immediately pulls it in a slightly
+        different direction), it tends to settle in wider, flatter
+        minima of the true cost surface. Flatter minima generally
+        generalize better to unseen data than sharp ones, so SGD's noise
+        acts as a mild, essentially free regularizer on top of being
+        computationally cheaper.
 \end{itemize}
 
 \section{Backpropagation}
