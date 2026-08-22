@@ -1,0 +1,262 @@
+\documentclass[11pt]{article}
+
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath, amssymb}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\usepackage{hyperref}
+
+\title{Artificial Neural Networks: Notes}
+\author{ML A-Z --- Part 8}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{The Neuron}
+
+An artificial neuron is a loose model of a biological neuron: it takes a
+set of inputs, combines them, and fires an output signal. For an input
+vector $\mathbf{x} = (x_1, \dots, x_m)$ (e.g. the independent variables of
+one observation, typically standardized so all inputs are on comparable
+scales), a neuron computes
+
+\[
+  z = \sum_{i=1}^{m} w_i x_i + b = \mathbf{w}^\top \mathbf{x} + b,
+\]
+
+where $w_i$ is the \textbf{weight} on input $x_i$ and $b$ is the
+\textbf{bias} (an always-on input, sometimes written as $w_0 x_0$ with
+$x_0 = 1$). The weighted sum $z$ is then passed through an
+\textbf{activation function} $\phi$ to produce the neuron's output
+$a = \phi(z)$.
+
+Weights are the parameters the network learns: they encode how strongly
+each input signal influences the neuron downstream.
+
+\section{Activation Functions}
+
+Without an activation function, a network is just a composition of linear
+maps, which collapses to a single linear map --- no matter how many layers
+are stacked, the network could only ever learn linear relationships.
+Activation functions introduce nonlinearity, which is what lets a network
+approximate arbitrary functions.
+
+\begin{itemize}
+  \item \textbf{Threshold function:}
+        \[
+          \phi(z) = \begin{cases} 1 & z \ge 0 \\ 0 & z < 0 \end{cases}
+        \]
+        A hard on/off gate. Not differentiable at $0$, so it cannot be
+        used with gradient-based learning.
+
+  \item \textbf{Sigmoid:}
+        \[
+          \phi(z) = \frac{1}{1 + e^{-z}}
+        \]
+        Smooth, squashes $z$ into $(0, 1)$. Useful in the output layer for
+        binary classification, since the output can be read as a
+        probability. Suffers from \emph{vanishing gradients}: for large
+        $|z|$, $\phi'(z) \approx 0$, so learning slows down in saturated
+        neurons.
+
+  \item \textbf{Rectifier (ReLU):}
+        \[
+          \phi(z) = \max(0, z)
+        \]
+        The default choice for hidden layers in modern networks. Cheap to
+        compute, and its gradient is either $0$ or $1$ (no saturation on
+        the positive side), which mitigates vanishing gradients.
+
+  \item \textbf{Hyperbolic tangent (tanh):}
+        \[
+          \phi(z) = \frac{e^z - e^{-z}}{e^z + e^{-z}} \in (-1, 1)
+        \]
+        Like sigmoid but zero-centered, which tends to make optimization
+        better behaved.
+\end{itemize}
+
+A common rule of thumb: ReLU in hidden layers, sigmoid (binary) or softmax
+(multi-class) at the output layer.
+
+\section{Network Architecture: Forward Propagation}
+
+A fully-connected feed-forward network arranges neurons in layers: an
+input layer, one or more \textbf{hidden layers}, and an output layer.
+Every neuron in layer $\ell$ receives, as its inputs, the outputs of every
+neuron in layer $\ell - 1$.
+
+For layer $\ell$ with weight matrix $W^{(\ell)}$ and bias vector
+$\mathbf{b}^{(\ell)}$,
+
+\[
+  \mathbf{z}^{(\ell)} = W^{(\ell)} \mathbf{a}^{(\ell-1)} + \mathbf{b}^{(\ell)},
+  \qquad
+  \mathbf{a}^{(\ell)} = \phi\!\left(\mathbf{z}^{(\ell)}\right),
+\]
+
+with $\mathbf{a}^{(0)} = \mathbf{x}$ (the raw input). Applying this
+layer-by-layer from input to output is \textbf{forward propagation}: it
+turns an input observation into a prediction $\hat{y} = \mathbf{a}^{(L)}$
+for a network of $L$ layers.
+
+Intuitively, each hidden layer re-represents the data in a new feature
+space; deeper layers can combine the simple patterns detected by earlier
+layers into more complex, abstract features.
+
+\section{Cost Function}
+
+Learning means choosing weights and biases so that the network's
+predictions $\hat{y}$ are close to the true targets $y$. This is measured
+with a \textbf{cost function} (loss function). A standard choice for
+regression is squared error,
+
+\[
+  C = \frac{1}{2}\left(\hat{y} - y\right)^2,
+\]
+
+summed or averaged over all training examples. (For classification,
+cross-entropy is typically used instead, since it pairs naturally with a
+sigmoid/softmax output and produces better gradients when predictions are
+confidently wrong.)
+
+Training is the optimization problem of finding the weights $\mathbf{w}$
+that minimize $C(\mathbf{w})$ over the training set.
+
+\section{Gradient Descent}
+
+Since $C$ is generally a nonconvex, high-dimensional function of every
+weight and bias in the network, it cannot be minimized in closed form.
+\textbf{Gradient descent} minimizes it iteratively: at each step, nudge
+every parameter in the direction that decreases $C$ fastest, i.e. opposite
+its gradient,
+
+\[
+  \mathbf{w} \gets \mathbf{w} - \eta \, \nabla_{\mathbf{w}} C,
+\]
+
+where $\eta$ is the \textbf{learning rate}. Too large an $\eta$ can cause
+the update to overshoot and diverge; too small makes training
+impractically slow.
+
+\subsection{Batch vs. Stochastic Gradient Descent}
+
+\begin{itemize}
+  \item \textbf{Batch gradient descent} computes $\nabla_{\mathbf{w}} C$
+        using the \emph{entire} training set before making one update.
+        This gives an accurate gradient, but each step is expensive, and
+        because $C$ is generally nonconvex, batch GD can get stuck in a
+        local minimum.
+
+  \item \textbf{Stochastic gradient descent (SGD)} updates the weights
+        after \emph{each} individual training example, using that
+        example's (noisy) gradient. The noise in these single-example
+        updates actually helps: it lets the optimizer jump out of local
+        minima that would trap batch GD, and it makes each step far
+        cheaper. SGD is also better suited to large datasets, since it
+        does not need to hold the whole dataset in memory to take a step.
+
+  \item \textbf{Mini-batch gradient descent} is the practical middle
+        ground used by most deep learning frameworks: compute the
+        gradient over a small batch (e.g. 32--256 examples) at a time.
+        This retains much of SGD's escape-local-minima behavior and
+        memory efficiency, while vectorizing the batch's computation for
+        speed.
+\end{itemize}
+
+\section{Backpropagation}
+
+Backpropagation is the algorithm that computes $\nabla_{\mathbf{w}} C$
+efficiently, layer by layer, using the chain rule --- rather than
+perturbing each weight independently (which would cost one full forward
+pass per weight).
+
+\subsection{Setup}
+
+Let layer $\ell$ have weighted input $\mathbf{z}^{(\ell)}$ and activation
+$\mathbf{a}^{(\ell)} = \phi(\mathbf{z}^{(\ell)})$, for $\ell = 1, \dots,
+L$, with $\mathbf{a}^{(L)} = \hat{y}$ the network output. Define the
+\textbf{error} at layer $\ell$ as
+
+\[
+  \boldsymbol{\delta}^{(\ell)} = \frac{\partial C}{\partial \mathbf{z}^{(\ell)}}.
+\]
+
+\subsection{Output layer error}
+
+By the chain rule,
+
+\[
+  \boldsymbol{\delta}^{(L)}
+  = \frac{\partial C}{\partial \mathbf{a}^{(L)}} \odot \phi'\!\left(\mathbf{z}^{(L)}\right),
+\]
+
+where $\odot$ is the elementwise product. For squared error,
+$\partial C / \partial \mathbf{a}^{(L)} = \hat{y} - y$.
+
+\subsection{Propagating the error backward}
+
+The error at layer $\ell$ depends on the error one layer ahead of it:
+
+\[
+  \boldsymbol{\delta}^{(\ell)}
+  = \left(\left(W^{(\ell+1)}\right)^{\top} \boldsymbol{\delta}^{(\ell+1)}\right)
+    \odot \phi'\!\left(\mathbf{z}^{(\ell)}\right).
+\]
+
+This is the key equation: it lets $\boldsymbol{\delta}^{(\ell)}$ be computed
+from $\boldsymbol{\delta}^{(\ell+1)}$, moving backward from the output
+layer to the input layer --- hence \emph{back}propagation. It is exactly
+the chain rule applied once per layer, reusing work already done for the
+layer ahead instead of recomputing it from scratch.
+
+\subsection{Gradients from the error}
+
+Once every $\boldsymbol{\delta}^{(\ell)}$ is known, the gradients needed
+for the weight update fall out directly:
+
+\[
+  \frac{\partial C}{\partial W^{(\ell)}} = \boldsymbol{\delta}^{(\ell)} \left(\mathbf{a}^{(\ell-1)}\right)^{\top},
+  \qquad
+  \frac{\partial C}{\partial \mathbf{b}^{(\ell)}} = \boldsymbol{\delta}^{(\ell)}.
+\]
+
+\subsection{Algorithm}
+
+\begin{algorithm}[h]
+\caption{Training one example with backpropagation + SGD}
+\begin{algorithmic}[1]
+\State \textbf{Forward pass:} compute $\mathbf{z}^{(\ell)}, \mathbf{a}^{(\ell)}$ for $\ell = 1, \dots, L$
+\State \textbf{Output error:} $\boldsymbol{\delta}^{(L)} \gets (\hat{y} - y) \odot \phi'(\mathbf{z}^{(L)})$
+\For{$\ell = L-1, \dots, 1$}
+  \State $\boldsymbol{\delta}^{(\ell)} \gets \left((W^{(\ell+1)})^\top \boldsymbol{\delta}^{(\ell+1)}\right) \odot \phi'(\mathbf{z}^{(\ell)})$
+\EndFor
+\For{$\ell = 1, \dots, L$}
+  \State $W^{(\ell)} \gets W^{(\ell)} - \eta\, \boldsymbol{\delta}^{(\ell)} (\mathbf{a}^{(\ell-1)})^\top$
+  \State $\mathbf{b}^{(\ell)} \gets \mathbf{b}^{(\ell)} - \eta\, \boldsymbol{\delta}^{(\ell)}$
+\EndFor
+\end{algorithmic}
+\end{algorithm}
+
+Repeating this over all training examples, for many passes (\textbf{epochs}),
+is how the network learns: each epoch, weights move a little further in
+the direction that reduces the cost function.
+
+\section{Key Takeaways}
+
+\begin{itemize}
+  \item Activation functions are what give a network the capacity to
+        learn nonlinear relationships; ReLU is the standard hidden-layer
+        default, sigmoid/softmax the standard output-layer choice.
+  \item Forward propagation produces a prediction; backpropagation
+        produces the gradient of the cost with respect to every weight,
+        by reusing per-layer error terms via the chain rule instead of
+        recomputing each partial derivative independently.
+  \item SGD (or mini-batch GD) trades a noisier gradient estimate for
+        much cheaper, much more frequent updates, and that noise is what
+        helps escape local minima in the nonconvex cost surface.
+  \item The learning rate $\eta$ controls the step size and is the main
+        knob balancing convergence speed against stability.
+\end{itemize}
+
+\end{document}
