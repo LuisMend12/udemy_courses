@@ -1,4 +1,4 @@
-# Section 4 — Bayesian Optimization
+# Section 6 — Bayesian Optimization
 
 One folder per note, matching the layout used in `rl_course/dynamic_programming/notes`
 and `Deep_learning_cnns/notes`. Every `.tex` here is self-contained (IEEEtran, no
