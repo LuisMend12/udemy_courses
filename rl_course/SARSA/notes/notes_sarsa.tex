@@ -1,0 +1,230 @@
+\documentclass[11pt]{article}
+
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath, amssymb, amsthm}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\usepackage{hyperref}
+\usepackage{enumitem}
+\usepackage{booktabs}
+
+\title{Notes on Sarsa, $n$-step Sarsa, and Monte Carlo Control}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Setting}
+
+As before, we work in the usual MDP framework: states $s \in \mathcal{S}$,
+actions $a \in \mathcal{A}$, rewards $r \in \mathbb{R}$, discount factor
+$\gamma \in [0,1]$, and a (possibly stochastic) policy $\pi(a \mid s)$. The
+action-value function under $\pi$ is
+
+\[
+    Q^\pi(s,a) = \mathbb{E}_\pi\!\left[\, \sum_{k=0}^{\infty} \gamma^k R_{t+k+1} \;\middle|\; S_t = s, A_t = a \,\right].
+\]
+
+Sarsa and Monte Carlo control are both \emph{on-policy}: the policy
+generating the data is the same one being evaluated and improved. They
+differ in how far they look before updating $\hat{Q}$ — this is the
+temporal-difference (TD) vs. Monte Carlo (MC) distinction, and $n$-step
+Sarsa is the bridge between the two.
+
+\section{Sarsa: one-step TD control}
+
+Sarsa updates $\hat{Q}$ after every single transition, using the actually
+observed next action (hence \emph{on-policy}, and hence the name: State,
+Action, Reward, State, Action):
+
+\[
+    \hat{Q}(S_t, A_t) \leftarrow \hat{Q}(S_t, A_t) + \alpha \Big( R_{t+1} + \gamma\, \hat{Q}(S_{t+1}, A_{t+1}) - \hat{Q}(S_t, A_t) \Big).
+\]
+
+The quantity $R_{t+1} + \gamma \hat{Q}(S_{t+1}, A_{t+1})$ is the
+\textbf{TD target}, and the bracketed term is the \textbf{TD error}
+$\delta_t$. Unlike MC, this target \emph{bootstraps}: it uses the current
+estimate $\hat{Q}(S_{t+1}, A_{t+1})$ instead of waiting for the true return,
+so it is biased (initially) but has much lower variance and does not
+require the episode to end.
+
+\begin{algorithm}[h]
+\caption{Sarsa (on-policy TD control)}
+\begin{algorithmic}[1]
+\State Initialize $\hat{Q}(s,a) \leftarrow 0$ for all $s,a$ (terminal states: $0$)
+\For{episode $= 1, 2, \dots$}
+    \State Initialize $S_0$; choose $A_0$ $\varepsilon$-greedily from $\hat{Q}(S_0, \cdot)$
+    \For{$t = 0, 1, 2, \dots$ until $S_t$ terminal}
+        \State Take $A_t$, observe $R_{t+1}, S_{t+1}$
+        \State Choose $A_{t+1}$ $\varepsilon$-greedily from $\hat{Q}(S_{t+1}, \cdot)$
+        \State $\hat{Q}(S_t, A_t) \leftarrow \hat{Q}(S_t, A_t) + \alpha \big( R_{t+1} + \gamma \hat{Q}(S_{t+1}, A_{t+1}) - \hat{Q}(S_t, A_t) \big)$
+    \EndFor
+\EndFor
+\end{algorithmic}
+\end{algorithm}
+
+Because $A_{t+1}$ is chosen by the same $\varepsilon$-greedy policy that is
+being improved, Sarsa's target depends on the exploratory action actually
+taken next. This is what makes it on-policy (contrast with Q-learning,
+which bootstraps off $\max_{a'} \hat{Q}(S_{t+1}, a')$ regardless of what is
+actually done next — an off-policy target).
+
+\section{$n$-step Sarsa}
+
+One-step Sarsa bootstraps immediately (after a single reward); Monte Carlo
+(Section~\ref{sec:mc}) waits for the entire episode. \textbf{$n$-step
+Sarsa} generalizes both: accumulate $n$ real rewards, then bootstrap off
+$\hat{Q}$ at the $n$-th step.
+
+\subsection{The $n$-step return}
+
+Define the $n$-step return for the state-action pair at time $t$ as
+
+\[
+    G_{t:t+n} = R_{t+1} + \gamma R_{t+2} + \cdots + \gamma^{n-1} R_{t+n} + \gamma^n \hat{Q}(S_{t+n}, A_{t+n})
+    = \sum_{k=0}^{n-1} \gamma^k R_{t+k+1} + \gamma^n \hat{Q}(S_{t+n}, A_{t+n}),
+\]
+
+with the usual truncation if the episode terminates before step $t+n$ (in
+that case the bootstrap term is dropped and $G_{t:t+n}$ is just the
+remaining discounted rewards — an ordinary MC-style return). The update
+rule is the same sample-average-style TD update, just with $G_{t:t+n}$ in
+place of the one-step target:
+
+\[
+    \hat{Q}(S_t, A_t) \leftarrow \hat{Q}(S_t, A_t) + \alpha \Big( G_{t:t+n} - \hat{Q}(S_t, A_t) \Big).
+\]
+
+\begin{algorithm}[h]
+\caption{$n$-step Sarsa (on-policy)}
+\begin{algorithmic}[1]
+\State Initialize $\hat{Q}(s,a) \leftarrow 0$ for all $s,a$; fix step size $\alpha$, horizon $n$
+\For{episode $= 1, 2, \dots$}
+    \State Initialize and store $S_0$; choose and store $A_0$ $\varepsilon$-greedily from $\hat{Q}(S_0, \cdot)$
+    \State $T \leftarrow \infty$
+    \For{$\tau = 0, 1, 2, \dots$}
+        \If{$\tau < T$}
+            \State Take $A_\tau$, observe and store $R_{\tau+1}, S_{\tau+1}$
+            \If{$S_{\tau+1}$ is terminal}
+                \State $T \leftarrow \tau + 1$
+            \Else
+                \State Choose and store $A_{\tau+1}$ $\varepsilon$-greedily from $\hat{Q}(S_{\tau+1}, \cdot)$
+            \EndIf
+        \EndIf
+        \State $t \leftarrow \tau - n + 1$ \Comment{time whose estimate is being updated}
+        \If{$t \geq 0$}
+            \State $m \leftarrow \min(t+n, T)$
+            \State $G \leftarrow \sum_{k=t+1}^{m} \gamma^{k-t-1} R_k$
+            \If{$t + n < T$}
+                \State $G \leftarrow G + \gamma^n \hat{Q}(S_{t+n}, A_{t+n})$
+            \EndIf
+            \State $\hat{Q}(S_t, A_t) \leftarrow \hat{Q}(S_t, A_t) + \alpha \big( G - \hat{Q}(S_t, A_t) \big)$
+        \EndIf
+    \EndFor
+    \State \textbf{until} $t = T - 1$
+\EndFor
+\end{algorithmic}
+\end{algorithm}
+
+The bookkeeping (storing the last $n{+}1$ states/actions/rewards and
+delaying the update by $n$ steps) is the only real complication versus
+one-step Sarsa; conceptually it is the identical $\varepsilon$-greedy GPI
+loop.
+
+\subsection{Bias--variance tradeoff in $n$}
+
+$n$ interpolates between two extremes:
+
+\begin{itemize}
+    \item $n = 1$: ordinary Sarsa. Low variance (only one random reward
+        feeds the target), but biased while $\hat{Q}$ is inaccurate, and
+        credit for a reward propagates back only one state per episode.
+    \item $n = T - t$ (full episode length): equivalent to MC — the target
+        is the actual return $G_t$, unbiased but high variance (it depends
+        on every random reward and action along the rest of the episode).
+\end{itemize}
+
+Intermediate $n$ (e.g.\ $n = 4$ or $n = 8$) often outperforms both
+extremes empirically: rewards propagate back $n$ steps per update instead
+of $1$, speeding up learning, while variance stays bounded because the
+tail beyond step $n$ is replaced by the (lower-variance) bootstrap
+$\hat{Q}(S_{t+n}, A_{t+n})$ rather than sampled all the way to termination.
+
+\section{Monte Carlo control, revisited}
+\label{sec:mc}
+
+Monte Carlo control fits the same $n \to \infty$ (i.e.\ $n = T$) end of the
+spectrum above: no bootstrapping at all, updates only after a complete
+episode, using the true observed return
+
+\[
+    G_t = R_{t+1} + \gamma R_{t+2} + \cdots + \gamma^{T-t-1} R_T.
+\]
+
+\begin{algorithm}[h]
+\caption{On-policy MC control (constant-$\alpha$, every-visit) — for comparison}
+\begin{algorithmic}[1]
+\State Initialize $\hat{Q}(s,a) \leftarrow 0$ for all $s,a$
+\For{episode $= 1, 2, \dots$}
+    \State Generate a full episode $S_0, A_0, R_1, \dots, S_{T-1}, A_{T-1}, R_T$ using $\varepsilon$-greedy w.r.t.\ $\hat{Q}$
+    \State $G \leftarrow 0$
+    \For{$t = T-1, T-2, \dots, 0$}
+        \State $G \leftarrow R_{t+1} + \gamma G$
+        \State $\hat{Q}(S_t, A_t) \leftarrow \hat{Q}(S_t, A_t) + \alpha \big( G - \hat{Q}(S_t, A_t) \big)$
+    \EndFor
+\EndFor
+\end{algorithmic}
+\end{algorithm}
+
+(See the fuller treatment — first-visit vs.\ every-visit, sample-average
+vs.\ constant-$\alpha$, GLIE — in the on-policy Monte Carlo notes in
+\texttt{on\_policy\_monte\_carlo/notes/}.)
+
+\subsection{Sarsa vs.\ $n$-step Sarsa vs.\ MC}
+
+\begin{center}
+\begin{tabular}{@{}lccc@{}}
+\toprule
+ & Sarsa ($n{=}1$) & $n$-step Sarsa & Monte Carlo \\
+\midrule
+Bootstraps? & yes & yes (past step $n$) & no \\
+Bias (early training) & high & moderate & none \\
+Variance & low & moderate & high \\
+Update frequency & every step & every step (delayed by $n$) & once per episode \\
+Needs episode to terminate? & no & no & yes \\
+Works in continuing tasks? & yes & yes & no \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+All three are instances of \textbf{Generalized Policy Iteration}: alternate
+$\varepsilon$-greedy improvement of $\pi$ with evaluation of $Q^\pi$, the
+only difference being \emph{how much real experience is collected per
+update} before the (possibly bootstrapped) target is formed.
+
+\section{Convergence remarks}
+
+\begin{itemize}
+    \item Tabular Sarsa converges to $Q^*$ with probability 1 under the
+        usual stochastic-approximation step-size conditions
+        ($\sum_t \alpha_t = \infty$, $\sum_t \alpha_t^2 < \infty$) together
+        with GLIE exploration (every $(s,a)$ visited infinitely often,
+        policy greedy in the limit).
+    \item $n$-step Sarsa converges under the same conditions for any fixed
+        finite $n$; larger $n$ trades lower bias/faster credit assignment
+        against higher per-update variance.
+    \item MC control converges under GLIE alone (no step-size decay needed
+        if using true sample averages), but only applies to episodic
+        tasks, and only updates after each episode completes — so it can
+        be much slower to propagate information within a long episode than
+        TD-based methods.
+\end{itemize}
+
+\section{Reference}
+
+Sutton, R.\ S., \& Barto, A.\ G.\ \emph{Reinforcement Learning: An
+Introduction}, 2nd ed., Ch.~5 (Monte Carlo Methods), Ch.~6 (Temporal-Difference
+Learning, esp.\ Sarsa), and Ch.~7 ($n$-step Bootstrapping).
+
+\end{document}
