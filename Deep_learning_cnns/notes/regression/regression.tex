@@ -1,0 +1,162 @@
+\documentclass[conference]{IEEEtran}
+
+\usepackage{cite}
+\usepackage{amsmath,amssymb,amsfonts}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{url}
+\usepackage{xcolor}
+
+\title{Notes on Linear Regression}
+
+\author{
+\IEEEauthorblockN{Luis Mendez}
+}
+
+\begin{document}
+\maketitle
+
+\textbf{Question:} What is linear regression doing, and how does a
+neural network learn it?
+
+\bigskip
+
+\textbf{Answer:}
+
+\bigskip
+
+\textbf{1. The Model}
+
+Linear regression fits a straight line through data: given input $x$, it
+predicts
+
+\[
+  \hat{y} = a x + b,
+\]
+
+where $a$ is the \textbf{slope} and $b$ is the \textbf{intercept}. With
+$D$ input features this generalizes to $\hat{y} = \mathbf{w}^\top
+\mathbf{x} + b$ --- exactly a single neuron with \emph{no} activation
+function (or, equivalently, a linear $\phi$). Framing it this way, a
+dense layer of one unit with linear activation \emph{is} linear
+regression.
+
+\bigskip
+
+\textbf{2. Loss: Mean Squared Error}
+
+Training picks $a, b$ to minimize the squared distance between
+predictions and targets, averaged over $N$ examples:
+
+\[
+  C(a,b) = \frac{1}{N}\sum_{i=1}^{N} \left(y_i - (a x_i + b)\right)^2.
+\]
+
+Squaring penalizes large errors more than small ones and keeps $C$
+smooth and differentiable everywhere, which is what makes both routes
+below possible.
+
+\bigskip
+
+\textbf{3. Two Ways to Solve It}
+
+\begin{itemize}
+    \item \textbf{Closed form (OLS):} because $C$ is quadratic and
+          convex in $a,b$, setting $\partial C/\partial a =
+          \partial C/\partial b = 0$ and solving directly gives
+
+\[
+  a = \frac{\displaystyle\sum x_i y_i - \bar{y}\sum x_i}
+           {\displaystyle\sum x_i^2 - \bar{x}\sum x_i},
+  \qquad
+  b = \bar{y} - a\bar{x}.
+\]
+
+          No iteration needed --- one pass over the data.
+    \item \textbf{Gradient descent:} treat $a,b$ as the weight and bias
+          of a one-neuron network and train it the same way as any
+          other neuron (see \textit{Notes on Neurons}): repeatedly
+          nudge $a,b$ opposite $\nabla C$ until the loss stops
+          improving. Slower and approximate, but the only option once
+          the model has more layers or nonlinearity, where no closed
+          form exists.
+\end{itemize}
+
+Both routes should agree, up to numerical precision, on a purely linear
+problem --- a good sanity check after training.
+
+\bigskip
+
+\textbf{4. Linearizing an Exponential Trend}
+
+Not every relationship is linear on its own scale, but some become
+linear after a transform. Moore's Law states that transistor count
+roughly doubles every two years, i.e. $y \approx y_0 \cdot 2^{x/2}$, an
+exponential in the raw data. Taking the log of both sides,
+
+\[
+  \log y = \log y_0 + \frac{\log 2}{2} x,
+\]
+
+which is linear in $x$. So $\log y$ vs.\ $x$ can be fit with ordinary
+linear regression, and the fitted slope $a$ converts back into a
+doubling time via $a = \tfrac{\log 2}{2\,\text{years}} \Rightarrow
+\text{doubling time} = \log 2 / a$. Centering $x$ (subtracting its mean)
+before fitting does not change $a$; it only keeps $b$ interpretable and
+improves numerical conditioning for gradient descent.
+
+\bigskip
+
+\textbf{5. Keras Example}
+
+\begin{verbatim}
+model = tf.keras.Sequential([
+    tf.keras.layers.Input(shape=(1,)),
+    tf.keras.layers.Dense(1),
+])
+
+model.compile(
+    optimizer=tf.keras.optimizers.SGD(0.001, 0.9),
+    loss='mse',
+)
+
+r = model.fit(X, Y, epochs=100)
+\end{verbatim}
+
+A single \texttt{Dense(1)} layer with the default (linear) activation is
+the whole model: one weight, one bias. The learned weight and bias
+recovered from \texttt{model.layers[0].get\_weights()} should match the
+closed-form $a,b$ computed directly from the data.
+
+\bigskip
+
+\textbf{6. Saving and Reloading}
+
+\begin{verbatim}
+model.save('linearregression.h5')
+
+loaded = tf.keras.models.load_model('linearregression.h5')
+np.allclose(model.predict(X), loaded.predict(X))
+\end{verbatim}
+
+Saving stores the architecture, learned weights, and optimizer state;
+reloading should reproduce identical predictions, which is a useful
+check that nothing was lost in the round trip.
+
+\bigskip
+
+\textbf{7. Putting It Together}
+
+\begin{itemize}
+    \item Linear regression = one neuron, linear activation, MSE loss.
+    \item With one input feature it can be solved exactly (OLS) or
+          learned iteratively (gradient descent); both should agree.
+    \item A log transform turns an exponential trend (e.g.\ Moore's Law)
+          into a linear one, so the same tools apply.
+    \item The same neuron-and-loss machinery scales up to deep networks
+          once activations become nonlinear and the closed form
+          disappears.
+\end{itemize}
+
+\end{document}
