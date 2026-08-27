@@ -1,0 +1,104 @@
+\documentclass[conference]{IEEEtran}
+
+\usepackage{cite}
+\usepackage{amsmath,amssymb,amsfonts}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{url}
+\usepackage{xcolor}
+
+\title{Notes on Optuna and Hyperopt: Two Interfaces to the Same TPE}
+
+\author{
+\IEEEauthorblockN{Luis Mendez}
+}
+
+\begin{document}
+\maketitle
+
+\section*{Overview}
+\textit{Other SMBO Models} already derives what TPE optimizes and why: build $\ell(\mathbf{x})$ and $g(\mathbf{x})$ from the good/bad split of observed trials and sample where $\ell/g$ is large. Both Hyperopt (Section 11) and Optuna (Section 12) ship that same algorithm as \texttt{tpe.suggest} / \texttt{TPESampler}, and on the breast-cancer XGBoost objective they land on comparable accuracy. What actually differs between the two, and what this note is about, is the \emph{engineering interface} around that shared core: how the search space is declared, how conditional structure is expressed, and what the library does once a trial can be evaluated cheaply at multiple fidelities.
+
+\section*{Search-Space Declaration: Define-and-Run vs.\ Define-by-Run}
+Hyperopt's \texttt{fmin} takes the entire space as one static dictionary built before any trial runs,
+\begin{verbatim}
+param_grid = {
+  'n_estimators': hp.quniform(
+      'n_estimators', 200, 2500, 100),
+  'booster': hp.choice(
+      'booster', ['gbtree', 'dart']),
+  ...
+}
+\end{verbatim}
+and \texttt{objective(params)} receives a dictionary already shaped like that space; every branch of every \texttt{hp.choice} must exist in the dictionary whether or not a given trial ends up using it. Optuna's \texttt{objective(trial)} instead calls \texttt{trial.suggest\_*} imperatively, inline with ordinary Python control flow:
+\begin{verbatim}
+classifier_name = trial.suggest_categorical(
+    "classifier", ["logit", "RF", "GBM"])
+if classifier_name == "logit":
+    c = trial.suggest_float("logit_c", 0.001, 10)
+    ...
+elif classifier_name == "RF":
+    n = trial.suggest_int("rf_n_estimators", 100, 1000)
+    ...
+\end{verbatim}
+The space is only ever as large as the branch actually taken on a given trial; there is nothing to declare ahead of time for a branch that was not entered. This is the define-by-run design Optuna's own docs advertise, and \texttt{02-Conditional-Spaces-Multiple-Models.ipynb} leans on it directly to try three unrelated model families (logistic regression, random forest, GBM) inside one \texttt{objective}.
+
+\section*{The Cost of Define-and-Run: Conditional Spaces in Hyperopt}
+\texttt{04-Conditonal-Search-Spaces.ipynb} tunes the same three model families in Hyperopt, and the shape of that notebook is the direct consequence of not having define-by-run. The space has to be pre-built as a master dictionary keyed by \texttt{hp.choice('model', [...])}, where each branch is itself a nested dictionary carrying the constructor class \emph{and} its parameter sub-space:
+\begin{verbatim}
+{'model': LogisticRegression, 'params': {...}}
+\end{verbatim}
+and the objective function unpacks that generically (\texttt{params['model']()}, then \texttt{params['params']}) rather than branching on a readable classifier name the way the Optuna version does. Worse, because \texttt{n\_estimators} and \texttt{max\_depth} only exist for the tree-based branches but the dictionary structure is shared, the int-casting step has to be wrapped defensively,
+\begin{verbatim}
+try:
+    hyperparams['n_estimators'] = int(
+        hyperparams['n_estimators'])
+    hyperparams['max_depth'] = int(
+        hyperparams['max_depth'])
+except:
+    pass
+\end{verbatim}
+silently swallowing a \texttt{KeyError} on every trial that samples logistic regression. Nothing here is broken --- the search still runs and \texttt{trials.argmin} still resolves the winner --- but a bare \texttt{except} on a fixed, foreseeable branch condition is a symptom of the space being declared statically rather than the objective simply not asking for keys it does not need, which is what Optuna's inline \texttt{if/elif} does for free.
+
+\section*{Live Reporting and Pruning: A Capability Hyperopt Does Not Have}
+The multi-fidelity idea from \textit{Multi-fidelity Optimization} (successive halving, ASHA, Hyperband as external wrappers around \texttt{fit}) has a native, per-trial form in Optuna. Inside the objective, each intermediate fidelity is reported as it becomes available,
+\begin{verbatim}
+trial.report(intermediate_accuracy, epoch)
+if trial.should_prune():
+    raise optuna.TrialPruned()
+\end{verbatim}
+and a \texttt{pruner} attached to the study decides, from that stream of reports across all trials, whether the \emph{current} trial is falling behind the pack and should be abandoned before it finishes. \texttt{07-successive-halving-optuna.ipynb} uses \texttt{SuccessiveHalvingPruner} (\texttt{min\_resource}, \texttt{reduction\_factor}, promoting roughly the top third of each ``rung'' to the next) and \texttt{09-hperband.ipynb} uses \texttt{HyperbandPruner}, the same underlying policy this course reaches for via \texttt{sklearn}'s \texttt{HalvingRandomSearchCV} in Section 8, but now driven by the same TPE/random sampler that is also choosing the hyperparameters. Hyperopt has no equivalent hook: \texttt{objective(params)} in every Hyperopt notebook in this course returns one final scalar loss with \texttt{Trials()} recording only completed trials, so a configuration that is obviously bad after one epoch still runs to completion. Getting successive-halving behavior out of Hyperopt in this course means stepping outside Hyperopt entirely, into \texttt{sklearn}'s halving search classes.
+
+\section*{Persistence: In-Memory \texttt{Trials} vs.\ a Storage Backend}
+Hyperopt's \texttt{Trials()} object lives in process memory; \texttt{trials.argmin} and \texttt{trials.average\_best\_error()} are convenient for inspecting a run that just finished, but the object does not outlive the Python process on its own. Optuna's \texttt{create\_study} instead takes a \texttt{storage} URL, and \texttt{03-Optimizing-a-CNN.ipynb} / \texttt{05-Evaluating-the-search.ipynb} point it at a SQLite file (\texttt{cnn\_study.db} in this section's folder). Because every trial is written through to that file as it completes, the study can be reopened later, resumed with additional trials, or inspected with \texttt{study.trials\_dataframe()} without having kept the original process alive --- which is also the mechanism that makes running independent workers against the same study (parallel search) straightforward, since they only need to agree on the storage URL, not share memory.
+
+\section*{What Stayed the Same}
+It is worth being explicit about what this note is \emph{not} claiming differs: the sampling algorithm. \texttt{TPESampler} in Optuna and \texttt{tpe.suggest} in Hyperopt are both implementations of the $\ell(\mathbf{x})/g(\mathbf{x})$ density-ratio idea from \textit{Other SMBO Models}; neither library's TPE implementation reasons about pruning or persistence, those are separate concerns layered around the same sampler by each library's engineering choices. Optuna additionally exposes \texttt{RandomSampler} and \texttt{CmaEsSampler} alongside \texttt{TPESampler} as drop-in alternatives selected purely by which object is passed to \texttt{create\_study}, mirroring how Hyperopt selects \texttt{rand.suggest}/\texttt{anneal.suggest}/\texttt{tpe.suggest} purely by which function is passed to \texttt{fmin}'s \texttt{algo} argument --- the sampler-selection ergonomics are, if anything, the one place the two libraries look almost identical.
+
+\section*{Comparing the Interfaces}
+\begin{center}
+\footnotesize
+\begin{tabular}{@{}lll@{}}
+\toprule
+ & Hyperopt & Optuna \\
+\midrule
+Space declaration & Define-and-run (static dict) & Define-by-run (inline \texttt{trial.suggest\_*}) \\
+Conditional spaces & Nested dict + \texttt{hp.choice}, manual unpacking & Plain \texttt{if/elif} in the objective \\
+Sampler selection & \texttt{algo=} in \texttt{fmin} (\texttt{rand}/\texttt{anneal}/\texttt{tpe}) & \texttt{sampler=} in \texttt{create\_study} \\
+Pruning / multi-fidelity & None built in & \texttt{trial.report} + \texttt{should\_prune()} + pruner \\
+Persistence & In-memory \texttt{Trials()} only & \texttt{storage=} URL (e.g.\ SQLite), resumable \\
+Result inspection & \texttt{trials.argmin}, \texttt{average\_best\_error()} & \texttt{study.best\_params}, \texttt{trials\_dataframe()} \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\section*{Practical Guidance}
+\begin{itemize}
+    \item Reach for Optuna when the space has real conditional branching (different model families, architecture search) --- \texttt{if/elif} on \texttt{trial.suggest\_categorical} scales far better than pre-building a nested Hyperopt dictionary and defensively unpacking it.
+    \item Reach for Optuna specifically when the objective can report an intermediate score (an epoch, a boosting round) --- native pruning turns that into wasted-compute savings for free, which Hyperopt cannot do without leaving the library.
+    \item Hyperopt remains a perfectly reasonable choice for a flat, non-conditional space evaluated to completion every time (the XGBoost breast-cancer objective in Section 11 is exactly this case) --- the two libraries' TPE results are not meaningfully different there, so the choice comes down to which interface is already in the codebase.
+    \item If a study needs to survive a process restart, be resumed later, or be attacked by more than one worker process, that alone is reason enough to prefer Optuna's \texttt{storage=} over Hyperopt's in-memory \texttt{Trials()}.
+\end{itemize}
+
+\end{document}
