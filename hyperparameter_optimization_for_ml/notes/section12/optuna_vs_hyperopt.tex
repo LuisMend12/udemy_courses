@@ -76,8 +76,9 @@ Hyperopt's \texttt{Trials()} object lives in process memory; \texttt{trials.argm
 \section*{What Stayed the Same}
 It is worth being explicit about what this note is \emph{not} claiming differs: the sampling algorithm. \texttt{TPESampler} in Optuna and \texttt{tpe.suggest} in Hyperopt are both implementations of the $\ell(\mathbf{x})/g(\mathbf{x})$ density-ratio idea from \textit{Other SMBO Models}; neither library's TPE implementation reasons about pruning or persistence, those are separate concerns layered around the same sampler by each library's engineering choices. Optuna additionally exposes \texttt{RandomSampler} and \texttt{CmaEsSampler} alongside \texttt{TPESampler} as drop-in alternatives selected purely by which object is passed to \texttt{create\_study}, mirroring how Hyperopt selects \texttt{rand.suggest}/\texttt{anneal.suggest}/\texttt{tpe.suggest} purely by which function is passed to \texttt{fmin}'s \texttt{algo} argument --- the sampler-selection ergonomics are, if anything, the one place the two libraries look almost identical.
 
-\section*{Comparing the Interfaces}
-\begin{center}
+\begin{table*}[t]
+\centering
+\caption{Comparing the Interfaces}
 \footnotesize
 \begin{tabular}{@{}lll@{}}
 \toprule
@@ -91,7 +92,7 @@ Persistence & In-memory \texttt{Trials()} only & \texttt{storage=} URL (e.g.\ SQ
 Result inspection & \texttt{trials.argmin}, \texttt{average\_best\_error()} & \texttt{study.best\_params}, \texttt{trials\_dataframe()} \\
 \bottomrule
 \end{tabular}
-\end{center}
+\end{table*}
 
 \section*{Practical Guidance}
 \begin{itemize}
