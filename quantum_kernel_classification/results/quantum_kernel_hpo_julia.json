@@ -1,0 +1,74 @@
+[
+  {
+    "baseline": {
+      "C": 1.0,
+      "cv_acc": 0.9857142857142858,
+      "reps": 2,
+      "test_acc": 0.9833333333333333
+    },
+    "dataset": "synthetic_n4_gamma0.3",
+    "julia_best": {
+      "C": 140.79883163067032,
+      "cv_acc": 0.9857142857142858,
+      "reps": 2,
+      "test_acc": 0.9833333333333333
+    },
+    "n_qubits": 4,
+    "n_trials": 40,
+    "seconds": 8.203999996185303
+  },
+  {
+    "baseline": {
+      "C": 3.0,
+      "cv_acc": 0.8285714285714286,
+      "reps": 2,
+      "test_acc": 0.7166666666666667
+    },
+    "dataset": "synthetic_n6_gamma0.2",
+    "julia_best": {
+      "C": 140.79883163067032,
+      "cv_acc": 0.8285714285714286,
+      "reps": 2,
+      "test_acc": 0.7166666666666667
+    },
+    "n_qubits": 6,
+    "n_trials": 40,
+    "seconds": 0.46899986267089844
+  },
+  {
+    "baseline": {
+      "C": 0.1,
+      "cv_acc": 0.7178856231487811,
+      "reps": 2,
+      "test_acc": 0.7166666666666667
+    },
+    "dataset": "miniboone_pca4",
+    "julia_best": {
+      "C": 1.5270948085633074,
+      "cv_acc": 0.7218398268398267,
+      "reps": 2,
+      "test_acc": 0.6916666666666667
+    },
+    "n_qubits": 4,
+    "n_trials": 40,
+    "seconds": 1.255000114440918
+  },
+  {
+    "baseline": {
+      "C": 0.1,
+      "cv_acc": 0.7178856231487811,
+      "reps": 2,
+      "test_acc": 0.7166666666666667
+    },
+    "dataset": "miniboone_pca6",
+    "julia_best": {
+      "C": 79.10596700207599,
+      "cv_acc": 0.7428275233538392,
+      "reps": 1,
+      "test_acc": 0.7666666666666667
+    },
+    "n_qubits": 6,
+    "n_trials": 40,
+    "seconds": 1.128000020980835
+  }
+]
