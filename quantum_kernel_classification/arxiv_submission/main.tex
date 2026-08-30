@@ -520,7 +520,19 @@ even agree on which $R$ is best at PCA-4, consistent with a flat, noisy
 CV-accuracy landscape rather than a real gain to be had. In every
 configuration tested, the tuned quantum kernel remains far below the
 $81$--$87\%$ classical baselines of Table~\ref{tab:main}, so the negative
-result on MiniBooNE is not an artifact of leaving $R$ untuned.
+result on MiniBooNE is not an artifact of leaving $R$ untuned. A fANOVA
+hyperparameter-importance analysis (Optuna, 80 trials per domain, jointly
+searching $n_\text{qubits} \in \{4,6\}$, $R$, and $C$) explains why: on the
+synthetic datasets $R$ accounts for $96.5\%$ of variance in CV accuracy
+(versus $3.4\%$ for $n_\text{qubits}$ and $0.1\%$ for $C$), since $R$
+directly controls whether the kernel matches the fixed feature map used to
+generate the labels; on MiniBooNE, where no such planted structure exists
+for any $R$ to unlock, $n_\text{qubits}$ (i.e.\ the PCA dimensionality of
+Limitation~3) dominates instead ($53.9\%$, versus $30.4\%$ for $R$ and
+$15.7\%$ for $C$). The quantum kernel's hyperparameter that matters most is
+therefore not fixed across datasets -- it depends on whether the data has
+feature-map-aligned structure to exploit in the first place, reinforcing
+this paper's central claim.
 
 \textbf{Broader impact.} This is a small-scale, fully classical simulation
 study with no direct societal impact; we note it mainly as a caution
