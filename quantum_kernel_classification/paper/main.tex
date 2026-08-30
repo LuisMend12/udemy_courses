@@ -506,7 +506,21 @@ not tune the quantum feature map's own hyperparameters (number of qubits,
 repetitions, entanglement pattern) as extensively as we tune the classical
 kernels' hyperparameters, since the ZZ feature map has no natural analogue
 of $\gamma$ or degree beyond $R$; a more exhaustive search over feature-map
-variants is left to future work.
+variants is left to future work. As a partial check, we ran a post-hoc
+search over $R \in \{1,\dots,4\}$ and $C$ using two independent search
+procedures and implementations: Bayesian optimization (Optuna, TPE
+sampler, 40 trials) in Python, and a dependency-light random search (40
+trials) in Julia built on our independent Julia reimplementation of the
+simulator (Section~\ref{sec:method}) together with LIBSVM.jl. On the
+synthetic datasets, $R{=}2$ -- the value used to generate the labels --
+remains optimal in both searches, as expected. On MiniBooNE, tuning
+recovers at most a few points of test accuracy (up to $76.7\%$ at PCA-6,
+versus $71.7\%$ at the fixed $R{=}2$ baseline), and the two searches do not
+even agree on which $R$ is best at PCA-4, consistent with a flat, noisy
+CV-accuracy landscape rather than a real gain to be had. In every
+configuration tested, the tuned quantum kernel remains far below the
+$81$--$87\%$ classical baselines of Table~\ref{tab:main}, so the negative
+result on MiniBooNE is not an artifact of leaving $R$ untuned.
 
 \textbf{Broader impact.} This is a small-scale, fully classical simulation
 study with no direct societal impact; we note it mainly as a caution

@@ -53,9 +53,13 @@ src/
   model_selection.py        shared CV / train / test protocol for all kernels
   run_experiments.py        main benchmark -> results/benchmark.json
   figures.py                learning curves + decision-boundary figure -> figures/
+  optimize_quantum_kernel.py     Optuna search over R, C -> results/quantum_kernel_hpo.json
+  export_datasets_for_julia.py   dumps datasets/splits for the Julia HPO script
 julia/
   QuantumKernel.jl          independent Julia reimplementation of the simulator (FWHT-based)
   test_quantum_kernel.jl    same sanity checks, ported to Julia
+  optimize_quantum_kernel.jl  random search over R and C (LIBSVM.jl), reads julia/data/
+  data/                       datasets/splits exported by src/export_datasets_for_julia.py
 results/
   benchmark.json             raw accuracy / alignment numbers for every kernel and dataset
 figures/                     PNGs used in the paper

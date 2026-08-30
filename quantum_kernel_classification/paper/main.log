@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.28 (MiKTeX 25.12) (preloaded format=pdflatex 2026.4.14)  30 AUG 2026 15:34
+This is pdfTeX, Version 3.141592653-2.6-1.40.28 (MiKTeX 25.12) (preloaded format=pdflatex 2026.4.14)  30 AUG 2026 16:35
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -621,7 +621,7 @@ Here is how much of TeX's memory you used:
  43369 multiletter control sequences out of 15000+600000
  665153 words of font info for 224 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 75i,12n,79p,1003b,577s stack positions out of 10000i,1000n,20000p,200000b,200000s
+ 75i,12n,79p,1003b,569s stack positions out of 10000i,1000n,20000p,200000b,200000s
  <C:\Users\Luis Mendez\AppData\Local\MiKTeX\fonts/pk/ljfour/jknappen/ec/dpi60
 0\ectt1000.pk><C:/Program Files/MiKTeX/fonts/type1/public/amsfonts/cm/cmbx9.pfb
 ><C:/Program Files/MiKTeX/fonts/type1/public/amsfonts/cm/cmex10.pfb><C:/Program
@@ -636,9 +636,9 @@ m Files/MiKTeX/fonts/type1/public/amsfonts/cm/cmr9.pfb><C:/Program Files/MiKTeX
 nts/symbols/msbm10.pfb><C:/Program Files/MiKTeX/fonts/type1/urw/times/utmb8a.pf
 b><C:/Program Files/MiKTeX/fonts/type1/urw/times/utmr8a.pfb><C:/Program Files/M
 iKTeX/fonts/type1/urw/times/utmri8a.pfb>
-Output written on main.pdf (8 pages, 579848 bytes).
+Output written on main.pdf (8 pages, 581160 bytes).
 PDF statistics:
- 299 PDF objects out of 1000 (max. 8388607)
+ 301 PDF objects out of 1000 (max. 8388607)
  38 named destinations out of 1000 (max. 500000)
  36464 words of extra memory for PDF output out of 42996 (max. 10000000)
 
