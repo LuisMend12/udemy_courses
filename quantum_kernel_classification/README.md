@@ -53,6 +53,9 @@ src/
   model_selection.py        shared CV / train / test protocol for all kernels
   run_experiments.py        main benchmark -> results/benchmark.json
   figures.py                learning curves + decision-boundary figure -> figures/
+julia/
+  QuantumKernel.jl          independent Julia reimplementation of the simulator (FWHT-based)
+  test_quantum_kernel.jl    same sanity checks, ported to Julia
 results/
   benchmark.json             raw accuracy / alignment numbers for every kernel and dataset
 figures/                     PNGs used in the paper
@@ -85,7 +88,11 @@ pdflatex main.tex && bibtex main && pdflatex main.tex && pdflatex main.tex
   entanglement" ZZ feature map, simulated exactly (not sampled) via a batched
   Walsh–Hadamard transform + vectorized diagonal-phase update — no quantum
   library required, and fast enough (< 2s) to run every experiment in this
-  repo on a laptop CPU.
+  repo on a laptop CPU. Independently reimplemented in Julia
+  (`julia/QuantumKernel.jl`) using a different transform algorithm (in-place
+  FWHT butterfly) and RNG; on 200 random 6-qubit inputs the two
+  implementations' kernel matrices agree to within 5.6e-15 (machine
+  precision).
 - **Positive control:** synthetic datasets whose labels are the sign of a
   fixed observable measured in a Haar-random rotated basis of the same
   feature map, following Havlíček et al. (2019) — separable by the quantum

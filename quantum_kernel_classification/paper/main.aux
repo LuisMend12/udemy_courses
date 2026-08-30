@@ -21,12 +21,12 @@
 \@writefile{toc}{\contentsline {section}{\numberline {2}Background and Related Work}{2}{section.2}\protected@file@percent }
 \newlabel{sec:background}{{2}{2}{Background and Related Work}{section.2}{}}
 \citation{havlicek2019supervised}
-\citation{cristianini2001kernel}
 \@writefile{toc}{\contentsline {section}{\numberline {3}Method}{3}{section.3}\protected@file@percent }
 \newlabel{sec:method}{{3}{3}{Method}{section.3}{}}
 \@writefile{toc}{\contentsline {subsection}{\numberline {3.1}The ZZ feature map and fidelity kernel}{3}{subsection.3.1}\protected@file@percent }
 \@writefile{toc}{\contentsline {subsection}{\numberline {3.2}Exact simulation without a quantum SDK}{3}{subsection.3.2}\protected@file@percent }
 \@writefile{toc}{\contentsline {subsection}{\numberline {3.3}Kernel normalization}{3}{subsection.3.3}\protected@file@percent }
+\citation{cristianini2001kernel}
 \citation{havlicek2019supervised}
 \citation{mezzadri2007generate}
 \citation{roe2010miniboone}
@@ -37,17 +37,17 @@
 \newlabel{sec:synthetic}{{3.5}{4}{Synthetic quantum-advantage dataset}{subsection.3.5}{}}
 \@writefile{toc}{\contentsline {section}{\numberline {4}Experimental Setup}{4}{section.4}\protected@file@percent }
 \newlabel{sec:setup}{{4}{4}{Experimental Setup}{section.4}{}}
-\@writefile{toc}{\contentsline {section}{\numberline {5}Results}{4}{section.5}\protected@file@percent }
-\newlabel{sec:results}{{5}{4}{Results}{section.5}{}}
 \@writefile{lot}{\contentsline {table}{\numberline {1}{\ignorespaces Test accuracy, cross-validation accuracy, and kernel-target alignment for the best hyperparameter setting of each kernel family (selected by CV accuracy), on each dataset. Bold marks the best test accuracy per dataset (ties bolded jointly). Majority-class baselines: $50.0\%$ (both synthetic datasets, class-balanced by construction), $71.7\%$ (MiniBooNE, both PCA dimensionalities, same underlying subsample).}}{5}{table.caption.2}\protected@file@percent }
 \providecommand*\caption@xref[2]{\@setref\relax\@undefined{#1}}
 \newlabel{tab:main}{{1}{5}{Test accuracy, cross-validation accuracy, and kernel-target alignment for the best hyperparameter setting of each kernel family (selected by CV accuracy), on each dataset. Bold marks the best test accuracy per dataset (ties bolded jointly). Majority-class baselines: $50.0\%$ (both synthetic datasets, class-balanced by construction), $71.7\%$ (MiniBooNE, both PCA dimensionalities, same underlying subsample)}{table.caption.2}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {1}{\ignorespaces Test accuracy vs.\ training set size (mean $\pm $ std over $8$ random training subsets at each size, fixed hyperparameters from Table~\ref {tab:main}). \textbf  {Left:} engineered quantum-advantage data -- the quantum kernel is the only one that learns. \textbf  {Right:} MiniBooNE (real particle-physics data) -- the quantum kernel is flat at the majority-class baseline regardless of training set size, while classical kernels learn quickly.}}{5}{figure.caption.3}\protected@file@percent }
-\newlabel{fig:learning-curves}{{1}{5}{Test accuracy vs.\ training set size (mean $\pm $ std over $8$ random training subsets at each size, fixed hyperparameters from Table~\ref {tab:main}). \textbf {Left:} engineered quantum-advantage data -- the quantum kernel is the only one that learns. \textbf {Right:} MiniBooNE (real particle-physics data) -- the quantum kernel is flat at the majority-class baseline regardless of training set size, while classical kernels learn quickly}{figure.caption.3}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {5}Results}{5}{section.5}\protected@file@percent }
+\newlabel{sec:results}{{5}{5}{Results}{section.5}{}}
 \citation{cristianini2001kernel}
 \citation{thanasilp2024exponential}
 \citation{thanasilp2024exponential}
 \citation{kubler2021inductive}
+\@writefile{lof}{\contentsline {figure}{\numberline {1}{\ignorespaces Test accuracy vs.\ training set size (mean $\pm $ std over $8$ random training subsets at each size, fixed hyperparameters from Table~\ref {tab:main}). \textbf  {Left:} engineered quantum-advantage data -- the quantum kernel is the only one that learns. \textbf  {Right:} MiniBooNE (real particle-physics data) -- the quantum kernel is flat at the majority-class baseline regardless of training set size, while classical kernels learn quickly.}}{6}{figure.caption.3}\protected@file@percent }
+\newlabel{fig:learning-curves}{{1}{6}{Test accuracy vs.\ training set size (mean $\pm $ std over $8$ random training subsets at each size, fixed hyperparameters from Table~\ref {tab:main}). \textbf {Left:} engineered quantum-advantage data -- the quantum kernel is the only one that learns. \textbf {Right:} MiniBooNE (real particle-physics data) -- the quantum kernel is flat at the majority-class baseline regardless of training set size, while classical kernels learn quickly}{figure.caption.3}{}}
 \@writefile{lof}{\contentsline {figure}{\numberline {2}{\ignorespaces Decision regions for each kernel on a $2$-qubit engineered dataset (points colored by true label). Only the quantum kernel, whose feature space matches how the labels were generated, resolves the intricate true boundary exactly; classical kernels with smoother inductive biases cannot.}}{6}{figure.caption.4}\protected@file@percent }
 \newlabel{fig:boundary}{{2}{6}{Decision regions for each kernel on a $2$-qubit engineered dataset (points colored by true label). Only the quantum kernel, whose feature space matches how the labels were generated, resolves the intricate true boundary exactly; classical kernels with smoother inductive biases cannot}{figure.caption.4}{}}
 \@writefile{toc}{\contentsline {section}{\numberline {6}Discussion}{6}{section.6}\protected@file@percent }
@@ -59,11 +59,11 @@
 \bibcite{gorishniy2021revisiting}{{3}{2021}{{Gorishniy et~al.}}{{Gorishniy, Rubachev, Khrulkov, and Babenko}}}
 \bibcite{havlicek2019supervised}{{4}{2019}{{Havl{\'i}{\v {c}}ek et~al.}}{{Havl{\'i}{\v {c}}ek, C{\'o}rcoles, Temme, Harrow, Kandala, Chow, and Gambetta}}}
 \bibcite{huang2021power}{{5}{2021}{{Huang et~al.}}{{Huang, Broughton, Mohseni, Babbush, Boixo, Neven, and McClean}}}
+\@writefile{toc}{\contentsline {section}{\numberline {7}Conclusion}{7}{section.7}\protected@file@percent }
 \bibcite{kubler2021inductive}{{6}{2021}{{K{\"u}bler et~al.}}{{K{\"u}bler, Buchholz, and Sch{\"o}lkopf}}}
 \bibcite{mezzadri2007generate}{{7}{2007}{{Mezzadri}}{{}}}
 \bibcite{pedregosa2011scikit}{{8}{2011}{{Pedregosa et~al.}}{{Pedregosa, Varoquaux, Gramfort, Michel, Thirion, Grisel, Blondel, Prettenhofer, Weiss, Dubourg, et~al.}}}
 \bibcite{rebentrost2014quantum}{{9}{2014}{{Rebentrost et~al.}}{{Rebentrost, Mohseni, and Lloyd}}}
-\@writefile{toc}{\contentsline {section}{\numberline {7}Conclusion}{7}{section.7}\protected@file@percent }
 \bibcite{roe2010miniboone}{{10}{2010}{{Roe}}{{}}}
 \bibcite{schuld2019quantum}{{11}{2019}{{Schuld and Killoran}}{{}}}
 \bibcite{thanasilp2024exponential}{{12}{2024}{{Thanasilp et~al.}}{{Thanasilp, Wang, Cerezo, and Holmes}}}

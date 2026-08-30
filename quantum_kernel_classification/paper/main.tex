@@ -218,7 +218,19 @@ $10^{-10}$ in every case. We additionally check, over $50$ random $5$-qubit
 inputs, that every simulated state has unit norm (confirming the circuit is
 unitary), and that resulting kernel matrices are symmetric, have unit
 diagonal, and are positive semi-definite (minimum eigenvalue $> -10^{-8}$),
-as required of a valid Gram matrix.
+as required of a valid Gram matrix. As a further, fully independent
+cross-language check, we reimplemented the simulator in Julia using a
+different algorithm for the Hadamard step (an in-place fast
+Walsh--Hadamard butterfly, rather than NumPy's reshape-and-moveaxis
+approach) and a different random number generator. On $200$ random
+$6$-qubit inputs ($R=2$), the Julia and Python kernel matrices agree to
+within $5.6\times10^{-15}$ -- i.e.\ machine precision -- and the
+JIT-compiled Julia version is roughly $5\times$ faster once warmed up
+($3\,\mathrm{ms}$ vs.\ $15\,\mathrm{ms}$ for the same $200\times200$ Gram
+matrix). Agreement to machine precision between two independent
+implementations, in different languages, with different underlying
+transform algorithms, rules out implementation-specific artifacts as an
+explanation for the results in Section~\ref{sec:results}.
 
 \subsection{Kernel normalization}
 

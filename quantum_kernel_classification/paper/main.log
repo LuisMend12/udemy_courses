@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.28 (MiKTeX 25.12) (preloaded format=pdflatex 2026.4.14)  15 AUG 2026 10:33
+This is pdfTeX, Version 3.141592653-2.6-1.40.28 (MiKTeX 25.12) (preloaded format=pdflatex 2026.4.14)  30 AUG 2026 15:34
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -590,23 +590,22 @@ File: ts1ptm.fd 2001/06/04 font definitions for TS1/ptm.
 File: ../figures/learning_curve_synthetic.png Graphic file (type png)
 <use ../figures/learning_curve_synthetic.png>
 Package pdftex.def Info: ../figures/learning_curve_synthetic.png  used on input
- line 386.
+ line 398.
 (pdftex.def)             Requested size: 190.79109pt x 152.63382pt.
 <../figures/learning_curve_miniboone.png, id=162, 361.35pt x 289.08pt>
 File: ../figures/learning_curve_miniboone.png Graphic file (type png)
 <use ../figures/learning_curve_miniboone.png>
 Package pdftex.def Info: ../figures/learning_curve_miniboone.png  used on input
- line 390.
+ line 402.
 (pdftex.def)             Requested size: 190.79109pt x 152.63382pt.
- [5 <../figures/learning_curve_synthetic.png> <../figures/learning_curve_minibo
-one.png>]
-<../figures/decision_boundary.png, id=177, 1156.32pt x 289.08pt>
+<../figures/decision_boundary.png, id=166, 1156.32pt x 289.08pt>
 File: ../figures/decision_boundary.png Graphic file (type png)
 <use ../figures/decision_boundary.png>
 Package pdftex.def Info: ../figures/decision_boundary.png  used on input line 4
-17.
+29.
 (pdftex.def)             Requested size: 397.48499pt x 99.371pt.
- [6 <../figures/decision_boundary.png>] (main.bbl [7])
+ [5] [6 <../figures/learning_curve_synthetic.png> <../figures/learning_curve_mi
+niboone.png> <../figures/decision_boundary.png>] (main.bbl [7])
 [8] (main.aux)
  ***********
 LaTeX2e <2025-11-01>
@@ -622,7 +621,7 @@ Here is how much of TeX's memory you used:
  43369 multiletter control sequences out of 15000+600000
  665153 words of font info for 224 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 75i,12n,79p,1003b,585s stack positions out of 10000i,1000n,20000p,200000b,200000s
+ 75i,12n,79p,1003b,577s stack positions out of 10000i,1000n,20000p,200000b,200000s
  <C:\Users\Luis Mendez\AppData\Local\MiKTeX\fonts/pk/ljfour/jknappen/ec/dpi60
 0\ectt1000.pk><C:/Program Files/MiKTeX/fonts/type1/public/amsfonts/cm/cmbx9.pfb
 ><C:/Program Files/MiKTeX/fonts/type1/public/amsfonts/cm/cmex10.pfb><C:/Program
@@ -637,9 +636,9 @@ m Files/MiKTeX/fonts/type1/public/amsfonts/cm/cmr9.pfb><C:/Program Files/MiKTeX
 nts/symbols/msbm10.pfb><C:/Program Files/MiKTeX/fonts/type1/urw/times/utmb8a.pf
 b><C:/Program Files/MiKTeX/fonts/type1/urw/times/utmr8a.pfb><C:/Program Files/M
 iKTeX/fonts/type1/urw/times/utmri8a.pfb>
-Output written on main.pdf (8 pages, 578428 bytes).
+Output written on main.pdf (8 pages, 579848 bytes).
 PDF statistics:
- 298 PDF objects out of 1000 (max. 8388607)
+ 299 PDF objects out of 1000 (max. 8388607)
  38 named destinations out of 1000 (max. 500000)
  36464 words of extra memory for PDF output out of 42996 (max. 10000000)
 

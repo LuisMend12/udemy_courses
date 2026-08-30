@@ -1,11 +1,9 @@
-"""
-Sanity checks for QuantumKernel.jl, mirroring test_quantum_kernel.py:
-  1. Brute-force cross-check: rebuild the ZZ feature-map circuit with explicit
-     dense matrices (kron'd Hadamards + explicitly-looped diagonal phase) for
-     small n, and compare against the vectorized/FWHT simulator bit-for-bit.
-  2. Physical sanity: statevectors have unit norm (circuit is unitary).
-  3. Kernel sanity: K is symmetric, diagonal ~1, and PSD (up to float noise).
-"""
+# Sanity checks for QuantumKernel.jl, mirroring test_quantum_kernel.py:
+#   1. Brute-force cross-check: rebuild the ZZ feature-map circuit with explicit
+#      dense matrices (kron'd Hadamards + explicitly-looped diagonal phase) for
+#      small n, and compare against the vectorized/FWHT simulator bit-for-bit.
+#   2. Physical sanity: statevectors have unit norm (circuit is unitary).
+#   3. Kernel sanity: K is symmetric, diagonal ~1, and PSD (up to float noise).
 include("QuantumKernel.jl")
 using .QuantumKernel
 using LinearAlgebra

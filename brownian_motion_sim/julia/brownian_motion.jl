@@ -1,21 +1,19 @@
 #!/usr/bin/env julia
-"""
-Brownian motion (Wiener process) simulator.
-
-Simulates N independent particles undergoing d-dimensional Brownian
-motion via the discretized SDE:  x(t+dt) = x(t) + sqrt(2*D*dt) * N(0,1)
-
-Run:   julia brownian_motion.jl --particles 200 --steps 1000 --dt 0.01 --D 1.0 --dim 2 --out trajectories.csv
-
-Port of brownian_motion.cpp. The RNG stream will not match the C++ binary
-bit-for-bit -- Julia's default RNG (Xoshiro256++) and normal-variate
-algorithm differ from libstdc++'s mt19937_64 + std::normal_distribution --
-but both draw from the same N(0,1) distribution, so the simulated process
-and its statistics (e.g. the recovered diffusion coefficient) match.
-
-Particle indices in the output CSV are 0-indexed to match the original
-tool's format, even though Julia arrays are 1-indexed internally.
-"""
+# Brownian motion (Wiener process) simulator.
+#
+# Simulates N independent particles undergoing d-dimensional Brownian
+# motion via the discretized SDE:  x(t+dt) = x(t) + sqrt(2*D*dt) * N(0,1)
+#
+# Run:   julia brownian_motion.jl --particles 200 --steps 1000 --dt 0.01 --D 1.0 --dim 2 --out trajectories.csv
+#
+# Port of brownian_motion.cpp. The RNG stream will not match the C++ binary
+# bit-for-bit -- Julia's default RNG (Xoshiro256++) and normal-variate
+# algorithm differ from libstdc++'s mt19937_64 + std::normal_distribution --
+# but both draw from the same N(0,1) distribution, so the simulated process
+# and its statistics (e.g. the recovered diffusion coefficient) match.
+#
+# Particle indices in the output CSV are 0-indexed to match the original
+# tool's format, even though Julia arrays are 1-indexed internally.
 
 using Random
 using Printf
