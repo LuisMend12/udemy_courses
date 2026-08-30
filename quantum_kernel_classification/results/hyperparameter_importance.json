@@ -1,0 +1,32 @@
+[
+  {
+    "domain": "synthetic",
+    "importances": {
+      "reps": 0.9651537902301098,
+      "n_qubits": 0.0340166314505294,
+      "C": 0.0008295783193606695
+    },
+    "best_params": {
+      "n_qubits": 4,
+      "reps": 2,
+      "C": 31.22653276636094
+    },
+    "best_cv_acc": 1.0,
+    "n_trials": 80
+  },
+  {
+    "domain": "miniboone",
+    "importances": {
+      "n_qubits": 0.5386440546557681,
+      "reps": 0.30420725876068594,
+      "C": 0.15714868658354594
+    },
+    "best_params": {
+      "n_qubits": 6,
+      "reps": 1,
+      "C": 0.9268161591424282
+    },
+    "best_cv_acc": 0.7428571428571429,
+    "n_trials": 80
+  }
+]
