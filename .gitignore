@@ -1,5 +1,8 @@
 hyperparameter_optimization_for_ml/hyperparameter-optimization
 
+# Video files - too large for GitHub, likely copyrighted course content
+*.mp4
+
 # Large Kaggle datasets - re-downloadable, kept out of git history
 hyperparameter_optimization_for_ml/santander-customer-satisfaction/
 
