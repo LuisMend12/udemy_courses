@@ -21,3 +21,20 @@ The notebook covers: data loading/cleaning, vocab building, the Transformer impl
 training loop, greedy-decoding inference, and BLEU evaluation - plus notes on extending it
 (subword tokenization, beam search, or swapping in a pretrained model like
 `Helsinki-NLP/opus-mt-en-es` for higher translation quality).
+
+## Results (already baked into the notebook)
+
+12 epochs on ~29k sentence pairs (CPU, ~87 min): train loss 5.85 -> 3.96, val loss 5.16 -> 4.39
+(still slowly improving at epoch 12 - more epochs/data would help further). Corpus BLEU on 300
+held-out pairs: **7.57**. Sample translations:
+
+| English | Model output |
+|---|---|
+| hello, how are you? | ¿ cómo estáis ? |
+| i love you | te amo |
+| the house is very big | es la casa de la casa . |
+| where is the book? | ¿ dónde está el libro ? |
+| good morning | mañana |
+
+Short, common phrases translate reasonably; longer/compositional sentences ("the house is very
+big") still go off the rails - expected for a small word-level model trained this briefly.
