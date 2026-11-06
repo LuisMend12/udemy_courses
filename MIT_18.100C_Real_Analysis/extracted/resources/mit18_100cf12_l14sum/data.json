@@ -1,0 +1,21 @@
+{
+  "content": "<p>This resource contains information regarding derivatives, the chain rule; Rolle&rsquo;s theorem, mean value theorem.</p>\n",
+  "content_type": "resource",
+  "description": "This resource contains information regarding derivatives, the chain rule; Rolle's theorem, mean value theorem.",
+  "draft": false,
+  "file": "/courses/18-100c-real-analysis-fall-2012/440d3e81278f2e0cc71fc138c358f681_MIT18_100CF12_l14sum.pdf",
+  "file_size": 145826,
+  "file_type": "application/pdf",
+  "iscjklanguage": false,
+  "learning_resource_types": [
+    "Lecture Notes"
+  ],
+  "license": "https://creativecommons.org/licenses/by-nc-sa/4.0/",
+  "ocw_type": "OCWFile",
+  "parent_title": "Lecture Summaries",
+  "parent_type": "CourseSection",
+  "parent_uid": "0de56ab8-61e6-fd83-c0af-79b956f08d7c",
+  "resourcetype": "Document",
+  "title": "18.100C Real Analysis: Lecture 14 Summary",
+  "uid": "440d3e81-278f-2e0c-c71f-c138c358f681"
+}

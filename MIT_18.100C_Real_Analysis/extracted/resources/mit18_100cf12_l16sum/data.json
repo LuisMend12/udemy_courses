@@ -1,0 +1,21 @@
+{
+  "content": "<p>This resource contains information regarding pointwise convergence, uniform convergence; Weierstrass criterion; continuity of uniform limits; application to power series.</p>\n",
+  "content_type": "resource",
+  "description": "This resource contains information regarding pointwise convergence, uniform convergence; Weierstrass criterion; continuity of uniform limits; application to power series. ",
+  "draft": false,
+  "file": "/courses/18-100c-real-analysis-fall-2012/3035d17c22143c5e6d89b91ee0b7d724_MIT18_100CF12_l16sum.pdf",
+  "file_size": 608852,
+  "file_type": "application/pdf",
+  "iscjklanguage": false,
+  "learning_resource_types": [
+    "Lecture Notes"
+  ],
+  "license": "https://creativecommons.org/licenses/by-nc-sa/4.0/",
+  "ocw_type": "OCWFile",
+  "parent_title": "Lecture Summaries",
+  "parent_type": "CourseSection",
+  "parent_uid": "0de56ab8-61e6-fd83-c0af-79b956f08d7c",
+  "resourcetype": "Document",
+  "title": "18.100C Real Analysis: Lecture 16 Summary",
+  "uid": "3035d17c-2214-3c5e-6d89-b91ee0b7d724"
+}

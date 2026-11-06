@@ -1,0 +1,47 @@
+{
+  "content": "<p>This resource contains information regarding problem set 10.</p>\n",
+  "content_type": "resource",
+  "description": "This resource contains information regarding problem set 10.",
+  "draft": false,
+  "file": "/courses/18-100c-real-analysis-fall-2012/79c16df356a5e5a2070b85e0a2a04ffa_MIT18_100CF12_ps10.pdf",
+  "file_size": 589626,
+  "file_type": "application/pdf",
+  "image_metadata": {
+    "caption": "",
+    "credit": "",
+    "image-alt": ""
+  },
+  "iscjklanguage": false,
+  "learning_resource_types": [
+    "Problem Sets"
+  ],
+  "license": "https://creativecommons.org/licenses/by-nc-sa/4.0/",
+  "ocw_type": "OCWFile",
+  "parent_title": "Assignments",
+  "parent_type": "CourseSection",
+  "parent_uid": "578e6eca-8f91-8e69-9b07-a940ddf8c79e",
+  "resourcetype": "Document",
+  "title": "18.100C Real Analysis: Problem Set 10",
+  "uid": "79c16df3-56a5-e5a2-070b-85e0a2a04ffa",
+  "video_files": {
+    "archive_url": "",
+    "video_captions_file": "",
+    "video_captions_resource": {
+      "content": "",
+      "website": "18-100c-real-analysis-fall-2012"
+    },
+    "video_thumbnail_file": "",
+    "video_transcript_file": "",
+    "video_transcript_resource": {
+      "content": "",
+      "website": "18-100c-real-analysis-fall-2012"
+    }
+  },
+  "video_metadata": {
+    "source": "",
+    "video_speakers": "",
+    "video_tags": "",
+    "youtube_description": "",
+    "youtube_id": ""
+  }
+}

@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Exams on MIT OpenCourseWare</title>
+    <link>/resources/exams/</link>
+    <description>Recent content in Exams on MIT OpenCourseWare</description>
+    <generator>Hugo</generator>
+    <language>en-us</language>
+    <atom:link href="/resources/exams/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>18.100C Real Analysis: Practice Final Exam</title>
+      <link>/resources/mit18_100cf12_finlpractice/data.json</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <guid>/resources/mit18_100cf12_finlpractice/data.json</guid>
+      <description>&lt;p&gt;This resource contains information regarding practice final exam.&lt;/p&gt;</description>
+    </item>
+    <item>
+      <title>18.100C Real Analysis: Practice Midterm 1 </title>
+      <link>/resources/mit18_100cf12_mid1practice/data.json</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <guid>/resources/mit18_100cf12_mid1practice/data.json</guid>
+      <description>&lt;p&gt;This resource contains information regarding practice midterm 1.&lt;/p&gt;</description>
+    </item>
+    <item>
+      <title>18.100C Real Analysis: Practice Midterm 2</title>
+      <link>/resources/mit18_100cf12_mid2practice/data.json</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <guid>/resources/mit18_100cf12_mid2practice/data.json</guid>
+      <description>&lt;p&gt;This resource contains information regarding practice midterm 2.&lt;/p&gt;</description>
+    </item>
+    <item>
+      <title>Exams</title>
+      <link>/pages/exams/data.json</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <guid>/pages/exams/data.json</guid>
+      <description>&lt;p&gt;Practice exams with solutions are provided below. Actual exams are not available to OCW users.&lt;/p&gt;&#xA;&lt;p&gt;&lt;table&gt;&#xA;&#xA;&lt;thead&gt;&#xA;&#xA;&lt;tr&gt;&#xA;&#xA;&lt;th&gt;&#xA;&#xA;EXAMS&#xA;&lt;/th&gt;&#xA;&#xA;&lt;th&gt;&#xA;&#xA;SOLUTIONS&#xA;&lt;/th&gt;&#xA;&lt;/p&gt;&#xA;&lt;/tr&gt;&#xA;&#xA;&lt;p&gt;&lt;/thead&gt;&#xA;&#xA;&lt;tr&gt;&#xA;&#xA;&lt;td&gt;&#xA;&#xA;&lt;a href=&#34;../../resources/mit18_100cf12_mid1practice/index.html&#34;&gt;Practice midterm 1 (PDF)&lt;/a&gt;&#xA;&lt;/td&gt;&#xA;&#xA;&lt;td&gt;&#xA;&#xA;&lt;a href=&#34;../../resources/mit18_100cf12_solutions/index.html&#34;&gt;Practice midterm 1 solutions (PDF)&lt;/a&gt;&#xA;&lt;/td&gt;&#xA;&lt;/p&gt;&#xA;&lt;p&gt;&lt;/tr&gt;&#xA;&#xA;&lt;tr&gt;&#xA;&#xA;&lt;td&gt;&#xA;&#xA;&lt;a href=&#34;../../resources/mit18_100cf12_mid2practice/index.html&#34;&gt;Practice midterm 2 (PDF)&lt;/a&gt;&#xA;&lt;/td&gt;&#xA;&#xA;&lt;td&gt;&#xA;&#xA;&lt;a href=&#34;../../resources/mit18_100cf12_midterm_2/index.html&#34;&gt;Practice midterm 2 solutions (PDF)&lt;/a&gt;&#xA;&lt;/td&gt;&#xA;&lt;/p&gt;&#xA;&lt;p&gt;&lt;/tr&gt;&#xA;&#xA;&lt;tr&gt;&#xA;&#xA;&lt;td&gt;&#xA;&#xA;&lt;a href=&#34;../../resources/mit18_100cf12_finlpractice/index.html&#34;&gt;Practice final exam (PDF)&lt;/a&gt;&#xA;&lt;/td&gt;&#xA;&#xA;&lt;td&gt;&#xA;&#xA;&lt;a href=&#34;../../resources/mit18_100cf12_final/index.html&#34;&gt;Practice final exam solutions (PDF)&lt;/a&gt;&#xA;&lt;/td&gt;&#xA;&lt;/p&gt;&#xA;&lt;/tr&gt;&#xA;&#xA;&lt;/table&gt;</description>
+    </item>
+  </channel>
+</rss>

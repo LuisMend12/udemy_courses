@@ -1,0 +1,16 @@
+
+{
+  "content": "<p>Practice exams with solutions are provided below. Actual exams are not available to OCW users.</p>\n<p><table>\n\n<thead>\n\n<tr>\n\n<th>\n\nEXAMS\n</th>\n\n<th>\n\nSOLUTIONS\n</th>\n</p>\n</tr>\n\n<p></thead>\n\n<tr>\n\n<td>\n\n<a href=\"../../resources/mit18_100cf12_mid1practice/index.html\">Practice midterm 1 (PDF)</a>\n</td>\n\n<td>\n\n<a href=\"../../resources/mit18_100cf12_solutions/index.html\">Practice midterm 1 solutions (PDF)</a>\n</td>\n</p>\n<p></tr>\n\n<tr>\n\n<td>\n\n<a href=\"../../resources/mit18_100cf12_mid2practice/index.html\">Practice midterm 2 (PDF)</a>\n</td>\n\n<td>\n\n<a href=\"../../resources/mit18_100cf12_midterm_2/index.html\">Practice midterm 2 solutions (PDF)</a>\n</td>\n</p>\n<p></tr>\n\n<tr>\n\n<td>\n\n<a href=\"../../resources/mit18_100cf12_finlpractice/index.html\">Practice final exam (PDF)</a>\n</td>\n\n<td>\n\n<a href=\"../../resources/mit18_100cf12_final/index.html\">Practice final exam solutions (PDF)</a>\n</td>\n</p>\n</tr>\n\n</table>\n\n",
+  "content_type": "page",
+  "description": "This section includes practice midterms, and a practice final exam for this course, with solutions.",
+  "draft": false,
+  "iscjklanguage": false,
+  "learning_resource_types": [
+    "Exams"
+  ],
+  "license": "https://creativecommons.org/licenses/by-nc-sa/4.0/",
+  "ocw_type": "CourseSection",
+  "title": "Exams",
+  "uid": "63b82bc0-03dd-b46d-e423-ffec8109e927"
+}
+

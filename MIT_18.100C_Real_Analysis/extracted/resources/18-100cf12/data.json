@@ -1,0 +1,21 @@
+{
+  "content": "<p>A Caucy sequence is a sequence whose elements become arbitrarily close to each other as the sequence progresses. This image is in the public domain. Source: Wikimedia Commons.</p>\n",
+  "content_type": "resource",
+  "description": "A Caucy sequence is a sequence whose elements become arbitrarily close to each other as the sequence progresses. This image is in the public domain. Source: Wikimedia Commons.",
+  "draft": false,
+  "file": "/courses/18-100c-real-analysis-fall-2012/3b934aa7b6d8e92c843375ee21b68644_18-100cf12.jpg",
+  "file_size": 20563,
+  "file_type": "image/jpeg",
+  "image_metadata": {
+    "caption": "A Cauchy sequence is a sequence whose elements become arbitrarily close to each other as the sequence progresses. (This image is in the public domain. Source: {{% resource_link \"b21c0e41-a238-4779-8081-bc594ecf723f\" \"Wikimedia Commons\" %}}.)",
+    "credit": "This image is in the public domain. Source: Wikimedia Commons.",
+    "image-alt": "An illustration of a Cauchy sequence."
+  },
+  "iscjklanguage": false,
+  "learning_resource_types": [],
+  "license": "https://creativecommons.org/licenses/by-nc-sa/4.0/",
+  "ocw_type": "OCWImage",
+  "resourcetype": "Image",
+  "title": "18-100cf12.jpg",
+  "uid": "3b934aa7-b6d8-e92c-8433-75ee21b68644"
+}

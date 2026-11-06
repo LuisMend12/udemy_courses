@@ -1,0 +1,21 @@
+{
+  "content": "<p>This resource contains information regarding fundamental theorem of calculus; back to power series: continuity, differentiability.</p>\n",
+  "content_type": "resource",
+  "description": "This resource contains information regarding fundamental theorem of calculus; back to power series: continuity, differentiability.",
+  "draft": false,
+  "file": "/courses/18-100c-real-analysis-fall-2012/43934ea0b128a63953a7eca597912dbb_MIT18_100CF12_l22sum.pdf",
+  "file_size": 610681,
+  "file_type": "application/pdf",
+  "iscjklanguage": false,
+  "learning_resource_types": [
+    "Lecture Notes"
+  ],
+  "license": "https://creativecommons.org/licenses/by-nc-sa/4.0/",
+  "ocw_type": "OCWFile",
+  "parent_title": "Lecture Summaries",
+  "parent_type": "CourseSection",
+  "parent_uid": "0de56ab8-61e6-fd83-c0af-79b956f08d7c",
+  "resourcetype": "Document",
+  "title": "18.100C Real Analysis: Lecture 22 Summary",
+  "uid": "43934ea0-b128-a639-53a7-eca597912dbb"
+}

@@ -1,0 +1,77 @@
+{
+  "course_description": "This course covers the fundamentals of mathematical analysis: convergence of sequences and series, continuity, differentiability, Riemann integral, sequences and series of functions, uniformity, and the interchange of limit operations. It shows the utility of abstract concepts and teaches an understanding and construction of proofs. MIT students may choose to take one of three versions of Real Analysis; this version offers three additional units of credit for instruction and practice in written and oral presentation.\n\nThe three options for 18.100:\n\n*   Option A (18.100A) chooses less abstract definitions and proofs, and gives applications where possible.\n*   Option B (18.100B) is more demanding and for students with more mathematical maturity; it places more emphasis from the beginning on point-set topology and n-space, whereas Option A is concerned primarily with analysis on the real line, saving for the last weeks work in 2-space (the plane) and its point-set topology.\n*   Option C (18.100C) is a 15-unit variant of Option B, with further instruction and practice in written and oral communication. This fulfills the MIT CI requirement.\n",
+  "course_description_html": "<p>This course covers the fundamentals of mathematical analysis: convergence of sequences and series, continuity, differentiability, Riemann integral, sequences and series of functions, uniformity, and the interchange of limit operations. It shows the utility of abstract concepts and teaches an understanding and construction of proofs. MIT students may choose to take one of three versions of Real Analysis; this version offers three additional units of credit for instruction and practice in written and oral presentation.</p>\n<p>The three options for 18.100:</p>\n<ul>\n<li>Option A (18.100A) chooses less abstract definitions and proofs, and gives applications where possible.</li>\n<li>Option B (18.100B) is more demanding and for students with more mathematical maturity; it places more emphasis from the beginning on point-set topology and n-space, whereas Option A is concerned primarily with analysis on the real line, saving for the last weeks work in 2-space (the plane) and its point-set topology.</li>\n<li>Option C (18.100C) is a 15-unit variant of Option B, with further instruction and practice in written and oral communication. This fulfills the MIT CI requirement.</li>\n</ul>\n",
+  "course_image": {
+    "content": "3b934aa7-b6d8-e92c-8433-75ee21b68644",
+    "website": "18-100c-real-analysis-fall-2012"
+  },
+  "course_image_metadata": {
+    "content_type": "resource",
+    "description": "A Caucy sequence is a sequence whose elements become arbitrarily close to each other as the sequence progresses. This image is in the public domain. Source: Wikimedia Commons.",
+    "draft": false,
+    "file": "/courses/18-100c-real-analysis-fall-2012/3b934aa7b6d8e92c843375ee21b68644_18-100cf12.jpg",
+    "file_size": 20563,
+    "file_type": "image/jpeg",
+    "image_metadata": {
+      "caption": "A Cauchy sequence is a sequence whose elements become arbitrarily close to each other as the sequence progresses. (This image is in the public domain. Source: {{% resource_link \"b21c0e41-a238-4779-8081-bc594ecf723f\" \"Wikimedia Commons\" %}}.)",
+      "credit": "This image is in the public domain. Source: Wikimedia Commons.",
+      "image-alt": "An illustration of a Cauchy sequence."
+    },
+    "iscjklanguage": false,
+    "learning_resource_types": [],
+    "license": "https://creativecommons.org/licenses/by-nc-sa/4.0/",
+    "ocw_type": "OCWImage",
+    "resourcetype": "Image",
+    "title": "18-100cf12.jpg",
+    "uid": "3b934aa7-b6d8-e92c-8433-75ee21b68644"
+  },
+  "course_image_thumbnail": {
+    "content": "bdbfeb4c-fe36-a909-ad00-c967cd432940",
+    "website": "18-100c-real-analysis-fall-2012"
+  },
+  "course_title": "Real Analysis",
+  "department_numbers": [
+    "18"
+  ],
+  "extra_course_numbers": "",
+  "image_src": "./static_resources/3b934aa7b6d8e92c843375ee21b68644_18-100cf12.jpg",
+  "instructors": [
+    {
+      "first_name": "Paul",
+      "last_name": "Seidel",
+      "middle_initial": "",
+      "salutation": "Prof.",
+      "title": "Prof. Paul Seidel",
+      "uid": "bc685657-74ac-1dda-c088-c754a415c138",
+      "url": "https://ocw.mit.edu/search/?q=Prof.+Paul+Seidel"
+    }
+  ],
+  "learning_resource_types": [],
+  "legacy_uid": "35dc076a-ccd1-da75-d7a1-efb5780a70e1",
+  "level": [
+    "Undergraduate"
+  ],
+  "mit_learn_topics": [
+    [
+      "Science & Math",
+      "Mathematics"
+    ]
+  ],
+  "primary_course_number": "18.100C",
+  "site_short_id": "18.100c-fall-2012",
+  "site_uid": "1b4e42dc-42da-4eff-b211-06fe4000a591",
+  "site_url_path": "courses/18-100c-real-analysis-fall-2012",
+  "term": "Fall",
+  "title": "Course Metadata",
+  "topics": [
+    [
+      "Mathematics",
+      "Calculus"
+    ],
+    [
+      "Mathematics",
+      "Mathematical Analysis"
+    ]
+  ],
+  "year": "2012"
+}

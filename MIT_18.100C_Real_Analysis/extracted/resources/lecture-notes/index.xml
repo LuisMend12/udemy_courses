@@ -1,0 +1,193 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Lecture Notes on MIT OpenCourseWare</title>
+    <link>/resources/lecture-notes/</link>
+    <description>Recent content in Lecture Notes on MIT OpenCourseWare</description>
+    <generator>Hugo</generator>
+    <language>en-us</language>
+    <atom:link href="/resources/lecture-notes/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>18.100C Real Analysis: Lecture 10 Summary</title>
+      <link>/resources/mit18_100cf12_l10sum/data.json</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <guid>/resources/mit18_100cf12_l10sum/data.json</guid>
+      <description>&lt;p&gt;This resource contains information regarding absolute convergence, product of series.&lt;/p&gt;</description>
+    </item>
+    <item>
+      <title>18.100C Real Analysis: Lecture 11 Summary</title>
+      <link>/resources/mit18_100cf12_l11sum/data.json</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <guid>/resources/mit18_100cf12_l11sum/data.json</guid>
+      <description>&lt;p&gt;This resource contains information regarding power series, convergence radius; the exponential function, sine and cosine.&lt;/p&gt;</description>
+    </item>
+    <item>
+      <title>18.100C Real Analysis: Lecture 12 Summary</title>
+      <link>/resources/mit18_100cf12_l12sum/data.json</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <guid>/resources/mit18_100cf12_l12sum/data.json</guid>
+      <description>&lt;p&gt;This resource contains information regarding continuous maps between metric spaces; images of compact subsets; continuity of inverse maps.&lt;/p&gt;</description>
+    </item>
+    <item>
+      <title>18.100C Real Analysis: Lecture 13 Summary</title>
+      <link>/resources/mit18_100cf12_l13sum/data.json</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <guid>/resources/mit18_100cf12_l13sum/data.json</guid>
+      <description>&lt;p&gt;This resource contains information regarding continuity of the exponential; the logarithm; intermediate value theorem; uniform continuity.&lt;/p&gt;</description>
+    </item>
+    <item>
+      <title>18.100C Real Analysis: Lecture 14 Summary</title>
+      <link>/resources/mit18_100cf12_l14sum/data.json</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <guid>/resources/mit18_100cf12_l14sum/data.json</guid>
+      <description>&lt;p&gt;This resource contains information regarding derivatives, the chain rule; Rolle&amp;rsquo;s theorem, mean value theorem.&lt;/p&gt;</description>
+    </item>
+    <item>
+      <title>18.100C Real Analysis: Lecture 15 Summary</title>
+      <link>/resources/mit18_100cf12_l15sum/data.json</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <guid>/resources/mit18_100cf12_l15sum/data.json</guid>
+      <description>&lt;p&gt;This resource contains information regarding derivative of inverse functions; higher derivatives, taylor&amp;rsquo;s theorem.&lt;/p&gt;</description>
+    </item>
+    <item>
+      <title>18.100C Real Analysis: Lecture 16 Summary</title>
+      <link>/resources/mit18_100cf12_l16sum/data.json</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <guid>/resources/mit18_100cf12_l16sum/data.json</guid>
+      <description>&lt;p&gt;This resource contains information regarding pointwise convergence, uniform convergence; Weierstrass criterion; continuity of uniform limits; application to power series.&lt;/p&gt;</description>
+    </item>
+    <item>
+      <title>18.100C Real Analysis: Lecture 17 Summary</title>
+      <link>/resources/mit18_100cf12_l17sum/data.json</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <guid>/resources/mit18_100cf12_l17sum/data.json</guid>
+      <description>&lt;p&gt;This resource contains information regarding uniform convergence of derivatives.&lt;/p&gt;</description>
+    </item>
+    <item>
+      <title>18.100C Real Analysis: Lecture 18 Summary</title>
+      <link>/resources/mit18_100cf12_l18sum/data.json</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <guid>/resources/mit18_100cf12_l18sum/data.json</guid>
+      <description>&lt;p&gt;This resource contains information regarding spaces of functions as metric spaces; beginning of the proof of the stone-weierstrass theorem.&lt;/p&gt;</description>
+    </item>
+    <item>
+      <title>18.100C Real Analysis: Lecture 19 Summary</title>
+      <link>/resources/mit18_100cf12_l19sum/data.json</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <guid>/resources/mit18_100cf12_l19sum/data.json</guid>
+      <description>&lt;p&gt;This resource contains information regarding end of Stone-Weierstrass; beginning of the theory of integration.&lt;/p&gt;</description>
+    </item>
+    <item>
+      <title>18.100C Real Analysis: Lecture 2 Summary</title>
+      <link>/resources/mit18_100cf12_l2sum/data.json</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <guid>/resources/mit18_100cf12_l2sum/data.json</guid>
+      <description>&lt;p&gt;This resource contains information regarding fields, ordered fields, least upper bounds, the real numbers.&lt;/p&gt;</description>
+    </item>
+    <item>
+      <title>18.100C Real Analysis: Lecture 20 Summary</title>
+      <link>/resources/mit18_100cf12_l20sum/data.json</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <guid>/resources/mit18_100cf12_l20sum/data.json</guid>
+      <description>&lt;p&gt;This resource contains information regarding riemann-stjeltjes integral: definition, basic properties.&lt;/p&gt;</description>
+    </item>
+    <item>
+      <title>18.100C Real Analysis: Lecture 21 Summary</title>
+      <link>/resources/mit18_100cf12_l21sum/data.json</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <guid>/resources/mit18_100cf12_l21sum/data.json</guid>
+      <description>&lt;p&gt;This resource contains information regarding riemann integrability of products; change of variables.&lt;/p&gt;</description>
+    </item>
+    <item>
+      <title>18.100C Real Analysis: Lecture 22 Summary</title>
+      <link>/resources/mit18_100cf12_l22sum/data.json</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <guid>/resources/mit18_100cf12_l22sum/data.json</guid>
+      <description>&lt;p&gt;This resource contains information regarding fundamental theorem of calculus; back to power series: continuity, differentiability.&lt;/p&gt;</description>
+    </item>
+    <item>
+      <title>18.100C Real Analysis: Lecture 23 Summary</title>
+      <link>/resources/mit18_100cf12_l23sum/data.json</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <guid>/resources/mit18_100cf12_l23sum/data.json</guid>
+      <description>&lt;p&gt;This resource contains information regarding review of exponential, log, sine, cosine; eit= cos(t) + isin(t).&lt;/p&gt;</description>
+    </item>
+    <item>
+      <title>18.100C Real Analysis: Lecture 24 Correction</title>
+      <link>/resources/mit18_100cf12_l24four-cor/data.json</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <guid>/resources/mit18_100cf12_l24four-cor/data.json</guid>
+      <description>&lt;p&gt;This resource contains information regarding correction.&lt;/p&gt;</description>
+    </item>
+    <item>
+      <title>18.100C Real Analysis: Lecture 24 Summary</title>
+      <link>/resources/mit18_100cf12_l24sum/data.json</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <guid>/resources/mit18_100cf12_l24sum/data.json</guid>
+      <description>&lt;p&gt;This resource contains information regarding review of series, fourier series.&lt;/p&gt;</description>
+    </item>
+    <item>
+      <title>18.100C Real Analysis: Lecture 3 Summary</title>
+      <link>/resources/mit18_100cf12_l3sum/data.json</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <guid>/resources/mit18_100cf12_l3sum/data.json</guid>
+      <description>&lt;p&gt;This resource contains information regarding the archimedean principle; decimal expansion; intersections of closed intervals; complex numbers, cauchy-schwarz .&lt;/p&gt;</description>
+    </item>
+    <item>
+      <title>18.100C Real Analysis: Lecture 4 Summary</title>
+      <link>/resources/mit18_100cf12_l4sum/data.json</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <guid>/resources/mit18_100cf12_l4sum/data.json</guid>
+      <description>&lt;p&gt;This resource contains information regarding metric spaces, ball neighborhoods, open subsets.&lt;/p&gt;</description>
+    </item>
+    <item>
+      <title>18.100C Real Analysis: Lecture 5 Summary</title>
+      <link>/resources/mit18_100cf12_l5sum/data.json</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <guid>/resources/mit18_100cf12_l5sum/data.json</guid>
+      <description>&lt;p&gt;This resource contains information regarding open subsets, limit points, closed subsets, dense subsets.&lt;/p&gt;</description>
+    </item>
+    <item>
+      <title>18.100C Real Analysis: Lecture 6 Summary</title>
+      <link>/resources/mit18_100cf12_l6sum/data.json</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <guid>/resources/mit18_100cf12_l6sum/data.json</guid>
+      <description>&lt;p&gt;This resource contains information regarding compact subsets of metric spaces.&lt;/p&gt;</description>
+    </item>
+    <item>
+      <title>18.100C Real Analysis: Lecture 7 Summary</title>
+      <link>/resources/mit18_100cf12_l7sum/data.json</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <guid>/resources/mit18_100cf12_l7sum/data.json</guid>
+      <description>&lt;p&gt;This resource contains information regarding limit points and compactness; compactness of closed bounded subsets in euclidean space.&lt;/p&gt;</description>
+    </item>
+    <item>
+      <title>18.100C Real Analysis: Lecture 8 Summary</title>
+      <link>/resources/mit18_100cf12_l8sum/data.json</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <guid>/resources/mit18_100cf12_l8sum/data.json</guid>
+      <description>&lt;p&gt;This resource contains information regarding convergent sequences in metric spaces; cauchy sequences, completeness; cauchy&amp;rsquo;s theorem.&lt;/p&gt;</description>
+    </item>
+    <item>
+      <title>18.100C Real Analysis: Lecture 9 Summary</title>
+      <link>/resources/mit18_100cf12_l9sum/data.json</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <guid>/resources/mit18_100cf12_l9sum/data.json</guid>
+      <description>&lt;p&gt;This resource contains information regarding subsequential limits, lim sup and lim inf, series.&lt;/p&gt;</description>
+    </item>
+    <item>
+      <title>Lecture 1 Summary</title>
+      <link>/resources/mit18_100cf12_l1sum/data.json</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <guid>/resources/mit18_100cf12_l1sum/data.json</guid>
+      <description>&lt;p&gt;Lecture summary on sets, ordered sets, ordering pairs of numbers, and the largest element (maximum) and smallest element (minimum) of a subset of an ordered set.&lt;/p&gt;</description>
+    </item>
+    <item>
+      <title>Lecture Summaries</title>
+      <link>/pages/lecture-summaries/data.json</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <guid>/pages/lecture-summaries/data.json</guid>
+      <description>&lt;p&gt;The following table contains summaries for each lecture topic listed.&lt;/p&gt;&#xA;&lt;p&gt;&lt;table&gt;&#xA;&lt;thead&gt;&#xA;&lt;tr&gt;&#xA;&lt;th&gt;&#xA;&#xA;LEC #&#xA;&lt;/th&gt;&#xA;&lt;th&gt;&#xA;&#xA;TOPICS&#xA;&lt;/th&gt;&#xA;&lt;/tr&gt;&#xA;&lt;/thead&gt;&#xA;&lt;tbody&gt;&#xA;&lt;tr&gt;&#xA;&lt;td&gt;&#xA;&#xA;1&#xA;&lt;/td&gt;&#xA;&lt;td&gt;&#xA;&#xA;&lt;a href=&#34;../../resources/mit18_100cf12_l1sum/index.html&#34;&gt;Sets, ordered sets, countable sets (PDF)&lt;/a&gt;&#xA;&lt;/td&gt;&#xA;&lt;/tr&gt;&#xA;&lt;tr&gt;&#xA;&lt;td&gt;&#xA;&#xA;2&#xA;&lt;/td&gt;&#xA;&lt;td&gt;&#xA;&#xA;&lt;a href=&#34;../../resources/mit18_100cf12_l2sum/index.html&#34;&gt;Fields, ordered fields, least upper bounds, the real numbers (PDF)&lt;/a&gt;&#xA;&lt;/td&gt;&#xA;&lt;/tr&gt;&#xA;&lt;tr&gt;&#xA;&lt;td&gt;&#xA;&#xA;3&#xA;&lt;/td&gt;&#xA;&lt;td&gt;&#xA;&#xA;&lt;a href=&#34;../../resources/mit18_100cf12_l3sum/index.html&#34;&gt;The Archimedean principle; decimal expansion; intersections of closed intervals; complex numbers, Cauchy-Schwarz (PDF)&lt;/a&gt;&#xA;&lt;/td&gt;&#xA;&lt;/tr&gt;&#xA;&lt;tr&gt;&#xA;&lt;td&gt;&#xA;&#xA;4&#xA;&lt;/td&gt;&#xA;&lt;td&gt;&#xA;&#xA;&lt;a href=&#34;../../resources/mit18_100cf12_l4sum/index.html&#34;&gt;Metric spaces, ball neighborhoods, open subsets (PDF)&lt;/a&gt;&#xA;&lt;/td&gt;&#xA;&lt;/tr&gt;&#xA;&lt;tr&gt;&#xA;&lt;td&gt;&#xA;&#xA;5&#xA;&lt;/td&gt;&#xA;&lt;td&gt;&#xA;&#xA;&lt;a href=&#34;../../resources/mit18_100cf12_l5sum/index.html&#34;&gt;Open subsets, limit points, closed subsets, dense subsets (PDF)&lt;/a&gt;&#xA;&lt;/td&gt;&#xA;&lt;/tr&gt;&#xA;&lt;tr&gt;&#xA;&lt;td&gt;&#xA;&#xA;6&#xA;&lt;/td&gt;&#xA;&lt;td&gt;&#xA;&#xA;&lt;a href=&#34;../../resources/mit18_100cf12_l6sum/index.html&#34;&gt;Compact subsets of metric spaces (PDF)&lt;/a&gt;&#xA;&lt;/td&gt;&#xA;&lt;/tr&gt;&#xA;&lt;tr&gt;&#xA;&lt;td&gt;&#xA;&#xA;7&#xA;&lt;/td&gt;&#xA;&lt;td&gt;&#xA;&#xA;&lt;a href=&#34;../../resources/mit18_100cf12_l7sum/index.html&#34;&gt;Limit points and compactness; compactness of closed bounded subsets in Euclidean space (PDF)&lt;/a&gt;&#xA;&lt;/td&gt;&#xA;&lt;/tr&gt;&#xA;&lt;tr&gt;&#xA;&lt;td&gt;&#xA;&#xA;8&#xA;&lt;/td&gt;&#xA;&lt;td&gt;&#xA;&#xA;&lt;a href=&#34;../../resources/mit18_100cf12_l8sum/index.html&#34;&gt;Convergent sequences in metric spaces; Cauchy sequences, completeness; Cauchy&amp;rsquo;s theorem (PDF)&lt;/a&gt;&#xA;&lt;/td&gt;&#xA;&lt;/tr&gt;&#xA;&lt;tr&gt;&#xA;&lt;td&gt;&#xA;&#xA;9&#xA;&lt;/td&gt;&#xA;&lt;td&gt;&#xA;&#xA;&lt;a href=&#34;../../resources/mit18_100cf12_l9sum/index.html&#34;&gt;Subsequential limits, lim sup and lim inf, series (PDF)&lt;/a&gt;&#xA;&lt;/td&gt;&#xA;&lt;/tr&gt;&#xA;&lt;tr&gt;&#xA;&lt;td&gt;&#xA;&#xA;10&#xA;&lt;/td&gt;&#xA;&lt;td&gt;&#xA;&#xA;&lt;a href=&#34;../../resources/mit18_100cf12_l10sum/index.html&#34;&gt;Absolute convergence, product of series (PDF)&lt;/a&gt;&#xA;&lt;/td&gt;&#xA;&lt;/tr&gt;&#xA;&lt;tr&gt;&#xA;&lt;td&gt;&#xA;&#xA;11&#xA;&lt;/td&gt;&#xA;&lt;td&gt;&#xA;&#xA;&lt;a href=&#34;../../resources/mit18_100cf12_l11sum/index.html&#34;&gt;Power series, convergence radius; the exponential function, sine and cosine (PDF)&lt;/a&gt;&#xA;&lt;/td&gt;&#xA;&lt;/tr&gt;&#xA;&lt;tr&gt;&#xA;&lt;td&gt;&#xA;&#xA;12&#xA;&lt;/td&gt;&#xA;&lt;td&gt;&#xA;&#xA;&lt;a href=&#34;../../resources/mit18_100cf12_l12sum/index.html&#34;&gt;Continuous maps between metric spaces; images of compact subsets; continuity of inverse maps (PDF)&lt;/a&gt;&#xA;&lt;/td&gt;&#xA;&lt;/tr&gt;&#xA;&lt;tr&gt;&#xA;&lt;td&gt;&#xA;&#xA;13&#xA;&lt;/td&gt;&#xA;&lt;td&gt;&#xA;&#xA;&lt;a href=&#34;../../resources/mit18_100cf12_l13sum/index.html&#34;&gt;Continuity of the exponential; the logarithm; Intermediate Value Theorem; uniform continuity (PDF)&lt;/a&gt;&#xA;&lt;/td&gt;&#xA;&lt;/tr&gt;&#xA;&lt;tr&gt;&#xA;&lt;td&gt;&#xA;&#xA;14&#xA;&lt;/td&gt;&#xA;&lt;td&gt;&#xA;&#xA;&lt;a href=&#34;../../resources/mit18_100cf12_l14sum/index.html&#34;&gt;Derivatives, the chain rule; Rolle&amp;rsquo;s theorem, Mean Value Theorem (PDF)&lt;/a&gt;&#xA;&lt;/td&gt;&#xA;&lt;/tr&gt;&#xA;&lt;tr&gt;&#xA;&lt;td&gt;&#xA;&#xA;15&#xA;&lt;/td&gt;&#xA;&lt;td&gt;&#xA;&#xA;&lt;a href=&#34;../../resources/mit18_100cf12_l15sum/index.html&#34;&gt;Derivative of inverse functions; higher derivatives, Taylor&amp;rsquo;s theorem (PDF)&lt;/a&gt;&#xA;&lt;/td&gt;&#xA;&lt;/tr&gt;&#xA;&lt;tr&gt;&#xA;&lt;td&gt;&#xA;&#xA;16&#xA;&lt;/td&gt;&#xA;&lt;td&gt;&#xA;&#xA;&lt;a href=&#34;../../resources/mit18_100cf12_l16sum/index.html&#34;&gt;Pointwise convergence, uniform convergence; Weierstrass criterion; continuity of uniform limits; application to power series (PDF)&lt;/a&gt;&#xA;&lt;/td&gt;&#xA;&lt;/tr&gt;&#xA;&lt;tr&gt;&#xA;&lt;td&gt;&#xA;&#xA;17&#xA;&lt;/td&gt;&#xA;&lt;td&gt;&#xA;&#xA;&lt;a href=&#34;../../resources/mit18_100cf12_l17sum/index.html&#34;&gt;Uniform convergence of derivatives (PDF)&lt;/a&gt;&#xA;&lt;/td&gt;&#xA;&lt;/tr&gt;&#xA;&lt;tr&gt;&#xA;&lt;td&gt;&#xA;&#xA;18&#xA;&lt;/td&gt;&#xA;&lt;td&gt;&#xA;&#xA;&lt;a href=&#34;../../resources/mit18_100cf12_l18sum/index.html&#34;&gt;Spaces of functions as metric spaces; beginning of the proof of the Stone-Weierstrass Theorem (PDF)&lt;/a&gt;&#xA;&lt;/td&gt;&#xA;&lt;/tr&gt;&#xA;&lt;tr&gt;&#xA;&lt;td&gt;&#xA;&#xA;19&#xA;&lt;/td&gt;&#xA;&lt;td&gt;&#xA;&#xA;&lt;a href=&#34;../../resources/mit18_100cf12_l19sum/index.html&#34;&gt;End of Stone-Weierstrass; beginning of the theory of integration (continuous functions as uniform limits of piecewise linear functions) (PDF)&lt;/a&gt;&#xA;&lt;/td&gt;&#xA;&lt;/tr&gt;&#xA;&lt;tr&gt;&#xA;&lt;td&gt;&#xA;&#xA;20&#xA;&lt;/td&gt;&#xA;&lt;td&gt;&#xA;&#xA;&lt;a href=&#34;../../resources/mit18_100cf12_l20sum/index.html&#34;&gt;Riemann-Stjeltjes integral: definition, basic properties (PDF)&lt;/a&gt;&#xA;&lt;/td&gt;&#xA;&lt;/tr&gt;&#xA;&lt;tr&gt;&#xA;&lt;td&gt;&#xA;&#xA;21&#xA;&lt;/td&gt;&#xA;&lt;td&gt;&#xA;&#xA;&lt;a href=&#34;../../resources/mit18_100cf12_l21sum/index.html&#34;&gt;Riemann integrability of products; change of variables (PDF)&lt;/a&gt;&#xA;&lt;/td&gt;&#xA;&lt;/tr&gt;&#xA;&lt;tr&gt;&#xA;&lt;td&gt;&#xA;&#xA;22&#xA;&lt;/td&gt;&#xA;&lt;td&gt;&#xA;&#xA;&lt;a href=&#34;../../resources/mit18_100cf12_l22sum/index.html&#34;&gt;Fundamental theorem of calculus; back to power series: continuity, differentiability (PDF)&lt;/a&gt;&#xA;&lt;/td&gt;&#xA;&lt;/tr&gt;&#xA;&lt;tr&gt;&#xA;&lt;td&gt;&#xA;&#xA;23&#xA;&lt;/td&gt;&#xA;&lt;td&gt;&#xA;&#xA;&lt;a href=&#34;../../resources/mit18_100cf12_l23sum/index.html&#34;&gt;Review of exponential, log, sine, cosine; e&lt;/a&gt;&lt;sub&gt;it&lt;/sub&gt;&lt;a href=&#34;../../resources/mit18_100cf12_l23sum/index.html&#34;&gt;= cos(t) + isin(t) (PDF)&lt;/a&gt;&#xA;&lt;/td&gt;&#xA;&lt;/tr&gt;&#xA;&lt;tr&gt;&#xA;&lt;td&gt;&#xA;&#xA;24&#xA;&lt;/td&gt;&#xA;&lt;td&gt;&#xA;&#xA;&lt;a href=&#34;../../resources/mit18_100cf12_l24sum/index.html&#34;&gt;Review of series, Fourier series (PDF)&lt;/a&gt;; &lt;br&gt;&#xA;&lt;a href=&#34;../../resources/mit18_100cf12_l24four-cor/index.html&#34;&gt;Correction (PDF)&lt;/a&gt;&#xA;&lt;/td&gt;&#xA;&lt;/tr&gt;&#xA;&lt;/tbody&gt;&#xA;&lt;/table&gt;&#xA;&lt;/p&gt;</description>
+    </item>
+  </channel>
+</rss>

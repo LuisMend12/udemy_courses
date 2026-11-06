@@ -1,0 +1,14 @@
+
+{
+  "content": "<p>Here are some helpful links:</p>\n<p><a   class=\"external-link \"   target=\"_blank\"   href=\"http://www.math.uconn.edu/~kconrad/math216/mathwriting.pdf\"  aria-label=\"&amp;ldquo;Errors In Mathematical Writing&amp;rdquo; (PDF) (opens in a new tab)\"  >&ldquo;Errors In Mathematical Writing&rdquo; (PDF)</a>  by Keith Conrad.</p>\n<p>&ldquo;<a   class=\"external-link \"   target=\"_blank\"   href=\"https://www.e-education.psu.edu/styleforstudents/c10_p6.html\"  aria-label=\"The Science of Scientific Writing (opens in a new tab)\"  >The Science of Scientific Writing</a>&rdquo; by George D. Gopen and Judith A. Swan.</p>\n<p><a   class=\"external-link \"   target=\"_blank\"   href=\"http://mathcomm.org/\"  aria-label=\"MathDL Mathematical Communication (opens in a new tab)\"  >MathDL Mathematical Communication</a>, a collection of resources for engaging students in writing and speaking about mathematics.</p>\n",
+  "content_type": "page",
+  "description": "This section provides links to resources mathematical  and scientific writing.",
+  "draft": false,
+  "iscjklanguage": false,
+  "learning_resource_types": [],
+  "license": "https://creativecommons.org/licenses/by-nc-sa/4.0/",
+  "ocw_type": "CourseSection",
+  "title": "Related Resources",
+  "uid": "012de074-58ab-c464-201a-2692ddac95c7"
+}
+

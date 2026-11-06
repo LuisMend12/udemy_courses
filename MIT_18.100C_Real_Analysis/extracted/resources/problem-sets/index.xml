@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Problem Sets on MIT OpenCourseWare</title>
+    <link>/resources/problem-sets/</link>
+    <description>Recent content in Problem Sets on MIT OpenCourseWare</description>
+    <generator>Hugo</generator>
+    <language>en-us</language>
+    <atom:link href="/resources/problem-sets/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>18.100C Real Analysis: Problem Set 1</title>
+      <link>/resources/mit18_100cf12_ps1/data.json</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <guid>/resources/mit18_100cf12_ps1/data.json</guid>
+      <description>&lt;p&gt;This resource contains information regarding problem set 1.&lt;/p&gt;</description>
+    </item>
+    <item>
+      <title>18.100C Real Analysis: Problem Set 10</title>
+      <link>/resources/mit18_100cf12_ps10/data.json</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <guid>/resources/mit18_100cf12_ps10/data.json</guid>
+      <description>&lt;p&gt;This resource contains information regarding problem set 10.&lt;/p&gt;</description>
+    </item>
+    <item>
+      <title>18.100C Real Analysis: Problem Set 2</title>
+      <link>/resources/mit18_100cf12_ps2/data.json</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <guid>/resources/mit18_100cf12_ps2/data.json</guid>
+      <description>&lt;p&gt;This resource contains information regarding problem set 2.&lt;/p&gt;</description>
+    </item>
+    <item>
+      <title>18.100C Real Analysis: Problem Set 3</title>
+      <link>/resources/mit18_100cf12_ps3/data.json</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <guid>/resources/mit18_100cf12_ps3/data.json</guid>
+      <description>&lt;p&gt;This resource contains information regarding problem set 3.&lt;/p&gt;</description>
+    </item>
+    <item>
+      <title>18.100C Real Analysis: Problem Set 4</title>
+      <link>/resources/mit18_100cf12_ps4/data.json</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <guid>/resources/mit18_100cf12_ps4/data.json</guid>
+      <description>&lt;p&gt;This resource contains information regarding problem set 4.&lt;/p&gt;</description>
+    </item>
+    <item>
+      <title>18.100C Real Analysis: Problem Set 5</title>
+      <link>/resources/mit18_100cf12_ps5/data.json</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <guid>/resources/mit18_100cf12_ps5/data.json</guid>
+      <description>&lt;p&gt;This resource contains information regarding problem set 5.&lt;/p&gt;</description>
+    </item>
+    <item>
+      <title>18.100C Real Analysis: Problem Set 6</title>
+      <link>/resources/mit18_100cf12_ps6/data.json</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <guid>/resources/mit18_100cf12_ps6/data.json</guid>
+      <description>&lt;p&gt;This resource contains information regarding problem set 6.&lt;/p&gt;</description>
+    </item>
+    <item>
+      <title>18.100C Real Analysis: Problem Set 7</title>
+      <link>/resources/mit18_100cf12_ps7/data.json</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <guid>/resources/mit18_100cf12_ps7/data.json</guid>
+      <description>&lt;p&gt;This resource contains information regarding problem set 7.&lt;/p&gt;</description>
+    </item>
+    <item>
+      <title>18.100C Real Analysis: Problem Set 8</title>
+      <link>/resources/mit18_100cf12_ps8/data.json</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <guid>/resources/mit18_100cf12_ps8/data.json</guid>
+      <description>&lt;p&gt;This resource contains information regarding problem set 8.&lt;/p&gt;</description>
+    </item>
+    <item>
+      <title>18.100C Real Analysis: Problem Set 9</title>
+      <link>/resources/mit18_100cf12_ps9/data.json</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <guid>/resources/mit18_100cf12_ps9/data.json</guid>
+      <description>&lt;p&gt;This resource contains information regarding problem set 9.&lt;/p&gt;</description>
+    </item>
+  </channel>
+</rss>

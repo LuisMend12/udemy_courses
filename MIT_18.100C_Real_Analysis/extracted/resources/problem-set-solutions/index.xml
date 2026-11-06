@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Problem Set Solutions on MIT OpenCourseWare</title>
+    <link>/resources/problem-set-solutions/</link>
+    <description>Recent content in Problem Set Solutions on MIT OpenCourseWare</description>
+    <generator>Hugo</generator>
+    <language>en-us</language>
+    <atom:link href="/resources/problem-set-solutions/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>18.100C Real Analysis: Problem Set 1 Solution</title>
+      <link>/resources/mit18_100cf12_prob_set_1/data.json</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <guid>/resources/mit18_100cf12_prob_set_1/data.json</guid>
+      <description>&lt;p&gt;This resource contains information regarding problem set 1 solution.&lt;/p&gt;</description>
+    </item>
+    <item>
+      <title>18.100C Real Analysis: Problem Set 10 Solution</title>
+      <link>/resources/mit18_100cf12_prob_set_10/data.json</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <guid>/resources/mit18_100cf12_prob_set_10/data.json</guid>
+      <description>&lt;p&gt;This resource contains information regarding problem set 10 solution.&lt;/p&gt;</description>
+    </item>
+    <item>
+      <title>18.100C Real Analysis: Problem Set 2 Solution</title>
+      <link>/resources/mit18_100cf12_prob_set_2/data.json</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <guid>/resources/mit18_100cf12_prob_set_2/data.json</guid>
+      <description>&lt;p&gt;This resource contains information regarding problem set 2 solution.&lt;/p&gt;</description>
+    </item>
+    <item>
+      <title>18.100C Real Analysis: Problem Set 3 Solution</title>
+      <link>/resources/mit18_100cf12_prob_set_3/data.json</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <guid>/resources/mit18_100cf12_prob_set_3/data.json</guid>
+      <description>&lt;p&gt;This resource contains information regarding problem set 3 solution.&lt;/p&gt;</description>
+    </item>
+    <item>
+      <title>18.100C Real Analysis: Problem Set 4 Solution</title>
+      <link>/resources/mit18_100cf12_prob_set_4/data.json</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <guid>/resources/mit18_100cf12_prob_set_4/data.json</guid>
+      <description>&lt;p&gt;This resource contains information regarding problem set 4 solution.&lt;/p&gt;</description>
+    </item>
+    <item>
+      <title>18.100C Real Analysis: Problem Set 5 Solution</title>
+      <link>/resources/mit18_100cf12_prob_set_5/data.json</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <guid>/resources/mit18_100cf12_prob_set_5/data.json</guid>
+      <description>&lt;p&gt;This resource contains information regarding problem set 5 solution.&lt;/p&gt;</description>
+    </item>
+    <item>
+      <title>18.100C Real Analysis: Problem Set 6 Solution</title>
+      <link>/resources/mit18_100cf12_prob_set_6/data.json</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <guid>/resources/mit18_100cf12_prob_set_6/data.json</guid>
+      <description>&lt;p&gt;This resource contains information regarding problem set 6 solution.&lt;/p&gt;</description>
+    </item>
+    <item>
+      <title>18.100C Real Analysis: Problem Set 7 Solution</title>
+      <link>/resources/mit18_100cf12_prob_set_7/data.json</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <guid>/resources/mit18_100cf12_prob_set_7/data.json</guid>
+      <description>&lt;p&gt;This resource contains information regarding problem set 7 solution.&lt;/p&gt;</description>
+    </item>
+    <item>
+      <title>18.100C Real Analysis: Problem Set 8 Solution</title>
+      <link>/resources/mit18_100cf12_prob_set_8/data.json</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <guid>/resources/mit18_100cf12_prob_set_8/data.json</guid>
+      <description>&lt;p&gt;This resource contains information regarding problem set 8 solution.&lt;/p&gt;</description>
+    </item>
+    <item>
+      <title>18.100C Real Analysis: Problem Set 9 Solution</title>
+      <link>/resources/mit18_100cf12_prob_set_9/data.json</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <guid>/resources/mit18_100cf12_prob_set_9/data.json</guid>
+      <description>&lt;p&gt;This resource contains information regarding problem set 9 solution.&lt;/p&gt;</description>
+    </item>
+  </channel>
+</rss>

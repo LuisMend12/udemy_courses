@@ -1,0 +1,21 @@
+{
+  "content": "<p>This resource contains information regarding end of Stone-Weierstrass; beginning of the theory of integration.</p>\n",
+  "content_type": "resource",
+  "description": "This resource contains information regarding end of Stone-Weierstrass; beginning of the theory of integration.",
+  "draft": false,
+  "file": "/courses/18-100c-real-analysis-fall-2012/81a1cbadcc642be3ec8dab392deb71e5_MIT18_100CF12_l19sum.pdf",
+  "file_size": 615986,
+  "file_type": "application/pdf",
+  "iscjklanguage": false,
+  "learning_resource_types": [
+    "Lecture Notes"
+  ],
+  "license": "https://creativecommons.org/licenses/by-nc-sa/4.0/",
+  "ocw_type": "OCWFile",
+  "parent_title": "Lecture Summaries",
+  "parent_type": "CourseSection",
+  "parent_uid": "0de56ab8-61e6-fd83-c0af-79b956f08d7c",
+  "resourcetype": "Document",
+  "title": "18.100C Real Analysis: Lecture 19 Summary",
+  "uid": "81a1cbad-cc64-2be3-ec8d-ab392deb71e5"
+}

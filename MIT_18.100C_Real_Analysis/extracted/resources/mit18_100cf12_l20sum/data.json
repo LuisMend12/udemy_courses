@@ -1,0 +1,21 @@
+{
+  "content": "<p>This resource contains information regarding riemann-stjeltjes integral: definition, basic properties.</p>\n",
+  "content_type": "resource",
+  "description": "This resource contains information regarding riemann-stjeltjes integral: definition, basic properties.",
+  "draft": false,
+  "file": "/courses/18-100c-real-analysis-fall-2012/8fd58679d2f1a2ce60ce9638fc038cb8_MIT18_100CF12_l20sum.pdf",
+  "file_size": 617880,
+  "file_type": "application/pdf",
+  "iscjklanguage": false,
+  "learning_resource_types": [
+    "Lecture Notes"
+  ],
+  "license": "https://creativecommons.org/licenses/by-nc-sa/4.0/",
+  "ocw_type": "OCWFile",
+  "parent_title": "Lecture Summaries",
+  "parent_type": "CourseSection",
+  "parent_uid": "0de56ab8-61e6-fd83-c0af-79b956f08d7c",
+  "resourcetype": "Document",
+  "title": "18.100C Real Analysis: Lecture 20 Summary",
+  "uid": "8fd58679-d2f1-a2ce-60ce-9638fc038cb8"
+}

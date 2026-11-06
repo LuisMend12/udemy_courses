@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Recitations on MIT OpenCourseWare</title>
+    <link>/resources/recitations/</link>
+    <description>Recent content in Recitations on MIT OpenCourseWare</description>
+    <generator>Hugo</generator>
+    <language>en-us</language>
+    <atom:link href="/resources/recitations/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Recitations</title>
+      <link>/pages/recitations/data.json</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <guid>/pages/recitations/data.json</guid>
+      <description>&lt;p&gt;The writing assignments and LaTeX exercises below were developed and refined by a succession of instructors in the MIT Department of Mathematics. These resources, and many others, are available on the &lt;a   class=&#34;external-link &#34;   target=&#34;_blank&#34;   href=&#34;http://mathcomm.org/&#34;  aria-label=&#34;MathDL Mathematical Communications (opens in a new tab)&#34;  &gt;MathDL Mathematical Communications&lt;/a&gt; website. This public site is hosted by the &lt;a   class=&#34;external-link &#34;   target=&#34;_blank&#34;   href=&#34;http://www.maa.org/&#34;  aria-label=&#34;Mathematical Association of America (opens in a new tab)&#34;  &gt;Mathematical Association of America&lt;/a&gt; as part of the Mathematical Digital Sciences Library (MathDL). For more information, please see the MathDL page about &lt;a   class=&#34;external-link &#34;   target=&#34;_blank&#34;   href=&#34;http://mathcomm.org/courses/18-100cfall2009/&#34;  aria-label=&#34;MIT&amp;amp;rsquo;s communication-intensive offering of Real Analysis. (opens in a new tab)&#34;  &gt;MIT&amp;rsquo;s communication-intensive offering of &lt;em&gt;Real Analysis&lt;/em&gt;.&lt;/a&gt;&lt;/p&gt;</description>
+    </item>
+  </channel>
+</rss>

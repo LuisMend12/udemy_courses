@@ -1,0 +1,47 @@
+{
+  "content": "<p>This resource contains information regarding LaTex exercise 1: tables and figures.</p>\n",
+  "content_type": "resource",
+  "description": "This resource contains information regarding LaTex exercise 1: tables and figures.",
+  "draft": false,
+  "file": "/courses/18-100c-real-analysis-fall-2012/16a8ac6e1c8c2017b8aa5477906b461e_MIT18_100CF12_LaTeXExrcs1.pdf",
+  "file_size": 164538,
+  "file_type": "application/pdf",
+  "image_metadata": {
+    "caption": "",
+    "credit": "",
+    "image-alt": ""
+  },
+  "iscjklanguage": false,
+  "learning_resource_types": [
+    "Problem-solving Notes"
+  ],
+  "license": "https://creativecommons.org/licenses/by-nc-sa/4.0/",
+  "ocw_type": "OCWFile",
+  "parent_title": "Recitations",
+  "parent_type": "CourseSection",
+  "parent_uid": "226ba8b1-2ddf-ea8d-85cd-deb0a6bd7789",
+  "resourcetype": "Document",
+  "title": "18.100C Real Analysis: LaTex Exercise 1",
+  "uid": "16a8ac6e-1c8c-2017-b8aa-5477906b461e",
+  "video_files": {
+    "archive_url": "",
+    "video_captions_file": "",
+    "video_captions_resource": {
+      "content": "",
+      "website": "18-100c-real-analysis-fall-2012"
+    },
+    "video_thumbnail_file": "",
+    "video_transcript_file": "",
+    "video_transcript_resource": {
+      "content": "",
+      "website": "18-100c-real-analysis-fall-2012"
+    }
+  },
+  "video_metadata": {
+    "source": "",
+    "video_speakers": "",
+    "video_tags": "",
+    "youtube_description": "",
+    "youtube_id": ""
+  }
+}
