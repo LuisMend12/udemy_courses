@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Tools on MIT OpenCourseWare</title>
+    <link>/resources/tools/</link>
+    <description>Recent content in Tools on MIT OpenCourseWare</description>
+    <generator>Hugo</generator>
+    <language>en-us</language>
+    <atom:link href="/resources/tools/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Tools</title>
+      <link>/pages/tools/data.json</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <guid>/pages/tools/data.json</guid>
+      <description>&lt;p&gt;Following are the MATLAB® codes used in this course.&lt;/p&gt;&#xA;&lt;p&gt;&lt;a href=&#34;../../resources/interp_test/index.html&#34;&gt;Code for polynomial interpolation (M)&lt;/a&gt;&lt;/p&gt;&#xA;&lt;p&gt;&lt;a href=&#34;../../resources/spline_test/index.html&#34;&gt;Code for spline interpolation (M)&lt;/a&gt;&lt;/p&gt;&#xA;&lt;p&gt;Codes for ODE solvers:&lt;/p&gt;&#xA;&lt;ul&gt;&#xA;&lt;li&gt;&lt;a href=&#34;../../resources/ivp_test/index.html&#34;&gt;example 1 (M)&lt;/a&gt;&lt;/li&gt;&#xA;&lt;li&gt;&lt;a href=&#34;../../resources/ivp_test2/index.html&#34;&gt;example 2 (M)&lt;/a&gt;&lt;/li&gt;&#xA;&lt;/ul&gt;&#xA;&lt;p&gt;&lt;a href=&#34;../../resources/fourier_interp/index.html&#34;&gt;Code for bandlimited interpolation (M)&lt;/a&gt;&lt;/p&gt;</description>
+    </item>
+  </channel>
+</rss>

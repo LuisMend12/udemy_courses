@@ -1,0 +1,49 @@
+{
+  "audience": [],
+  "content": "<p>This file contains information regarding Assignment 6.</p>\n",
+  "content_type": "resource",
+  "description": "This file contains information regarding Assignment 6.",
+  "draft": false,
+  "file": "/courses/18-330-introduction-to-numerical-analysis-spring-2012/28d3c9b92505167a23832f5e9c1d11d1_MIT18_330S12_hw6.pdf",
+  "file_size": 84620,
+  "file_type": "application/pdf",
+  "image_metadata": {
+    "caption": "",
+    "credit": "",
+    "image-alt": ""
+  },
+  "iscjklanguage": false,
+  "learning_resource_types": [
+    "Problem Sets"
+  ],
+  "level": [],
+  "license": "https://creativecommons.org/licenses/by-nc-sa/4.0/",
+  "ocw_type": "OCWFile",
+  "parent_title": "Assignments",
+  "parent_type": "CourseSection",
+  "parent_uid": "62c3dd0c-9fa2-f59f-423a-a00c508a8f16",
+  "resourcetype": "Document",
+  "title": "Introduction to Numerical Analysis Assignment 6",
+  "uid": "28d3c9b9-2505-167a-2383-2f5e9c1d11d1",
+  "video_files": {
+    "archive_url": "",
+    "video_captions_file": "",
+    "video_captions_resource": {
+      "content": "",
+      "website": "18-330-introduction-to-numerical-analysis-spring-2012"
+    },
+    "video_thumbnail_file": "",
+    "video_transcript_file": "",
+    "video_transcript_resource": {
+      "content": "",
+      "website": "18-330-introduction-to-numerical-analysis-spring-2012"
+    }
+  },
+  "video_metadata": {
+    "source": "",
+    "video_speakers": "",
+    "video_tags": "",
+    "youtube_description": "",
+    "youtube_id": ""
+  }
+}

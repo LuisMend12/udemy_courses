@@ -1,0 +1,21 @@
+{
+  "content": "<p>Four of the Riemann summation methods for approximating the area under curves. © Wikipedia. License CC BY-SA. This content is excluded from our Creative Commons license. For more information, see <a href=\"http://ocw.mit.edu/fairuse\" target=\"_blank\" rel=\"noopener\">http://ocw.mit.edu/fairuse</a>.</p>\n",
+  "content_type": "resource",
+  "description": "Four of the Riemann summation methods for approximating the area under curves. © Wikipedia. License CC BY-SA. This content is excluded from our Creative Commons license. For more information, see http://ocw.mit.edu/fairuse.",
+  "draft": false,
+  "file": "/courses/18-330-introduction-to-numerical-analysis-spring-2012/11b7a7acedf856665930a81fdeda4c42_18-330s12-th.jpg",
+  "file_size": 10535,
+  "file_type": "image/jpeg",
+  "image_metadata": {
+    "caption": "Four of the Riemann summation methods for approximating the area under curves. (© Wikipedia. License CC BY-SA. This content is excluded from our Creative Commons license. For more information, see [http://ocw.mit.edu/fairuse](/fairuse).)",
+    "credit": "© Wikipedia. License CC BY-SA. This content is excluded from our Creative Commons license. For more information, see http://ocw.mit.edu/fairuse.",
+    "image-alt": "Four color graphs (red, green blue, and yellow) with a fifth graph in the center showing the combined results."
+  },
+  "iscjklanguage": false,
+  "learning_resource_types": [],
+  "license": "https://creativecommons.org/licenses/by-nc-sa/4.0/",
+  "ocw_type": "OCWImage",
+  "resourcetype": "Image",
+  "title": "18-330s12-th.jpg",
+  "uid": "11b7a7ac-edf8-5666-5930-a81fdeda4c42"
+}

@@ -1,0 +1,16 @@
+
+{
+  "content": "<p><table>\n\n<thead>\n\n<tr>\n\n<th>\n\nASSIGNMENTS\n</th>\n</p>\n</tr>\n\n<p></thead>\n\n<tr>\n\n<td>\n\n<a href=\"../../resources/mit18_330s12_hw1/index.html\">Assignment 1 (PDF)</a>\n</td>\n</p>\n<p></tr>\n\n<tr>\n\n<td>\n\n<a href=\"../../resources/mit18_330s12_hw2/index.html\">Assignment 2 (PDF)</a>\n</td>\n</p>\n<p></tr>\n\n<tr>\n\n<td>\n\n<a href=\"../../resources/mit18_330s12_hw3/index.html\">Assignment 3 (PDF)</a>\n</td>\n</p>\n<p></tr>\n\n<tr>\n\n<td>\n\n<a href=\"../../resources/mit18_330s12_hw4/index.html\">Assignment 4 (PDF)</a>\n</td>\n</p>\n<p></tr>\n\n<tr>\n\n<td>\n\n<a href=\"../../resources/mit18_330s12_hw5/index.html\">Assignment 5 (PDF)</a>\n</td>\n</p>\n<p></tr>\n\n<tr>\n\n<td>\n\n<a href=\"../../resources/mit18_330s12_hw6/index.html\">Assignment 6 (PDF</a>)\n</td>\n</p>\n<p></tr>\n\n<tr>\n\n<td>\n\n<a href=\"../../resources/mit18_330s12_hw7/index.html\">Assignment 7 (PDF)</a>\n</td>\n</p>\n<p></tr>\n\n<tr>\n\n<td>\n\n<a href=\"../../resources/mit18_330s12_hw8/index.html\">Assignment 8 (PDF)</a>\n</td>\n</p>\n</tr>\n\n</table>\n\n",
+  "content_type": "page",
+  "description": "This section provides the homework assignments for the course.",
+  "draft": false,
+  "iscjklanguage": false,
+  "learning_resource_types": [
+    "Assignments"
+  ],
+  "license": "https://creativecommons.org/licenses/by-nc-sa/4.0/",
+  "ocw_type": "CourseSection",
+  "title": "Assignments",
+  "uid": "62c3dd0c-9fa2-f59f-423a-a00c508a8f16"
+}
+

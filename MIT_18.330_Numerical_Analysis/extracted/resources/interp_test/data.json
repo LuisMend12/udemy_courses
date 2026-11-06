@@ -1,0 +1,49 @@
+{
+  "audience": [],
+  "content": "<p>This is a supporting file of interp_test.m</p>\n",
+  "content_type": "resource",
+  "description": "This is a supporting file of interp_test.m",
+  "draft": false,
+  "file": "/courses/18-330-introduction-to-numerical-analysis-spring-2012/1bb3491b1447035838dfdb4a03e4e7c3_interp_test.m",
+  "file_size": 434,
+  "file_type": "text/x-objcsrc",
+  "image_metadata": {
+    "caption": "",
+    "credit": "",
+    "image-alt": ""
+  },
+  "iscjklanguage": false,
+  "learning_resource_types": [
+    "Lecture Notes"
+  ],
+  "level": [],
+  "license": "https://creativecommons.org/licenses/by-nc-sa/4.0/",
+  "ocw_type": "OCWFile",
+  "parent_title": "Tools",
+  "parent_type": "CourseSection",
+  "parent_uid": "c6ef2987-0b8f-7f66-3399-778b05f3058d",
+  "resourcetype": "Other",
+  "title": "interp_test.m",
+  "uid": "1bb3491b-1447-0358-38df-db4a03e4e7c3",
+  "video_files": {
+    "archive_url": "",
+    "video_captions_file": "",
+    "video_captions_resource": {
+      "content": "",
+      "website": "18-330-introduction-to-numerical-analysis-spring-2012"
+    },
+    "video_thumbnail_file": "",
+    "video_transcript_file": "",
+    "video_transcript_resource": {
+      "content": "",
+      "website": "18-330-introduction-to-numerical-analysis-spring-2012"
+    }
+  },
+  "video_metadata": {
+    "source": "",
+    "video_speakers": "",
+    "video_tags": "",
+    "youtube_description": "",
+    "youtube_id": ""
+  }
+}

@@ -1,0 +1,16 @@
+
+{
+  "content": "<p>Following are the MATLAB® codes used in this course.</p>\n<p><a href=\"../../resources/interp_test/index.html\">Code for polynomial interpolation (M)</a></p>\n<p><a href=\"../../resources/spline_test/index.html\">Code for spline interpolation (M)</a></p>\n<p>Codes for ODE solvers:</p>\n<ul>\n<li><a href=\"../../resources/ivp_test/index.html\">example 1 (M)</a></li>\n<li><a href=\"../../resources/ivp_test2/index.html\">example 2 (M)</a></li>\n</ul>\n<p><a href=\"../../resources/fourier_interp/index.html\">Code for bandlimited interpolation (M)</a></p>\n",
+  "content_type": "page",
+  "description": "This section provides MATLAB code for polynomial interpolation, spline interpolation, solving ordinary differential equation, and bandlimited interpolation.",
+  "draft": false,
+  "iscjklanguage": false,
+  "learning_resource_types": [
+    "Tools"
+  ],
+  "license": "https://creativecommons.org/licenses/by-nc-sa/4.0/",
+  "ocw_type": "CourseSection",
+  "title": "Tools",
+  "uid": "c6ef2987-0b8f-7f66-3399-778b05f3058d"
+}
+

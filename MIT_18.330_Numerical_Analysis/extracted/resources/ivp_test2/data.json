@@ -1,0 +1,49 @@
+{
+  "audience": [],
+  "content": "<p>This is a supporting file of IVP_test2.m</p>\n",
+  "content_type": "resource",
+  "description": "This is a supporting file of IVP_test2.m",
+  "draft": false,
+  "file": "/courses/18-330-introduction-to-numerical-analysis-spring-2012/b1ac6c9c121520ef0bb17bd3804eb4ae_IVP_test2.m",
+  "file_size": 2461,
+  "file_type": "text/x-objcsrc",
+  "image_metadata": {
+    "caption": "",
+    "credit": "",
+    "image-alt": ""
+  },
+  "iscjklanguage": false,
+  "learning_resource_types": [
+    "Lecture Notes"
+  ],
+  "level": [],
+  "license": "https://creativecommons.org/licenses/by-nc-sa/4.0/",
+  "ocw_type": "OCWFile",
+  "parent_title": "Tools",
+  "parent_type": "CourseSection",
+  "parent_uid": "c6ef2987-0b8f-7f66-3399-778b05f3058d",
+  "resourcetype": "Other",
+  "title": "IVP_test2.m",
+  "uid": "b1ac6c9c-1215-20ef-0bb1-7bd3804eb4ae",
+  "video_files": {
+    "archive_url": "",
+    "video_captions_file": "",
+    "video_captions_resource": {
+      "content": "",
+      "website": "18-330-introduction-to-numerical-analysis-spring-2012"
+    },
+    "video_thumbnail_file": "",
+    "video_transcript_file": "",
+    "video_transcript_resource": {
+      "content": "",
+      "website": "18-330-introduction-to-numerical-analysis-spring-2012"
+    }
+  },
+  "video_metadata": {
+    "source": "",
+    "video_speakers": "",
+    "video_tags": "",
+    "youtube_description": "",
+    "youtube_id": ""
+  }
+}

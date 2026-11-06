@@ -1,0 +1,81 @@
+{
+  "course_description": "This course analyzed the basic techniques for the efficient numerical solution of problems in science and engineering. Topics spanned root finding, interpolation, approximation of functions, integration, differential equations, direct and iterative methods in linear algebra.\n",
+  "course_description_html": "This course analyzed the basic techniques for the efficient numerical solution of problems in science and engineering. Topics spanned root finding, interpolation, approximation of functions, integration, differential equations, direct and iterative methods in linear algebra.",
+  "course_image": {
+    "content": "5df8aa2c-10fe-1b90-737c-9f0e747b0f70",
+    "website": "18-330-introduction-to-numerical-analysis-spring-2012"
+  },
+  "course_image_metadata": {
+    "content_type": "resource",
+    "description": "Four of the Riemann summation methods for approximating the area under curves. © Wikipedia. License CC BY-SA. This content is excluded from our Creative Commons license. For more information, see http://ocw.mit.edu/fairuse.",
+    "draft": false,
+    "file": "/courses/18-330-introduction-to-numerical-analysis-spring-2012/5df8aa2c10fe1b90737c9f0e747b0f70_18-330s12.jpg",
+    "file_size": 71231,
+    "file_type": "image/jpeg",
+    "image_metadata": {
+      "caption": "Four of the Riemann summation methods for approximating the area under curves. (© Wikipedia. License CC BY-SA. This content is excluded from our Creative Commons license. For more information, see [http://ocw.mit.edu/fairuse](/fairuse).)",
+      "credit": "© Wikipedia. License CC BY-SA. This content is excluded from our Creative Commons license. For more information, see http://ocw.mit.edu/fairuse.",
+      "image-alt": "Four color graphs (red, green blue, and yellow) with a fifth graph in the center showing the combined results."
+    },
+    "iscjklanguage": false,
+    "learning_resource_types": [],
+    "license": "https://creativecommons.org/licenses/by-nc-sa/4.0/",
+    "ocw_type": "OCWImage",
+    "resourcetype": "Image",
+    "title": "18-330s12.jpg",
+    "uid": "5df8aa2c-10fe-1b90-737c-9f0e747b0f70"
+  },
+  "course_image_thumbnail": {
+    "content": "11b7a7ac-edf8-5666-5930-a81fdeda4c42",
+    "website": "18-330-introduction-to-numerical-analysis-spring-2012"
+  },
+  "course_title": "Introduction to Numerical Analysis",
+  "department_numbers": [
+    "18"
+  ],
+  "extra_course_numbers": "",
+  "image_src": "./static_resources/5df8aa2c10fe1b90737c9f0e747b0f70_18-330s12.jpg",
+  "instructors": [
+    {
+      "first_name": "Laurent",
+      "last_name": "Demanet",
+      "middle_initial": "",
+      "salutation": "Prof.",
+      "title": "Prof. Laurent Demanet",
+      "uid": "6bd4ab98-c100-d68b-ba75-4178039e2e9e",
+      "url": "https://ocw.mit.edu/search/?q=Prof.+Laurent+Demanet"
+    }
+  ],
+  "learning_resource_types": [
+    "Lecture Notes",
+    "Problem Sets",
+    "Instructor Insights"
+  ],
+  "legacy_uid": "df520294-ab96-a785-71c1-f3ddeee71998",
+  "level": [
+    "Undergraduate"
+  ],
+  "mit_learn_topics": [
+    [
+      "Science & Math",
+      "Mathematics"
+    ]
+  ],
+  "primary_course_number": "18.330",
+  "site_short_id": "18.330-spring-2012",
+  "site_uid": "e29e50b1-1f0a-47ad-8ddd-f37d37c77a42",
+  "site_url_path": "courses/18-330-introduction-to-numerical-analysis-spring-2012",
+  "term": "Spring",
+  "title": "Course Metadata",
+  "topics": [
+    [
+      "Mathematics",
+      "Computation"
+    ],
+    [
+      "Mathematics",
+      "Applied Mathematics"
+    ]
+  ],
+  "year": "2012"
+}
